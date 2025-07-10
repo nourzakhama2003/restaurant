@@ -1,42 +1,39 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { HttpErrorResponse } from '@angular/common/http';
+import { KeycloakService } from 'keycloak-angular';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent {
-  registerForm: FormGroup;
+  isLoading = false;
 
   constructor(
-    private authService: AuthService,
-    private fb: FormBuilder,
+    private keycloak: KeycloakService,
     private router: Router
-  ) {
-    this.registerForm = this.fb.group({
-      username: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
-    });
+  ) { }
+
+  async onSubmit() {
+    this.isLoading = true;
+    try {
+      // Use Keycloak's built-in registration flow
+      // After registration, we'll redirect to a special page that handles the logout
+      await this.keycloak.register({
+        redirectUri: window.location.origin + '/registration-success'
+      });
+    } catch (error) {
+      console.error('Registration failed:', error);
+      this.isLoading = false;
+    }
   }
 
-  onSubmit() {
-    if (this.registerForm.valid) {
-      this.authService.registerUser(this.registerForm.value).subscribe({
-        next: () => {
-          alert('Inscription réussie. Redirection vers la connexion...');
-          this.router.navigate(['/sign-in']);
-        },
-        error: (err: HttpErrorResponse) =>
-          alert('Échec de l’inscription : ' + err.message)
-      });
-    }
+  goToLogin() {
+    this.router.navigate(['/login']);
   }
 }

@@ -6,11 +6,12 @@ import { RouterOutlet } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSidenavModule } from '@angular/material/sidenav';
 
 @Component({
   selector: 'app-blank',
   standalone: true,
-  imports: [RouterOutlet, CommonModule,MatCardModule,MatIconModule,MatButtonModule],
+  imports: [RouterOutlet, CommonModule, MatCardModule, MatIconModule, MatButtonModule, MatSidenavModule],
   templateUrl: './blank.component.html',
   styleUrls: [],
 })

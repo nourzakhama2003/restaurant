@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface MenuItem {
   id?: string;
@@ -14,41 +15,23 @@ export interface MenuItem {
   providedIn: 'root'
 })
 export class MenuService {
-  private baseUrl = 'http://localhost:8081/api/menu-items';
+  private baseUrl = `${environment.apiUrl}/menu-items`;
 
-  constructor(private http: HttpClient) {}
-
-  private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('access_token') ?? '';
-    return new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-  }
+  constructor(private http: HttpClient) { }
 
   getMenuItemsByRestaurant(restaurantId: string): Observable<MenuItem[]> {
-    return this.http.get<MenuItem[]>(
-      `${this.baseUrl}/restaurant/${restaurantId}`,
-      { headers: this.getAuthHeaders() }
-    );
+    return this.http.get<MenuItem[]>(`${this.baseUrl}/restaurant/${restaurantId}`);
   }
 
   createMenuItem(item: MenuItem): Observable<MenuItem> {
-    return this.http.post<MenuItem>(
-      this.baseUrl,
-      item,
-      { headers: this.getAuthHeaders() }
-    );
+    return this.http.post<MenuItem>(this.baseUrl, item);
   }
 
   updateMenuItem(id: string, item: MenuItem): Observable<MenuItem> {
-    return this.http.put<MenuItem>(
-      `${this.baseUrl}/${id}`,
-      item,
-      { headers: this.getAuthHeaders() }
-    );
+    return this.http.put<MenuItem>(`${this.baseUrl}/${id}`, item);
   }
 
- deleteMenuItem(id: string): Observable<void> {
-   return this.http.delete<void>(`${this.baseUrl}/${id}`, { headers: this.getAuthHeaders() });
- }
+  deleteMenuItem(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
 }

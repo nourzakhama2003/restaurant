@@ -145,3 +145,31 @@ small {
   color: #dc3545;
   font-weight: 500;
 }
+
+/* Registration Success Banner */
+.registration-success-banner {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.registration-success-banner .success-icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.registration-success-banner h3 {
+  margin: 0 0 10px 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.registration-success-banner p {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.9;
+  line-height: 1.4;
+}

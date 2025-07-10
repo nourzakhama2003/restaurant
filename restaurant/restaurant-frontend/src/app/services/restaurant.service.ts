@@ -1,56 +1,31 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Restaurant } from '../models/restaurant.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RestaurantService {
 
-  private apiUrl = 'http://localhost:8081/api/restaurants';
+  private apiUrl = `${environment.apiUrl}/restaurants`;
 
   constructor(private http: HttpClient) { }
 
-  private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('access_token') ?? '';
-    return new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-  }
-
   getAllRestaurants(): Observable<Restaurant[]> {
-    return this.http.get<Restaurant[]>(this.apiUrl, { headers: this.getAuthHeaders() });
+    return this.http.get<Restaurant[]>(this.apiUrl);
   }
 
-deleteRestaurant(id: string): Observable<void> {
-  const token = localStorage.getItem('access_token') ?? '';
+  deleteRestaurant(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
 
-  const headers = new HttpHeaders({
-    'Authorization': `Bearer ${token}`
-  });
+  updateRestaurant(id: string, data: Partial<Restaurant>): Observable<Restaurant> {
+    return this.http.put<Restaurant>(`${this.apiUrl}/${id}`, data);
+  }
 
-  return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers });
-}
-
-updateRestaurant(id: string, data: Partial<Restaurant>): Observable<Restaurant> {
-  const token = localStorage.getItem('access_token') ?? '';
-
-  const headers = new HttpHeaders({
-    'Authorization': `Bearer ${token}`
-  });
-
-  return this.http.put<Restaurant>(`${this.apiUrl}/${id}`, data, { headers });
-}
-
-createRestaurant(data: Partial<Restaurant>): Observable<Restaurant> {
-  const token = localStorage.getItem('access_token') ?? '';
-
-  const headers = new HttpHeaders({
-    'Authorization': `Bearer ${token}`
-  });
-
-  return this.http.post<Restaurant>(this.apiUrl, data, { headers });
-}
-
+  createRestaurant(data: Partial<Restaurant>): Observable<Restaurant> {
+    return this.http.post<Restaurant>(this.apiUrl, data);
+  }
 }

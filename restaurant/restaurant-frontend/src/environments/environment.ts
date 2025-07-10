@@ -5,5 +5,5 @@ export const environment = {
         realm: 'myrealm',
         clientId: 'myclient'
     },
-    apiUrl: 'http://localhost:8080/api'
+    apiUrl: 'http://localhost:8081/api'
 };

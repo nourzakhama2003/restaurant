@@ -4,13 +4,29 @@ import { FullComponent } from './layouts/full/full.component';
 import { AccessDeniedComponent } from './pages/access-denied/access-denied.component';
 import { RegisterComponent } from './auth/register/register.component';
 import { LoginComponent } from './auth/login/login.component';
+import { RegistrationSuccessComponent } from './auth/registration-success/registration-success.component';
+import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
+  // Public routes (no authentication required)
+  {
+    path: '',
+    component: BlankComponent,
+    children: [
+      { path: '', redirectTo: '/login', pathMatch: 'full' },
+      { path: 'login', component: LoginComponent },
+      { path: 'sign-in', component: LoginComponent },
+      { path: 'register', component: RegisterComponent },
+      { path: 'registration-success', component: RegistrationSuccessComponent },
+      { path: 'access-denied', component: AccessDeniedComponent },
+    ],
+  },
+  // Protected routes (authentication required)
   {
     path: '',
     component: FullComponent,
+    canActivate: [AuthGuard],
     children: [
-      { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
       {
         path: 'dashboard',
         loadChildren: () =>
@@ -21,13 +37,6 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./pages/restaurant/restaurant.routes').then(m => m.RestaurantRoutes),
       },
-      {
-        path: 'access-denied',
-        component: AccessDeniedComponent
-      },
-
-      { path: 'register', component: RegisterComponent },
-      { path: 'sign-in', component: LoginComponent },
     ],
   },
 ];

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { KeycloakService } from 'keycloak-angular';
 import { CommonModule } from '@angular/common';
 
@@ -12,16 +12,44 @@ import { CommonModule } from '@angular/common';
 })
 export class LoginComponent implements OnInit {
   isLoading = false;
+  showRegistrationSuccess = false;
+  returnUrl = '/dashboard';
 
   constructor(
     private keycloak: KeycloakService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) { }
 
   async ngOnInit() {
-    // If user is already authenticated, redirect to dashboard
-    if (this.keycloak.isLoggedIn()) {
-      await this.router.navigate(['/dashboard']);
+    // Get the return URL from query parameters
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+
+    // Check if user is already logged in
+    const isLoggedIn = await this.keycloak.isLoggedIn();
+
+    if (isLoggedIn) {
+      // Check if this is a redirect from registration
+      const currentUrl = this.router.url;
+      if (currentUrl.includes('/login') || currentUrl.includes('/sign-in')) {
+        // User was auto-logged in after registration, show success message and logout
+        this.showRegistrationSuccess = true;
+        console.log('User auto-logged in after registration, logging out...');
+
+        // Logout after 3 seconds to allow manual login
+        setTimeout(async () => {
+          try {
+            await this.keycloak.logout(window.location.origin + '/login');
+          } catch (error) {
+            console.error('Logout failed:', error);
+            // If logout fails, just reload the page to clear the session
+            window.location.reload();
+          }
+        }, 3000);
+      } else {
+        // Normal logged in user, redirect to intended destination
+        await this.router.navigate([this.returnUrl]);
+      }
     }
   }
 
@@ -29,7 +57,7 @@ export class LoginComponent implements OnInit {
     this.isLoading = true;
     try {
       await this.keycloak.login({
-        redirectUri: window.location.origin + '/dashboard'
+        redirectUri: window.location.origin + this.returnUrl
       });
     } catch (error) {
       console.error('Login failed:', error);
@@ -41,7 +69,7 @@ export class LoginComponent implements OnInit {
     this.isLoading = true;
     try {
       await this.keycloak.register({
-        redirectUri: window.location.origin + '/registered'
+        redirectUri: window.location.origin + '/registration-success'
       });
     } catch (error) {
       console.error('Registration failed:', error);

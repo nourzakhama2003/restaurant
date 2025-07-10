@@ -110,11 +110,11 @@
       "description": "Angular frontend application for restaurant management",
       "enabled": true,
       "clientAuthenticatorType": "client-secret",
-      "secret": "yK8SpUABKE5KLx8Ume0ukpl33vXOeId6",
       "redirectUris": [
         "http://localhost:4200/*",
         "http://localhost:4200/login",
         "http://localhost:4200/dashboard",
+        "http://localhost:4200/registration-success",
         "http://localhost:4200/"
       ],
       "webOrigins": [
@@ -127,7 +127,7 @@
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": true,
       "serviceAccountsEnabled": false,
-      "publicClient": false,
+      "publicClient": true,
       "frontchannelLogout": false,
       "protocol": "openid-connect",
       "attributes": {

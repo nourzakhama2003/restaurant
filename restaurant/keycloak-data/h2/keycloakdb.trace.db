@@ -1,12 +1,12 @@
-2025-07-09 00:31:16.832040Z jdbc[3]: exception
+2025-07-10 11:05:11.323550Z jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "MIGRATION_MODEL" not found (this database is empty); SQL statement:
 SELECT ID, VERSION FROM MIGRATION_MODEL ORDER BY UPDATE_TIME DESC [42104-224]
-2025-07-09 00:31:17.275812Z jdbc[3]: exception
+2025-07-10 11:05:11.784410Z jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "DATABASECHANGELOG" not found (this database is empty); SQL statement:
 SELECT COUNT(*) FROM PUBLIC.DATABASECHANGELOG [42104-224]
-2025-07-09 00:31:17.432462Z jdbc[4]: exception
+2025-07-10 11:05:11.921581Z jdbc[4]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "DATABASECHANGELOGLOCK" not found (this database is empty); SQL statement:
 SELECT COUNT(*) FROM PUBLIC.DATABASECHANGELOGLOCK [42104-224]
-2025-07-09 00:31:17.452656Z jdbc[3]: exception
+2025-07-10 11:05:11.942927Z jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "DATABASECHANGELOG" not found; SQL statement:
 SELECT COUNT(*) FROM PUBLIC.DATABASECHANGELOG [42102-224]
