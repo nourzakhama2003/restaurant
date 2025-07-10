@@ -64,30 +64,30 @@ export class MenuDialogComponent {
     });
   }
 
-deletePlat(index: number) {
-  const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-    width: '300px',
-    data: { message: 'Voulez-vous vraiment supprimer ce plat ?' }
-  });
+  deletePlat(index: number) {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '300px',
+      data: { message: 'Voulez-vous vraiment supprimer ce plat ?' }
+    });
 
-  dialogRef.afterClosed().subscribe(result => {
-    if (result === true) {
-      const platToDelete = this.plats[index];
-      if (platToDelete.id) {
-        this.menuService.deleteMenuItem(platToDelete.id).subscribe({
-          next: () => {
-            this.plats.splice(index, 1);
-          },
-          error: err => {
-            console.error('Erreur suppression plat', err);
-          }
-        });
-      } else {
-        this.plats.splice(index, 1);
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === true) {
+        const platToDelete = this.plats[index];
+        if (platToDelete.id) {
+          this.menuService.deleteMenuItem(platToDelete.id).subscribe({
+            next: () => {
+              this.plats.splice(index, 1);
+            },
+            error: err => {
+              console.error('Erreur suppression plat', err);
+            }
+          });
+        } else {
+          this.plats.splice(index, 1);
+        }
       }
-    }
-  });
-}
+    });
+  }
 
 
 

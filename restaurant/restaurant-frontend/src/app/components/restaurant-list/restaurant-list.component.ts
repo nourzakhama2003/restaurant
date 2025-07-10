@@ -41,7 +41,7 @@ export class RestaurantListComponent implements OnInit {
   constructor(
     private restaurantService: RestaurantService,
     private dialog: MatDialog
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadRestaurants();
@@ -88,23 +88,23 @@ export class RestaurantListComponent implements OnInit {
     });
   }
 
- deleteRestaurant(id: string): void {
-   const dialogRef = this.dialog.open(ConfirmDialogRestaurantComponent, {
-     width: '300px',
-     data: { message: 'Voulez-vous vraiment supprimer ce restaurant ?' }
-   });
+  deleteRestaurant(id: string): void {
+    const dialogRef = this.dialog.open(ConfirmDialogRestaurantComponent, {
+      width: '300px',
+      data: { message: 'Voulez-vous vraiment supprimer ce restaurant ?' }
+    });
 
-   dialogRef.afterClosed().subscribe(result => {
-     if (result === true) {
-       this.restaurantService.deleteRestaurant(id).subscribe({
-         next: () => {
-           this.restaurants = this.restaurants.filter(r => r.id !== id);
-         },
-         error: (err) => this.handleError(err)
-       });
-     }
-   });
- }
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === true) {
+        this.restaurantService.deleteRestaurant(id).subscribe({
+          next: () => {
+            this.restaurants = this.restaurants.filter(r => r.id !== id);
+          },
+          error: (err) => this.handleError(err)
+        });
+      }
+    });
+  }
 
 
   openMenuDialog(restaurant: Restaurant): void {
