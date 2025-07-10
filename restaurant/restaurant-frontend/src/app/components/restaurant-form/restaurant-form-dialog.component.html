@@ -1,0 +1,42 @@
+<h2 mat-dialog-title>
+  {{ isEditMode ? 'Modifier le restaurant' : 'Ajouter un restaurant' }}
+</h2>
+
+<form [formGroup]="restaurantForm" (ngSubmit)="onSubmit()" class="restaurant-form">
+
+  <mat-form-field appearance="fill">
+    <mat-label>Nom</mat-label>
+    <input matInput formControlName="name" placeholder="Nom du restaurant" required />
+    <mat-error *ngIf="restaurantForm.get('name')?.hasError('required') && restaurantForm.get('name')?.touched">
+      Le nom est obligatoire
+    </mat-error>
+  </mat-form-field>
+
+  <mat-form-field appearance="fill">
+    <mat-label>Description</mat-label>
+    <textarea matInput formControlName="description" placeholder="Description du restaurant" rows="3"></textarea>
+  </mat-form-field>
+
+  <mat-form-field appearance="fill">
+    <mat-label>Adresse</mat-label>
+    <input matInput formControlName="address" placeholder="Adresse complète" />
+  </mat-form-field>
+
+  <mat-form-field appearance="fill">
+    <mat-label>Téléphone</mat-label>
+    <input matInput formControlName="phone" placeholder="Numéro de téléphone" />
+  </mat-form-field>
+
+  <mat-form-field appearance="fill">
+    <mat-label>Type de cuisine</mat-label>
+    <input matInput formControlName="cuisineType" placeholder="Ex: Italienne, Tunisienne" />
+  </mat-form-field>
+
+
+
+  <mat-dialog-actions align="end" class="form-actions">
+    <button mat-stroked-button type="button" (click)="onCancel()">Annuler</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="restaurantForm.invalid" (click)="onSubmit()">Enregistrer</button>
+  </mat-dialog-actions>
+
+</form>

@@ -1,0 +1,80 @@
+/* Titre principal */
+h3 {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #1e3d58; /* Un bleu profond */
+  margin-bottom: 16px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Style du mat-list */
+mat-list {
+  background: #ffffff; /* Fond blanc pour plus de clarté */
+  border-radius: 12px;
+  max-width: 500px;
+  margin: 20px auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Ombre douce */
+  padding: 16px;
+  border: 1px solid #ddd; /* Une bordure douce pour délimiter */
+}
+
+/* Style de chaque item */
+mat-list-item {
+  font-size: 18px;
+  color: #444; /* Texte un peu plus sombre pour une bonne lisibilité */
+  padding: 14px 20px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  cursor: pointer;
+}
+
+mat-list-item:hover {
+  background-color: #f0f4ff; /* Survol en bleu clair */
+  transform: scale(1.02); /* Effet de zoom subtil au survol */
+}
+
+/* Style du bouton delete */
+button.mat-icon-button {
+  color: #ff6f61; /* Rouge doux */
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+button.mat-icon-button:hover {
+  color: #b73d32; /* Rouge plus foncé sur hover */
+  transform: scale(1.1); /* Légère agrandissement sur hover */
+}
+
+/* Style des éléments dans le mat-list-item (le texte) */
+mat-list-item .item-text {
+  flex-grow: 1;
+  font-weight: 500;
+  color: #333;
+}
+
+/* Ajout d'une ligne de séparation entre les items */
+mat-list-item + mat-list-item {
+  border-top: 1px solid #eee;
+}
+
+/* Espacement et alignement du bouton dans le mat-list-item */
+mat-list-item .mat-icon-button {
+  padding: 8px;
+  background-color: transparent;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+mat-list-item .mat-icon-button:hover {
+  background-color: #ffe0e0; /* Fond léger pour le bouton */
+}
+
+/* Hover effet supplémentaire pour les éléments */
+mat-list-item:hover .mat-icon-button {
+  background-color: #ffebee;
+}

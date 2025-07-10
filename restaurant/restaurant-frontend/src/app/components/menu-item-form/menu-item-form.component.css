@@ -1,0 +1,150 @@
+/* Formulaire global - Style professionnel raffiné */
+.restaurant-form {
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  max-width: 580px;
+  margin: 40px auto;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Titre du formulaire */
+h2[mat-dialog-title] {
+  font-size: 28px;
+  color: #1a1a1a;
+  text-align: center;
+  margin-bottom: 32px;
+  font-weight: 600;
+  position: relative;
+}
+
+h2[mat-dialog-title]::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #4f46e5, #7c3aed);
+  border-radius: 3px;
+}
+
+/* Conteneur des champs */
+mat-form-field {
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+/* Style des inputs */
+.mat-mdc-text-field-wrapper {
+  background-color: #f9fafb !important;
+  border-radius: 8px !important;
+  border: 1px solid #e5e7eb !important;
+  transition: all 0.2s ease;
+}
+
+.mat-mdc-form-field:hover .mat-mdc-text-field-wrapper {
+  border-color: #d1d5db !important;
+}
+
+.mat-mdc-form-field.mat-focused .mat-mdc-text-field-wrapper {
+  border-color: #4f46e5 !important;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+/* Textes et labels */
+.mat-mdc-form-field-label,
+.mat-mdc-input-element {
+  color: #111827 !important;
+  font-size: 15px;
+}
+
+.mat-mdc-input-element::placeholder {
+  color: #9ca3af !important;
+}
+
+/* Messages d'erreur */
+mat-error {
+  color: #dc2626 !important;
+  font-size: 13px;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+}
+
+mat-error::before {
+  content: "⚠";
+  margin-right: 6px;
+  font-size: 14px;
+}
+
+/* Zone d'actions */
+.mat-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #f3f4f6;
+}
+
+/* Boutons */
+button[mat-stroked-button] {
+  border: 1px solid #d1d5db;
+  color: #374151;
+  font-weight: 500;
+  padding: 10px 24px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+button[mat-stroked-button]:hover {
+  border-color: #4f46e5;
+  color: #4f46e5;
+  background-color: #f5f3ff;
+}
+
+button[mat-flat-button] {
+  background: linear-gradient(to right, #4f46e5, #7c3aed);
+  color: white;
+  padding: 10px 28px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.2);
+}
+
+button[mat-flat-button]:hover {
+  background: linear-gradient(to right, #4338ca, #6d28d9);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+}
+
+button[mat-flat-button]:disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+  transform: none;
+  box-shadow: none;
+}
+
+/* États des champs */
+.mat-mdc-form-field.ng-invalid .mat-mdc-text-field-wrapper {
+  border-color: #fca5a5 !important;
+  background-color: #fef2f2 !important;
+}
+
+.mat-mdc-form-field.ng-valid .mat-mdc-text-field-wrapper {
+  border-color: #a7f3d0 !important;
+}
+
+/* Animation subtile */
+@keyframes subtle-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.3); }
+  100% { box-shadow: 0 0 0 5px rgba(79, 70, 229, 0.1); }
+}
+
+.mat-mdc-form-field.mat-focused .mat-mdc-text-field-wrapper {
+  animation: subtle-pulse 1.5s ease-in-out infinite;
+}

@@ -1,0 +1,48 @@
+.restaurant-card {
+  padding: 20px;
+  margin: 20px;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.search-field {
+  flex: 1 1 300px;
+}
+
+.add-button {
+  height: 40px;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.name-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  background-color: #e3f2fd;
+  border-radius: 50%;
+  padding: 8px;
+  font-size: 32px;
+  color: #1976d2;
+}
+
+.title {
+  font-weight: bold;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: gray;
+}

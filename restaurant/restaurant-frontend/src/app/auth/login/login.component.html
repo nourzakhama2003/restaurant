@@ -1,0 +1,39 @@
+<div class="login-container">
+  <div class="login-card">
+    <h2>Welcome to Restaurant Management</h2>
+    <p>Please sign in to continue</p>
+
+    <div class="login-buttons">
+      <button 
+        class="btn btn-primary" 
+        (click)="login()" 
+        [disabled]="isLoading">
+        <span *ngIf="isLoading">Logging in...</span>
+        <span *ngIf="!isLoading">Sign In with Keycloak</span>
+      </button>
+
+      <button 
+        class="btn btn-secondary" 
+        (click)="register()" 
+        [disabled]="isLoading">
+        <span *ngIf="isLoading">Processing...</span>
+        <span *ngIf="!isLoading">Register New Account</span>
+      </button>
+    </div>
+
+    <div class="info-section">
+      <h3>For Testing - Use these credentials:</h3>
+      <div class="credentials-box">
+        <p><strong>Username:</strong> <code>testuser</code></p>
+        <p><strong>Password:</strong> <code>password123</code></p>
+      </div>
+      <p><small>⚠️ Don't use admin/admin (that's for Keycloak admin console only)</small></p>
+      
+      <div class="config-info">
+        <h4>Configuration:</h4>
+        <p>Keycloak: <code>http://localhost:8080</code></p>
+        <p>Realm: <code>myrealm</code> | Client: <code>myclient</code></p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,49 @@
+import { NavItem } from './nav-item/nav-item';
+
+export const navItems: NavItem[] = [
+  {
+    navCap: 'Home',
+  },
+  {
+    displayName: 'Dashboard',
+    iconName: 'layout-grid-add',
+    route: '/dashboard',
+  },
+  {
+    displayName: 'Restaurant',
+        iconName: 'border-outer',
+        route: '/restaurant',
+
+        chip: true,
+        chipClass: 'bg-light-primary text-primary',
+        chipContent: 'PRO',
+  }
+];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

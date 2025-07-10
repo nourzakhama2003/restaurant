@@ -1,0 +1,41 @@
+<div class="app-topstrip bg-dark text-white p-y-16 p-x-24 w-100 d-flex align-items-center justify-content-between">
+  <div class="d-none d-sm-flex align-items-center justify-content-center gap-20">
+    <a class="d-flex align-items-center" >
+      <img src="/assets/images/logos/logo-wrappixel.svg" alt="" width="147">
+    </a>
+
+    <div class="linkbar d-none d-lg-flex align-items-center justify-content-center gap-16">
+
+      <!-- Restaurant -->
+      <a mat-button class="link-hover p-x-0 text-white d-flex" (click)="onOpenRestaurant()">
+        <div class="d-flex align-items-center gap-8 f-s-16 f-w-400">
+          <i class="iconify icon-20 d-flex" data-icon="mdi:food-fork-drink"></i>
+          Restaurant
+        </div>
+      </a>
+
+      <!-- Support -->
+      <a mat-button class="link-hover p-x-0 text-white d-flex"
+         >
+        <div class="d-flex align-items-center gap-8 f-s-16 f-w-400">
+          <i class="iconify icon-20 d-flex" data-icon="solar:question-circle-linear"></i>
+          Help
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <div class="topstrip-right-inner d-flex justify-content-center align-items-center gap-10">
+    <div class="d-flex justify-content-center align-items-center gap-10">
+
+      <button mat-button class="all-access-pass-btn text-dark p-x-16" (click)="onLogout()">
+        <div class="d-flex align-items-center gap-8 f-s-16 f-w-400">
+          <i class="iconify icon-18 d-flex" data-icon="solar:bolt-linear"></i>
+          log out
+        </div>
+      </button>
+
+    </div>
+  </div>
+</div>

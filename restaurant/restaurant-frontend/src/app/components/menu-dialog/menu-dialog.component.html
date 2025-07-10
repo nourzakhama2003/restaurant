@@ -1,0 +1,28 @@
+<h2 mat-dialog-title>Menu de {{ restaurant.name }}</h2>
+
+<mat-dialog-content>
+  <button mat-raised-button color="primary" class="add-button" (click)="openAddPlatForm()">
+    <mat-icon>add</mat-icon> Ajouter un plat
+  </button>
+
+  <div *ngFor="let plat of plats; let i = index" class="menu-item">
+    <div class="details">
+      <i>{{ plat.name }}</i>
+      <div class="price">{{ plat.price }} DT</div>
+    </div>
+
+    <div class="actions">
+      <button mat-icon-button (click)="openEditPlatForm(i)">
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button mat-icon-button color="warn" (click)="deletePlat(i)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button (click)="cancel()">Annuler</button>
+
+</mat-dialog-actions>
