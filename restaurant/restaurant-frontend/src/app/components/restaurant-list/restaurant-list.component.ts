@@ -27,10 +27,7 @@ import { ConfirmDialogRestaurantComponent } from '../../confirm-dialog-restauran
     MatTableModule,
     MatIconModule,
     MatButtonModule,
-    MatDialogModule,
-    RestaurantFormDialogComponent,
-    MenuDialogComponent,
-    ConfirmDialogRestaurantComponent
+    MatDialogModule
   ],
   templateUrl: './restaurant-list.component.html',
   styleUrls: ['./restaurant-list.component.css']

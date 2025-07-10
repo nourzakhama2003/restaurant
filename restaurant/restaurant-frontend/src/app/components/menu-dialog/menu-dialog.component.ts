@@ -21,8 +21,7 @@ import { MenuService } from '../../services/menu.service';
     MatButtonModule,
     MatIconModule,
     MatListModule,
-    MatFormFieldModule,
-    ConfirmDialogComponent
+    MatFormFieldModule
   ],
   templateUrl: './menu-dialog.component.html',
   styleUrls: ['./menu-dialog.component.css']
