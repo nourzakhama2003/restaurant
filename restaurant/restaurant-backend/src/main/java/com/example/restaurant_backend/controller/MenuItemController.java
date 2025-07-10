@@ -24,6 +24,7 @@ public class MenuItemController {
 
     @PostMapping
     public MenuItem createMenuItem(@RequestBody MenuItem menuItem) {
+
         return menuItemService.create(menuItem);
     }
 

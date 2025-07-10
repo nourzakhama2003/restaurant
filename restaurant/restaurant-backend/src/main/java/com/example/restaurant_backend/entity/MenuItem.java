@@ -52,4 +52,12 @@ public class MenuItem {
         return restaurantId;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
 }

@@ -34,4 +34,16 @@ public class RestaurantController {
     public void deleteRestaurant(@PathVariable String id) {
         restaurantService.deleteRestaurant(id);
     }
+
+    @GetMapping("/{id}")
+    public Restaurant getRestaurantById(@PathVariable String id) {
+        return restaurantService.getRestaurantById(id).orElse(null);
+    }
+
+    // Debug endpoint to test menu item loading
+    @GetMapping("/debug/menu/{restaurantId}")
+    public String debugMenuItems(@PathVariable String restaurantId) {
+        restaurantService.debugMenuItemLoading(restaurantId);
+        return "Debug output written to console. Check server logs.";
+    }
 }

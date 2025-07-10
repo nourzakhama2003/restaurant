@@ -23,6 +23,7 @@ public class Restaurant {
     private String phone;
     private String cuisineType;
     private boolean deleted = false;
+    
     private List<MenuItem> menu = new ArrayList<>();
 
     // Minimal constructor for creation

@@ -114,12 +114,8 @@ export class RestaurantListComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(updatedRestaurant => {
-      if (updatedRestaurant) {
-        const index = this.restaurants.findIndex(r => r.id === updatedRestaurant.id);
-        if (index !== -1) {
-          this.restaurants[index] = updatedRestaurant;
-        }
-      }
+      // Refresh the restaurants list to get the latest menu items
+      this.loadRestaurants();
     });
   }
 

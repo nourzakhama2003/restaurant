@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { MenuService, MenuItem } from '../../services/menu.service';
+import { MenuService } from '../../services/menu.service';
+import { MenuItem } from '../../models/menu-item.model';
 import { CommonModule } from '@angular/common';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,13 +21,13 @@ import { MatButtonModule } from '@angular/material/button';
       </mat-list-item>
     </mat-list>
   `,
-   styleUrls: ['./menu-list.component.css']
+  styleUrls: ['./menu-list.component.css']
 })
 export class MenuListComponent implements OnInit {
   @Input() restaurantId!: string;
   menuItems: MenuItem[] = [];
 
-  constructor(private menuService: MenuService) {}
+  constructor(private menuService: MenuService) { }
 
   ngOnInit(): void {
     if (this.restaurantId) {

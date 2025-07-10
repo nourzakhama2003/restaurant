@@ -5,7 +5,8 @@ import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { MenuService, MenuItem } from '../../services/menu.service';
+import { MenuService } from '../../services/menu.service';
+import { MenuItem } from '../../models/menu-item.model';
 import { MatDialogModule } from '@angular/material/dialog';
 interface MenuItemFormData {
   restaurantId: string;
@@ -20,7 +21,7 @@ interface MenuItemFormData {
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
-     MatDialogModule,
+    MatDialogModule,
     MatButtonModule,
   ],
   templateUrl: './menu-item-form.component.html',
