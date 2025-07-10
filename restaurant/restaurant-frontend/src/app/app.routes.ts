@@ -8,12 +8,14 @@ import { RegistrationSuccessComponent } from './auth/registration-success/regist
 import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
+  // Default route - let the auth guard handle the redirect
+  { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+
   // Public routes (no authentication required)
   {
     path: '',
     component: BlankComponent,
     children: [
-      { path: '', redirectTo: '/login', pathMatch: 'full' },
       { path: 'login', component: LoginComponent },
       { path: 'sign-in', component: LoginComponent },
       { path: 'register', component: RegisterComponent },

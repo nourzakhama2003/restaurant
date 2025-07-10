@@ -25,13 +25,14 @@ export class LoginComponent implements OnInit {
     // Get the return URL from query parameters
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
 
+    // Check if this is specifically a redirect from registration
+    const fromRegistration = this.route.snapshot.queryParams['fromRegistration'] === 'true';
+
     // Check if user is already logged in
     const isLoggedIn = await this.keycloak.isLoggedIn();
 
     if (isLoggedIn) {
-      // Check if this is a redirect from registration
-      const currentUrl = this.router.url;
-      if (currentUrl.includes('/login') || currentUrl.includes('/sign-in')) {
+      if (fromRegistration) {
         // User was auto-logged in after registration, show success message and logout
         this.showRegistrationSuccess = true;
         console.log('User auto-logged in after registration, logging out...');
@@ -48,9 +49,11 @@ export class LoginComponent implements OnInit {
         }, 3000);
       } else {
         // Normal logged in user, redirect to intended destination
-        await this.router.navigate([this.returnUrl]);
+        console.log('User already logged in, redirecting to:', this.returnUrl);
+        this.router.navigate([this.returnUrl]);
       }
     }
+    // If not logged in, stay on login page (normal case)
   }
 
   async login() {
