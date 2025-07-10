@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.5
+    container_name: restaurant-keycloak
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_DB=dev-file
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./keycloak-data:/opt/keycloak/data
+      - ./keycloak-import:/opt/keycloak/data/import
+    command: 
+      - start-dev
+      - --import-realm
+    networks:
+      - restaurant-network
+
+  # Optional: Add your backend service here
+  # restaurant-backend:
+  #   build: ./restaurant-backend
+  #   ports:
+  #     - "8081:8080"
+  #   environment:
+  #     - SPRING_PROFILES_ACTIVE=dev
+  #   depends_on:
+  #     - keycloak
+  #   networks:
+  #     - restaurant-network
+
+networks:
+  restaurant-network:
+    driver: bridge
+
+volumes:
+  keycloak-data:
