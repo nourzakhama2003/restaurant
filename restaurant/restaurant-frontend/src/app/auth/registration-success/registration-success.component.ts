@@ -10,7 +10,6 @@ import { CommonModule } from '@angular/common';
   template: `
     <div class="success-container">
       <div class="success-card">
-        <div class="success-icon">✅</div>
         <h2>Registration Successful!</h2>
         <p>Your account has been created successfully.</p>
         <p>Redirecting to login page...</p>
