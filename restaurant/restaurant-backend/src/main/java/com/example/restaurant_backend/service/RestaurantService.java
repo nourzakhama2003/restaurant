@@ -20,14 +20,21 @@ public class RestaurantService {
     private MenuItemRepository menuItemRepository;
 
     public List<Restaurant> getAllRestaurants() {
-        List<Restaurant> restaurants = restaurantRepository.findByDeletedFalse();
-        
-        // Debug output
-        for (Restaurant restaurant : restaurants) {
-            System.out.println("Restaurant: " + restaurant.getName() + " has " + restaurant.getMenu().size() + " menu items");
+        try {
+            List<Restaurant> restaurants = restaurantRepository.findByDeletedFalse();
+            
+            // Debug output with null checks
+            for (Restaurant restaurant : restaurants) {
+                int menuCount = (restaurant.getMenus() != null) ? restaurant.getMenus().size() : 0;
+                System.out.println("Restaurant: " + restaurant.getName() + " has " + menuCount + " menu items");
+            }
+            
+            return restaurants;
+        } catch (Exception e) {
+            System.err.println("Error getting all restaurants: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
         }
-        
-        return restaurants;
     }
 
     public Restaurant createRestaurant(Restaurant restaurant) {

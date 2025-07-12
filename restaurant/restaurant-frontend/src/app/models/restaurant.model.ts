@@ -7,5 +7,6 @@ export interface Restaurant {
   phone: string;
   cuisineType: string;
   deleted?: boolean;
-   menu?: MenuItem[];
+  // Backend uses 'menus' field for menu items
+  menus?: MenuItem[];
 }

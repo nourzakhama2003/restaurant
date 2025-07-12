@@ -38,7 +38,7 @@ public class MenuItemService {
         MenuItem savedMenuItem = menuItemRepository.save(item);
         
         // Then add it to the restaurant's menu list and save the restaurant
-        restaurant.getMenu().add(savedMenuItem);
+        restaurant.getMenus().add(savedMenuItem);
         this.restaurantRepository.save(restaurant);
         
         return savedMenuItem;
@@ -57,8 +57,8 @@ public class MenuItemService {
             Restaurant restaurant = this.restaurantRepository.findById(item.getRestaurantId()).orElse(null);
             if(restaurant != null) {
                 // Remove the old item and add the updated one
-                restaurant.getMenu().removeIf(menuItem -> menuItem.getId().equals(id));
-                restaurant.getMenu().add(savedMenuItem);
+                restaurant.getMenus().removeIf(menuItem -> menuItem.getId().equals(id));
+                restaurant.getMenus().add(savedMenuItem);
                 this.restaurantRepository.save(restaurant);
             }
             
@@ -71,7 +71,7 @@ public class MenuItemService {
             // Remove from restaurant's menu list
             Restaurant restaurant = this.restaurantRepository.findById(item.getRestaurantId()).orElse(null);
             if(restaurant != null) {
-                restaurant.getMenu().removeIf(menuItem -> menuItem.getId().equals(id));
+                restaurant.getMenus().removeIf(menuItem -> menuItem.getId().equals(id));
                 this.restaurantRepository.save(restaurant);
             }
             

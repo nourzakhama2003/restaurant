@@ -11,12 +11,19 @@ export const navItems: NavItem[] = [
   },
   {
     displayName: 'Restaurant',
-        iconName: 'border-outer',
-        route: '/restaurant',
-
-        chip: true,
-        chipClass: 'bg-light-primary text-primary',
-        chipContent: 'PRO',
+    iconName: 'border-outer',
+    route: '/restaurant',
+    chip: true,
+    chipClass: 'bg-light-primary text-primary',
+    chipContent: 'PRO',
+  },
+  {
+    displayName: 'Group Orders',
+    iconName: 'users',
+    route: '/group-orders',
+    chip: true,
+    chipClass: 'bg-light-success text-success',
+    chipContent: 'NEW',
   }
 ];
 

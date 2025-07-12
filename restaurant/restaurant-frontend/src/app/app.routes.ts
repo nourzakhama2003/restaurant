@@ -39,6 +39,11 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./pages/restaurant/restaurant.routes').then(m => m.RestaurantRoutes),
       },
+      {
+        path: 'group-orders',
+        loadChildren: () =>
+          import('./pages/group-orders/group-orders.routes').then(m => m.GroupOrderRoutes),
+      },
     ],
   },
 ];

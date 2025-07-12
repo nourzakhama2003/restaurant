@@ -35,7 +35,7 @@ export class MenuDialogComponent {
     @Inject(MAT_DIALOG_DATA) public restaurant: Restaurant,
     private menuService: MenuService // injection du service
   ) {
-    this.plats = restaurant.menu || [];
+    this.plats = restaurant.menus || [];
     // Load fresh menu items from the backend to ensure we have the latest data
     this.loadMenuItems();
   }
@@ -51,7 +51,7 @@ export class MenuDialogComponent {
         error: (err) => {
           console.error('Error loading menu items:', err);
           // Fallback to restaurant.menu if API call fails
-          this.plats = this.restaurant.menu || [];
+          this.plats = this.restaurant.menus || [];
         }
       });
     } else {

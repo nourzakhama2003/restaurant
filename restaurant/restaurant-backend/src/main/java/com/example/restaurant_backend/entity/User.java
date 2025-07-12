@@ -5,21 +5,20 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "menu_items")
-public class MenuItem {
-
+@Document(collection = "users")
+public class User {
     @Id
     private String id;
-
     private String name;
-    private String description;
-    private double price;
-    private String restaurantId;
-    private boolean deleted = false;
-
-
+    private String email;
+    private String phone;
+private List<Commande> commandes;
+private List<Order> orders;
+private boolean deleted = false;
 
 }

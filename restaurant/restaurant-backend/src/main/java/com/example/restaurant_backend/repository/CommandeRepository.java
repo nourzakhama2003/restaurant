@@ -1,0 +1,25 @@
+package com.example.restaurant_backend.repository;
+
+import com.example.restaurant_backend.entity.Commande;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface CommandeRepository extends MongoRepository<Commande, String> {
+    List<Commande> findByRestaurantId(String restaurantId);
+    List<Commande> findByStatus(String status);
+    List<Commande> findByCreatorId(String creatorId);
+    List<Commande> findByRestaurantIdAndStatus(String restaurantId, String status);
+    void deleteByRestaurantId(String restaurantId);
+    void deleteByCreatorId(String creatorId);
+    
+    // New methods for group ordering
+    List<Commande> findByDeletedFalse();
+    List<Commande> findByRestaurantIdAndDeletedFalse(String restaurantId);
+    List<Commande> findByCreatorIdAndDeletedFalse(String creatorId);
+    List<Commande> findByStatusAndDeletedFalse(String status);
+    List<Commande> findByRestaurantIdAndStatusAndDeletedFalse(String restaurantId, String status);
+    List<Commande> findByRestaurantIdAndStatusAndAllowParticipationTrueAndDeletedFalse(String restaurantId, String status);
+}
