@@ -15,11 +15,10 @@ public interface CommandeRepository extends MongoRepository<Commande, String> {
     void deleteByRestaurantId(String restaurantId);
     void deleteByCreatorId(String creatorId);
     
-    // New methods for group ordering
+    // Methods for group ordering with simplified logic
     List<Commande> findByDeletedFalse();
     List<Commande> findByRestaurantIdAndDeletedFalse(String restaurantId);
     List<Commande> findByCreatorIdAndDeletedFalse(String creatorId);
     List<Commande> findByStatusAndDeletedFalse(String status);
     List<Commande> findByRestaurantIdAndStatusAndDeletedFalse(String restaurantId, String status);
-    List<Commande> findByRestaurantIdAndStatusAndAllowParticipationTrueAndDeletedFalse(String restaurantId, String status);
 }

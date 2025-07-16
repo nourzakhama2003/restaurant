@@ -8,14 +8,13 @@ export interface Commande {
     restaurantId: string;
     creatorId: string;
     creatorName: string;
-    deliveryAddress: string;
-    deliveryPhone: string;
-    status: string;
+    status: string; // 'created', 'closed', 'confirmed', 'cancelled'
     totalPrice: number;
     createdAt: Date;
     updatedAt: Date;
-    orderDeadline: Date;
-    allowParticipation: boolean;
+    orderDeadline: Date; // Full date and time when order participation closes
+    participationDurationMinutes?: number; // Duration in minutes for participation
+    allowParticipation?: boolean; // Whether participation is allowed
     orders?: Order[];
     deleted?: boolean;
 }
@@ -45,8 +44,6 @@ export interface CreateCommandeRequest {
     restaurantId: string;
     creatorId: string;
     creatorName: string;
-    deliveryAddress: string;
-    deliveryPhone: string;
     orderDeadline: Date;
 }
 
@@ -93,6 +90,28 @@ export class CommandeService {
         return this.http.put<Commande>(`${this.apiUrl}/${commandeId}`, commande);
     }
 
+    // Update commande total price only
+    updateCommandeTotal(commandeId: string, totalPrice: number): Observable<Commande> {
+        const updateUrl = `${this.apiUrl}/${commandeId}/total`;
+        const payload = { totalPrice };
+
+        console.log(`🔄 Calling API to update commande total:`);
+        console.log(`   URL: ${updateUrl}`);
+        console.log(`   Payload:`, payload);
+
+        return this.http.patch<Commande>(updateUrl, payload);
+    }
+
+    // Manually recalculate commande total from existing orders
+    recalculateCommandeTotal(commandeId: string): Observable<Commande> {
+        const recalculateUrl = `${this.apiUrl}/${commandeId}/recalculate-total`;
+
+        console.log(`🔄 Calling API to recalculate commande total:`);
+        console.log(`   URL: ${recalculateUrl}`);
+
+        return this.http.post<Commande>(recalculateUrl, {});
+    }
+
     // Delete commande
     deleteCommande(commandeId: string): Observable<void> {
         return this.http.delete<void>(`${this.apiUrl}/${commandeId}`);
@@ -101,5 +120,41 @@ export class CommandeService {
     // Check if commande exists
     commandeExists(commandeId: string): Observable<boolean> {
         return this.http.get<boolean>(`${this.apiUrl}/${commandeId}/exists`);
+    }
+
+    // Update commande status
+    updateCommandeStatus(commandeId: string, newStatus: string): Observable<Commande> {
+        const statusUrl = `${this.apiUrl}/${commandeId}/status`;
+      { status: newStatus };
+
+  
+
+        return this.http.patch<Commande>(statusUrl, { status: newStatus });
+    }
+
+    // Auto-close expired commandes (triggers backend check)
+    checkAndAutoCloseExpiredCommandes(): Observable<void> {
+        const autoCloseUrl = `${this.apiUrl}/auto-close-expired`;
+
+        console.log(`🔄 Calling API to auto-close expired commandes:`);
+        console.log(`   URL: ${autoCloseUrl}`);
+
+        return this.http.post<void>(autoCloseUrl, {});
+    }
+
+    // Check if a commande is expired
+    isCommandeExpired(commande: Commande): boolean {
+        if (!commande.orderDeadline) {
+            return false;
+        }
+
+        const deadline = new Date(commande.orderDeadline);
+        const now = new Date();
+        return now > deadline;
+    }
+
+    // Check if commande should auto-close
+    shouldAutoClose(commande: Commande): boolean {
+        return commande.status === 'created' && this.isCommandeExpired(commande);
     }
 }

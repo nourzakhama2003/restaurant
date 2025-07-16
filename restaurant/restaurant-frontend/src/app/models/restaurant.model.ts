@@ -9,4 +9,5 @@ export interface Restaurant {
   deleted?: boolean;
   // Backend uses 'menus' field for menu items
   menus?: MenuItem[];
+  profileImageBase64?: string;
 }

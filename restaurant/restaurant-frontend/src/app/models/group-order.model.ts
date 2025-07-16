@@ -24,14 +24,11 @@ export interface GroupCommande {
     restaurantId: string;
     creatorId: string;
     creatorName: string;
-    deliveryAddress: string;
-    deliveryPhone: string;
-    status: string;
+    status: string; // 'created', 'closed', 'confirmed', 'cancelled'
     totalPrice: number;
     createdAt: Date;
     updatedAt: Date;
-    orderDeadline: Date;
-    allowParticipation: boolean;
+    orderDeadline: Date; // Full date and time when order participation closes
     orders: Order[];
     deleted?: boolean;
 }
@@ -40,8 +37,6 @@ export interface CreateGroupCommandeRequest {
     restaurantId: string;
     creatorId: string;
     creatorName: string;
-    deliveryAddress: string;
-    deliveryPhone: string;
     orderDeadline: Date;
 }
 

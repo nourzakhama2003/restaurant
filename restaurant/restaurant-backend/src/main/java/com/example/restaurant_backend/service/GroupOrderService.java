@@ -26,7 +26,7 @@ public class GroupOrderService {
 
     // 1. Create a new group commande
     public Commande createGroupCommande(String restaurantId, String creatorId, String creatorName, 
-                                       String deliveryAddress, String deliveryPhone, LocalDateTime orderDeadline) {
+                                        LocalDateTime orderDeadline) {
         
         // Validate restaurant exists
         Restaurant restaurant = restaurantRepository.findById(restaurantId)
@@ -36,11 +36,8 @@ public class GroupOrderService {
         commande.setRestaurantId(restaurantId);
         commande.setCreatorId(creatorId);
         commande.setCreatorName(creatorName);
-        commande.setDeliveryAddress(deliveryAddress);
-        commande.setDeliveryPhone(deliveryPhone);
         commande.setOrderDeadline(orderDeadline);
-        commande.setStatus("OPEN_FOR_PARTICIPATION");
-        commande.setAllowParticipation(true);
+        commande.setStatus(Commande.STATUS_CREATED); // Use constant instead of string literal
         commande.setTotalPrice(0.0);
         commande.setCreatedAt(LocalDateTime.now());
         commande.setUpdatedAt(LocalDateTime.now());
@@ -50,8 +47,8 @@ public class GroupOrderService {
 
     // 2. Get available group commandes for participation
     public List<Commande> getAvailableGroupCommandes(String restaurantId) {
-        return commandeRepository.findByRestaurantIdAndStatusAndAllowParticipationTrueAndDeletedFalse(
-                restaurantId, "OPEN_FOR_PARTICIPATION");
+        return commandeRepository.findByRestaurantIdAndStatusAndDeletedFalse(
+                restaurantId, Commande.STATUS_CREATED);
     }
 
     // 3. Participate in a group commande
@@ -62,13 +59,8 @@ public class GroupOrderService {
         Commande commande = commandeRepository.findById(commandeId)
                 .orElseThrow(() -> new IllegalArgumentException("Commande not found"));
 
-        if (!commande.isAllowParticipation() || 
-            !"OPEN_FOR_PARTICIPATION".equals(commande.getStatus())) {
+        if (!commande.canAcceptParticipants()) {
             throw new IllegalArgumentException("This commande is no longer accepting participants");
-        }
-
-        if (commande.getOrderDeadline() != null && LocalDateTime.now().isAfter(commande.getOrderDeadline())) {
-            throw new IllegalArgumentException("Order deadline has passed");
         }
 
         // Check if user already participated
@@ -100,30 +92,103 @@ public class GroupOrderService {
         order.setNotes(notes);
         order.setCreatedAt(LocalDateTime.now());
 
-        Order savedOrder = orderRepository.save(order);
-
-        // Update commande total amount
-        updateCommandeTotalAmount(commandeId);
-
-        return savedOrder;
+        return orderRepository.save(order);
     }
 
-    // 4. Update participant's order
-    public Order updateParticipantOrder(String orderId, String participantId, List<OrderItem> items, String notes) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
-
-        if (!order.getParticipantId().equals(participantId)) {
-            throw new IllegalArgumentException("You can only update your own order");
-        }
-
-        // Validate commande is still open
-        Commande commande = commandeRepository.findById(order.getCommandeId())
+    // 4. Close commande for participation
+    public Commande closeCommandeForParticipation(String commandeId, String creatorId) {
+        Commande commande = commandeRepository.findById(commandeId)
                 .orElseThrow(() -> new IllegalArgumentException("Commande not found"));
 
-        if (!"OPEN_FOR_PARTICIPATION".equals(commande.getStatus())) {
-            throw new IllegalArgumentException("Cannot update order - commande is no longer accepting changes");
+        if (!commande.getCreatorId().equals(creatorId)) {
+            throw new IllegalArgumentException("Only the creator can close the commande");
         }
+
+        commande.setStatus(Commande.STATUS_Validated);
+        commande.setUpdatedAt(LocalDateTime.now());
+
+        return commandeRepository.save(commande);
+    }
+
+    // 5. Get commande with all participants
+    public Commande getCommandeWithParticipants(String commandeId) {
+        Commande commande = commandeRepository.findById(commandeId)
+                .orElseThrow(() -> new IllegalArgumentException("Commande not found"));
+
+        List<Order> orders = orderRepository.findByCommandeIdAndDeletedFalse(commandeId);
+        commande.setOrders(orders);
+
+        return commande;
+    }
+
+    // 6. Auto-close expired commandes
+    public void checkAndAutoCloseExpiredCommandes() {
+        List<Commande> createdCommandes = commandeRepository.findByStatusAndDeletedFalse(Commande.STATUS_CREATED);
+        
+        for (Commande commande : createdCommandes) {
+            if (commande.shouldAutoClose()) {
+                commande.autoCloseIfExpired();
+                commandeRepository.save(commande);
+            }
+        }
+    }
+
+    // 7. Update commande status with validation
+    public Commande updateCommandeStatus(String commandeId, String newStatus, String userId) {
+        Commande commande = commandeRepository.findById(commandeId)
+                .orElseThrow(() -> new IllegalArgumentException("Commande not found"));
+
+        // Only creator can manually update status
+        if (!commande.getCreatorId().equals(userId)) {
+            throw new IllegalArgumentException("Only the creator can update commande status");
+        }
+
+        // Validate status transition
+        if (!isValidStatusTransition(commande.getStatus(), newStatus)) {
+            throw new IllegalArgumentException("Invalid status transition from " + commande.getStatus() + " to " + newStatus);
+        }
+
+        commande.setStatus(newStatus);
+        commande.setUpdatedAt(LocalDateTime.now());
+
+        return commandeRepository.save(commande);
+    }
+
+    // Helper method for status transition validation
+    private boolean isValidStatusTransition(String currentStatus, String newStatus) {
+        switch (currentStatus) {
+            case Commande.STATUS_CREATED:
+                return Commande.STATUS_Validated.equals(newStatus) ||
+                       Commande.STATUS_CONFIRMED.equals(newStatus) || 
+                       Commande.STATUS_CANCELLED.equals(newStatus);
+            case Commande.STATUS_Validated:
+                return Commande.STATUS_CONFIRMED.equals(newStatus) || 
+                       Commande.STATUS_CANCELLED.equals(newStatus);
+            case Commande.STATUS_CONFIRMED:
+                return Commande.STATUS_CANCELLED.equals(newStatus);
+            case Commande.STATUS_CANCELLED:
+                return false; // Cannot transition from cancelled
+            default:
+                return false;
+        }
+    }
+
+    // 8. Update participant order
+    public Order updateParticipantOrder(String commandeId, String participantId, 
+                                       List<OrderItem> items, String notes) {
+        
+        // Validate commande exists and is open for participation
+        Commande commande = commandeRepository.findById(commandeId)
+                .orElseThrow(() -> new IllegalArgumentException("Commande not found"));
+
+        if (!commande.canAcceptParticipants()) {
+            throw new IllegalArgumentException("This commande is no longer accepting participants");
+        }
+
+        // Find existing order
+        Order existingOrder = orderRepository.findByCommandeIdAndParticipantIdAndDeletedFalse(
+                commandeId, participantId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found for this participant"));
 
         // Validate and calculate menu items
         double totalAmount = 0;
@@ -136,71 +201,31 @@ public class GroupOrderService {
             totalAmount += item.getSubtotal();
         }
 
-        order.setItems(items);
-        order.setTotalAmount(totalAmount);
-        order.setNotes(notes);
+        // Update order
+        existingOrder.setItems(items);
+        existingOrder.setTotalAmount(totalAmount);
+        existingOrder.setNotes(notes);
 
-        Order updatedOrder = orderRepository.save(order);
-
-        // Update commande total amount
-        updateCommandeTotalAmount(order.getCommandeId());
-
-        return updatedOrder;
+        return orderRepository.save(existingOrder);
     }
 
-    // 5. Remove participant from commande
-    public void removeParticipantFromCommande(String orderId, String participantId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
-
-        if (!order.getParticipantId().equals(participantId)) {
-            throw new IllegalArgumentException("You can only remove your own order");
-        }
-
-        order.setDeleted(true);
-        orderRepository.save(order);
-
-        // Update commande total amount
-        updateCommandeTotalAmount(order.getCommandeId());
-    }
-
-    // 6. Close commande for participation
-    public Commande closeCommandeForParticipation(String commandeId, String creatorId) {
+    // 9. Remove participant from commande
+    public void removeParticipantFromCommande(String commandeId, String participantId) {
+        
+        // Validate commande exists
         Commande commande = commandeRepository.findById(commandeId)
                 .orElseThrow(() -> new IllegalArgumentException("Commande not found"));
 
-        if (!commande.getCreatorId().equals(creatorId)) {
-            throw new IllegalArgumentException("Only the creator can close the commande");
+        if (!commande.canAcceptParticipants()) {
+            throw new IllegalArgumentException("Cannot remove participant - commande is no longer accepting changes");
         }
 
-        commande.setStatus("CLOSED_FOR_PARTICIPATION");
-        commande.setAllowParticipation(false);
-        commande.setUpdatedAt(LocalDateTime.now());
+        // Find and soft delete the order
+        Order existingOrder = orderRepository.findByCommandeIdAndParticipantIdAndDeletedFalse(
+                commandeId, participantId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found for this participant"));
 
-        return commandeRepository.save(commande);
-    }
-
-    // 7. Get commande with all participants
-    public Commande getCommandeWithParticipants(String commandeId) {
-        Commande commande = commandeRepository.findById(commandeId)
-                .orElseThrow(() -> new IllegalArgumentException("Commande not found"));
-
-        List<Order> orders = orderRepository.findByCommandeIdAndDeletedFalse(commandeId);
-        commande.setOrders(orders);
-
-        return commande;
-    }
-
-    // Helper method to update commande total amount
-    private void updateCommandeTotalAmount(String commandeId) {
-        List<Order> orders = orderRepository.findByCommandeIdAndDeletedFalse(commandeId);
-        double totalAmount = orders.stream().mapToDouble(Order::getTotalAmount).sum();
-
-        Commande commande = commandeRepository.findById(commandeId).orElse(null);
-        if (commande != null) {
-            commande.setTotalPrice(totalAmount);
-            commande.setUpdatedAt(LocalDateTime.now());
-            commandeRepository.save(commande);
-        }
+        existingOrder.setDeleted(true);
+        orderRepository.save(existingOrder);
     }
 }

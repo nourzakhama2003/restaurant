@@ -32,7 +32,15 @@
     <input matInput formControlName="cuisineType" placeholder="Ex: Italienne, Tunisienne" />
   </mat-form-field>
 
+<div>
+      <label for="imageUpload">Upload Profile Image</label>
+      <input id="imageUpload" type="file" accept="image/*" (change)="onFileSelected($event)">
+    </div>
 
+    <!-- Image preview -->
+    <div *ngIf="selectedImage" class="image-preview">
+      <img [src]="selectedImage" alt="Profile Image Preview" style="max-width: 200px; max-height: 200px;">
+    </div>
 
   <mat-dialog-actions align="end" class="form-actions">
     <button mat-stroked-button type="button" (click)="onCancel()">Annuler</button>

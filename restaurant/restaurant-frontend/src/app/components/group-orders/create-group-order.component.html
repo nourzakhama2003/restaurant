@@ -1,0 +1,104 @@
+    <div class="container-fluid">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <mat-card class="mt-4">
+            <mat-card-header>
+              <mat-card-title>Create commande</mat-card-title>
+              <mat-card-subtitle>Start a group food order for your team</mat-card-subtitle>
+            </mat-card-header>
+            
+            <mat-card-content>
+              <form [formGroup]="groupOrderForm" (ngSubmit)="onSubmit()" class="mt-3">
+                <div class="row">
+                  <div class="col-md-12 mb-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>Select Restaurant</mat-label>
+                      <mat-select formControlName="restaurantId" required>
+                        <mat-option *ngFor="let restaurant of restaurants" [value]="restaurant.id">
+                          {{restaurant.name}} - {{restaurant.cuisineType}}
+                        </mat-option>
+                      </mat-select>
+                      <mat-error *ngIf="groupOrderForm.get('restaurantId')?.hasError('required')">
+                        Restaurant is required
+                      </mat-error>
+                    </mat-form-field>
+                  </div>
+                  
+                  <div class="col-md-12 mb-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>Your Name</mat-label>
+                      <input matInput formControlName="creatorName" readonly>
+                      <mat-hint>Automatically filled from your profile</mat-hint>
+                    </mat-form-field>
+                  </div>
+                  
+                  <div class="col-md-6 mb-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>Order Deadline Date</mat-label>
+                      <input matInput [matDatepicker]="picker" formControlName="orderDeadlineDate" required>
+                      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                      <mat-datepicker #picker></mat-datepicker>
+                      <mat-hint>Date when the order participation closes</mat-hint>
+                      <mat-error *ngIf="groupOrderForm.get('orderDeadlineDate')?.hasError('required')">
+                        Order deadline date is required
+                      </mat-error>
+                    </mat-form-field>
+                  </div>
+                  
+                  <div class="col-md-6 mb-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>Order Deadline Time</mat-label>
+                      <input matInput type="time" formControlName="orderDeadlineTime" required>
+                      <mat-hint>Time when the order participation closes</mat-hint>
+                      <mat-error *ngIf="groupOrderForm.get('orderDeadlineTime')?.hasError('required')">
+                        Order deadline time is required
+                      </mat-error>
+                    </mat-form-field>
+                  </div>
+                  
+                  <!-- Deadline validation feedback -->
+                  <div class="col-md-12 mb-3" *ngIf="deadlineValidationMessage && !isDeadlineValid">
+                    <div class="alert alert-warning d-flex align-items-center" role="alert">
+                      <mat-icon class="me-2">warning</mat-icon>
+                      <span>{{deadlineValidationMessage}}</span>
+                    </div>
+                  </div>
+                  
+                  <div class="col-md-12 mb-3" *ngIf="isDeadlineValid && groupOrderForm.get('orderDeadlineDate')?.value && groupOrderForm.get('orderDeadlineTime')?.value">
+                    <div class="alert alert-success d-flex align-items-center" role="alert">
+                      <mat-icon class="me-2">check_circle</mat-icon>
+                      <span>Deadline is valid - order will be created successfully</span>
+                    </div>
+                  </div>
+                  
+                  <div class="col-md-12 mb-3">
+                    <div class="status-indicator d-flex align-items-center">
+                      <mat-icon [color]="getStatusColor()">
+                        {{getCurrentStatus() === 'created' ? 'schedule' : 'schedule_send'}}
+                      </mat-icon>
+                      <span class="ms-2">
+                        <strong>Initial Status:</strong> 
+                        <span [class]="'text-' + getStatusColor()">
+                          {{getCurrentStatus() | titlecase}}
+                        </span>
+                      </span>
+                      <small class="ms-2 text-muted" *ngIf="getCurrentStatus() === 'closed'">
+                        (Deadline has passed)
+                      </small>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </mat-card-content>
+            
+            <mat-card-actions align="end">
+              <button mat-button (click)="onCancel()" type="button">Cancel</button>
+              <button mat-raised-button color="primary" (click)="onSubmit()" 
+                      [disabled]="groupOrderForm.invalid || isLoading || !isDeadlineValid">
+                {{isLoading ? 'Creating...' : 'Create Group Order'}}
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        </div>
+      </div>
+    </div>

@@ -12,7 +12,9 @@ import { UserService } from './services/user.service';
 export class AppComponent implements OnInit {
   title = 'restaurant-frontend';
 
-  constructor(private userService: UserService) { }
+  constructor(
+    private userService: UserService
+  ) { }
 
   ngOnInit(): void {
     // Initialize current user when app starts

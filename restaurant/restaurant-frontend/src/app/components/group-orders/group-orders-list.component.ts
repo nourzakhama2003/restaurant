@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,235 +12,194 @@ import { RestaurantService } from '../../services/restaurant.service';
 import { OrderService } from '../../services/order.service';
 import { Restaurant } from '../../models/restaurant.model';
 import { forkJoin } from 'rxjs';
+import { CountdownService } from '../../services/counttdown.service';
+import { Subscription } from 'rxjs';
 
 @Component({
-    selector: 'app-group-orders-list',
-    standalone: true,
-    imports: [
-        CommonModule,
-        MatCardModule,
-        MatButtonModule,
-        MatIconModule,
-        MatChipsModule,
-        MatSelectModule,
-        MatFormFieldModule
-    ],
-    template: `
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-12">
-          <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>commandes</h2>
-            <button mat-raised-button color="primary" (click)="createGroupOrder()">
-              <mat-icon>add</mat-icon>
-              Create Group Order
-            </button>
-          </div>
-          
-          <div class="row mb-3">
-            <div class="col-md-4">
-              <mat-form-field appearance="outline" class="w-100">
-                <mat-label>Filter by Restaurant</mat-label>
-                <mat-select [(value)]="selectedRestaurantId" (selectionChange)="filterByRestaurant()">
-                  <mat-option value="">All Restaurants</mat-option>
-                  <mat-option *ngFor="let restaurant of restaurants" [value]="restaurant.id">
-                    {{restaurant.name}}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
-            </div>
-          </div>
-          
-          <div class="row">
-            <div class="col-12" *ngIf="filteredCommandes.length === 0">
-              <mat-card class="text-center p-4">
-                <mat-card-content>
-                  <mat-icon style="font-size: 48px; color: #ccc;">restaurant</mat-icon>
-                  <h3 class="mt-3">No Group Orders Available</h3>
-                  <p>Create a new group order to get started!</p>
-                  <button mat-raised-button color="primary" (click)="createGroupOrder()">
-                    Create Group Order
-                  </button>
-                </mat-card-content>
-              </mat-card>
-            </div>
-            
-            <div class="col-lg-4 col-md-6 mb-3" *ngFor="let commande of filteredCommandes">
-              <mat-card class="h-100">
-                <mat-card-header>
-                  <mat-card-title>{{getRestaurantName(commande.restaurantId)}}</mat-card-title>
-                  <mat-card-subtitle>By {{commande.creatorName}}</mat-card-subtitle>
-                </mat-card-header>
-                
-                <mat-card-content>
-                  <div class="mb-2">
-                    <mat-chip-set>
-                      <mat-chip [color]="getStatusColor(commande.status)" selected>
-                        {{commande.status.replace('_', ' ')}}
-                      </mat-chip>
-                    </mat-chip-set>
-                  </div>
-                  
-                  <p><strong>Delivery:</strong> {{commande.deliveryAddress}}</p>
-                  <p><strong>Phone:</strong> {{commande.deliveryPhone}}</p>
-                  <p><strong>Deadline:</strong> {{formatDate(commande.orderDeadline)}}</p>
-                  <p><strong>Participants:</strong> {{getParticipantCount(commande.id)}}</p>
-                  <p><strong>Total:</strong> {{commande.totalPrice | currency:'USD':'symbol':'1.2-2'}}</p>
-                </mat-card-content>
-                
-                <mat-card-actions align="end">
-                  <button mat-button (click)="viewDetails(commande.id)">
-                    <mat-icon>visibility</mat-icon>
-                    View Details
-                  </button>
-                  <button mat-raised-button color="primary" 
-                          (click)="participateInOrder(commande.id)"
-                          [disabled]="!commande.allowParticipation || commande.status !== 'OPEN_FOR_PARTICIPATION'">
-                    <mat-icon>person_add</mat-icon>
-                    Join Order
-                  </button>
-                </mat-card-actions>
-              </mat-card>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  `,
-    styles: [`
-    .container-fluid {
-      padding: 20px;
-    }
-    
-    .mat-card {
-      transition: transform 0.2s;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .mat-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    }
-    
-    .h-100 {
-      height: 100%;
-    }
-    
-    mat-chip {
-      margin-right: 8px;
-    }
-  `]
+  selector: 'app-group-orders-list',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatChipsModule,
+    MatSelectModule,
+    MatFormFieldModule
+  ],
+  templateUrl: './group-orders-list.component.html',
+  styleUrls: ['./group-orders-list.component.css']
 })
-export class GroupOrdersListComponent implements OnInit {
-    commandes: Commande[] = [];
-    filteredCommandes: Commande[] = [];
-    restaurants: Restaurant[] = [];
-    selectedRestaurantId: string = '';
-    orderCounts: { [commandeId: string]: number } = {};
+export class GroupOrdersListComponent implements OnInit, OnDestroy {
+  commandes: Commande[] = [];
+  filteredCommandes: Commande[] = [];
+  restaurants: Restaurant[] = [];
+  selectedRestaurantId: string = '';
+  orderCounts: { [commandeId: string]: number } = {};
+  orderTotals: { [commandeId: string]: number } = {};
+  countdowns: { [commandeId: string]: { display: string, color: string, subscription: Subscription | null } } = {};
 
-    constructor(
-        private commandeService: CommandeService,
-        private restaurantService: RestaurantService,
-        private orderService: OrderService,
-        private router: Router
-    ) { }
+  constructor(
+    private commandeService: CommandeService,
+    private restaurantService: RestaurantService,
+    private orderService: OrderService,
+    private router: Router,
+    private cdr: ChangeDetectorRef,
+    private countdownService: CountdownService
+  ) { }
 
-    ngOnInit(): void {
-        this.loadRestaurants();
-        this.loadAllCommandes();
-    }
+  ngOnInit(): void {
+    this.loadRestaurants();
+    this.loadAllCommandes();
+  }
 
-    loadRestaurants(): void {
-        this.restaurantService.getAllRestaurants().subscribe({
-            next: (restaurants: Restaurant[]) => {
-                this.restaurants = restaurants.filter((r: Restaurant) => !r.deleted);
-            },
-            error: (error: any) => {
-                console.error('Error loading restaurants:', error);
-            }
-        });
-    }
+  ngOnDestroy(): void {
+    Object.entries(this.countdowns).forEach(([commandeId, c]) => {
+      if (c.subscription) c.subscription.unsubscribe();
+      this.countdownService.stopCountdown(commandeId);
+    });
+  }
 
-    loadAllCommandes(): void {
-        // Load all commandes from the database
-        this.commandeService.getAllCommandes().subscribe({
-            next: (commandes: Commande[]) => {
-                this.commandes = commandes.filter(c => !c.deleted);
-                this.loadOrderCounts();
-                this.filterByRestaurant();
-            },
-            error: (error: any) => {
-                console.error('Error loading commandes:', error);
-            }
-        });
-    }
+  loadRestaurants(): void {
+    this.restaurantService.getAllRestaurants().subscribe({
+      next: (restaurants: Restaurant[]) => {
+        this.restaurants = restaurants.filter((r: Restaurant) => !r.deleted);
+      },
+      error: (error: any) => {
+        console.error('Error loading restaurants:', error);
+      }
+    });
+  }
 
-    loadOrderCounts(): void {
-        // Load order counts for each commande
-        const orderCountRequests = this.commandes.map(commande =>
-            this.orderService.getOrdersByCommandeId(commande.id)
-        );
+  loadAllCommandes(): void {
+    this.commandeService.getAllCommandes().subscribe({
+      next: (commandes: Commande[]) => {
+        this.commandes = commandes.filter(c => !c.deleted);
+        this.loadOrderCounts();
+        this.filterByRestaurant();
+      },
+      error: (error: any) => {
+        console.error('Error loading commandes:', error);
+      }
+    });
+  }
 
-        if (orderCountRequests.length > 0) {
-            forkJoin(orderCountRequests).subscribe({
-                next: (orderArrays: any[][]) => {
-                    orderArrays.forEach((orders, index) => {
-                        const commandeId = this.commandes[index].id;
-                        this.orderCounts[commandeId] = orders.filter(order => !order.deleted).length;
-                    });
-                },
-                error: (error: any) => {
-                    console.error('Error loading order counts:', error);
-                }
-            });
+  loadOrderCounts(): void {
+    const orderCountRequests = this.commandes.map(commande =>
+      this.orderService.getOrdersByCommandeId(commande.id)
+    );
+
+    if (orderCountRequests.length > 0) {
+      forkJoin(orderCountRequests).subscribe({
+        next: (orderArrays: any[][]) => {
+          orderArrays.forEach((orders, index) => {
+            const commandeId = this.commandes[index].id;
+            const validOrders = orders.filter(order => !order.deleted);
+            this.orderCounts[commandeId] = validOrders.length;
+            this.orderTotals[commandeId] = this.calculateCommandeTotal(validOrders);
+            this.commandes[index].totalPrice = this.orderTotals[commandeId];
+          });
+          this.filterByRestaurant();
+        },
+        error: (error: any) => {
+          console.error('Error loading order counts:', error);
         }
+      });
     }
+  }
 
-    getParticipantCount(commandeId: string): number {
-        return this.orderCounts[commandeId] || 0;
-    }
+  calculateCommandeTotal(orders: any[]): number {
+    return orders.reduce((total, order) => total + (order.totalAmount || 0), 0);
+  }
 
-    filterByRestaurant(): void {
-        if (this.selectedRestaurantId) {
-            this.filteredCommandes = this.commandes.filter(c => c.restaurantId === this.selectedRestaurantId);
-        } else {
-            this.filteredCommandes = [...this.commandes];
-        }
-    }
+  getParticipantCount(commandeId: string): number {
+    return this.orderCounts[commandeId] || 0;
+  }
 
-    getRestaurantName(restaurantId: string): string {
-        const restaurant = this.restaurants.find(r => r.id === restaurantId);
-        return restaurant ? restaurant.name : 'Unknown Restaurant';
-    }
+  getCommandeTotal(commandeId: string): number {
+    return this.orderTotals[commandeId] || 0;
+  }
 
-    getStatusColor(status: string): string {
-        switch (status) {
-            case 'OPEN_FOR_PARTICIPATION':
-                return 'primary';
-            case 'CLOSED_FOR_PARTICIPATION':
-                return 'accent';
-            case 'CONFIRMED':
-                return 'primary';
-            case 'CANCELLED':
-                return 'warn';
-            default:
-                return 'primary';
-        }
+  filterByRestaurant(): void {
+    if (this.selectedRestaurantId) {
+      this.filteredCommandes = this.commandes.filter(c => c.restaurantId === this.selectedRestaurantId);
+    } else {
+      this.filteredCommandes = [...this.commandes];
     }
+    this.setupCountdowns();
+  }
 
-    formatDate(date: Date): string {
-        return new Date(date).toLocaleDateString() + ' ' + new Date(date).toLocaleTimeString();
-    }
+  getRestaurantName(restaurantId: string): string {
+    const restaurant = this.restaurants.find(r => r.id === restaurantId);
+    return restaurant ? restaurant.name : 'Unknown Restaurant';
+  }
 
-    createGroupOrder(): void {
-        this.router.navigate(['/group-orders/create']);
+  getStatusColor(status: string): string {
+    switch (status.toLowerCase()) {
+      case 'created': return 'primary';
+      case 'closed': return 'accent';
+      case 'confirmed': return 'primary';
+      case 'cancelled': return 'warn';
+      default: return 'primary';
     }
+  }
 
-    viewDetails(commandeId: string): void {
-        this.router.navigate(['/group-orders/details', commandeId]);
-    }
+  formatDate(date: Date): string {
+    return new Date(date).toLocaleDateString() + ' ' + new Date(date).toLocaleTimeString();
+  }
 
-    participateInOrder(commandeId: string): void {
-        this.router.navigate(['/group-orders/participate', commandeId]);
-    }
+  createGroupOrder(): void {
+    this.router.navigate(['/group-orders/create']);
+  }
+
+  goToMyOrders(): void {
+    this.router.navigate(['/group-orders/my-orders']);
+  }
+
+  viewDetails(commandeId: string): void {
+    this.router.navigate(['/group-orders/details', commandeId]);
+  }
+
+  participateInOrder(commandeId: string): void {
+    this.router.navigate(['/group-orders/participate', commandeId]);
+  }
+
+  isParticipationExpired(commande: Commande): boolean {
+    if (!commande.orderDeadline) return false;
+    const now = new Date().getTime();
+    const deadline = new Date(commande.orderDeadline).getTime();
+    return now >= deadline;
+  }
+
+  canParticipate(commande: Commande): boolean {
+    return commande.status === 'created' && !this.isParticipationExpired(commande);
+  }
+
+  setupCountdowns(): void {
+    // Unsubscribe previous subscriptions and stop countdowns
+    Object.entries(this.countdowns).forEach(([commandeId, c]) => {
+      if (c.subscription) c.subscription.unsubscribe();
+      this.countdownService.stopCountdown(commandeId);
+    });
+    this.countdowns = {};
+
+    this.filteredCommandes.forEach(commande => {
+      // Initialize with default value first
+      this.countdowns[commande.id] = { display: 'Calculating...', color: 'time-normal', subscription: null };
+      const subscription = this.countdownService.startCountdown(commande).subscribe(countdown => {
+        this.countdowns[commande.id].display = countdown.display;
+        this.countdowns[commande.id].color = countdown.color;
+        this.cdr.detectChanges();
+      });
+      this.countdowns[commande.id].subscription = subscription;
+    });
+  }
+
+  getCountdownDisplay(commandeId: string): string {
+    return this.countdowns[commandeId]?.display || 'No deadline';
+  }
+
+  getCountdownColor(commandeId: string): string {
+    return this.countdowns[commandeId]?.color || 'time-normal';
+  }
 }

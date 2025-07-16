@@ -25,5 +25,6 @@ public class Order {
     private double totalAmount;
     private String notes;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private boolean deleted = false;
 }

@@ -57,7 +57,7 @@ public class securityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         // Use allowedOriginPatterns instead of allowedOrigins when allowCredentials is true
         configuration.setAllowedOriginPatterns(List.of("http://localhost:4200"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "PATCH","POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 

@@ -1,7 +1,9 @@
 package com.example.restaurant_backend.service;
 
 import com.example.restaurant_backend.entity.Order;
+import com.example.restaurant_backend.entity.Commande;
 import com.example.restaurant_backend.repository.OrderRepository;
+import com.example.restaurant_backend.repository.CommandeRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,14 +12,77 @@ import java.util.Optional;
 @Service
 public class OrderService {
     private OrderRepository orderRepository;
+    private CommandeRepository commandeRepository;
 
-    public OrderService(OrderRepository orderRepository) {
+    public OrderService(OrderRepository orderRepository, CommandeRepository commandeRepository) {
         this.orderRepository = orderRepository;
+        this.commandeRepository = commandeRepository;
     }
 
     // Create
     public Order saveOrder(Order order) {
-        return this.orderRepository.save(order);
+        try {
+            System.out.println("ðŸ”„ OrderService: Saving order for commande: " + order.getCommandeId());
+            
+            // Save the order first
+            Order savedOrder = this.orderRepository.save(order);
+            System.out.println("âœ… OrderService: Order saved with ID: " + savedOrder.getId());
+            
+            // Update the commande's orders list
+            if (order.getCommandeId() != null) {
+                updateCommandeOrdersList(order.getCommandeId());
+            }
+            
+            return savedOrder;
+            
+        } catch (Exception e) {
+            System.err.println("âŒ OrderService: Error saving order: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to save order", e);
+        }
+    }
+    
+    // Helper method to update commande's orders list
+    private void updateCommandeOrdersList(String commandeId) {
+        try {
+            System.out.println("ðŸ”„ OrderService: Updating orders list for commande: " + commandeId);
+            
+            Optional<Commande> optionalCommande = this.commandeRepository.findById(commandeId);
+            if (optionalCommande.isPresent()) {
+                Commande commande = optionalCommande.get();
+                
+                // Get all orders for this commande
+                List<Order> allOrders = this.orderRepository.findByCommandeId(commandeId);
+                List<Order> activeOrders = allOrders.stream()
+                    .filter(order -> !order.isDeleted())
+                    .toList();
+                
+                System.out.println("ðŸ“‹ Found " + activeOrders.size() + " active orders for commande: " + commandeId);
+                
+                // Update the commande's orders list
+                commande.setOrders(activeOrders);
+                
+                // Calculate and update total price
+                double newTotal = activeOrders.stream()
+                    .mapToDouble(Order::getTotalAmount)
+                    .sum();
+                    
+                double oldTotal = commande.getTotalPrice();
+                commande.setTotalPrice(newTotal);
+                
+                // Save the updated commande
+                this.commandeRepository.save(commande);
+                
+                System.out.println("âœ… OrderService: Updated commande orders list and total from " + oldTotal + " to " + newTotal);
+                
+            } else {
+                System.err.println("âŒ OrderService: Commande not found: " + commandeId);
+            }
+            
+        } catch (Exception e) {
+            System.err.println("âŒ OrderService: Error updating commande orders list: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     // Read all
@@ -49,7 +114,14 @@ public class OrderService {
     public Order updateOrder(String id, Order order) {
         if (this.orderRepository.existsById(id)) {
             order.setId(id);
-            return this.orderRepository.save(order);
+            Order updatedOrder = this.orderRepository.save(order);
+            
+            // Update commande's orders list after order update
+            if (order.getCommandeId() != null) {
+                updateCommandeOrdersList(order.getCommandeId());
+            }
+            
+            return updatedOrder;
         }
         return null;
     }
@@ -57,7 +129,20 @@ public class OrderService {
     // Delete
     public boolean deleteOrder(String id) {
         if (this.orderRepository.existsById(id)) {
+            // Get the order first to get the commandeId
+            Optional<Order> orderOpt = this.orderRepository.findById(id);
+            String commandeId = null;
+            if (orderOpt.isPresent()) {
+                commandeId = orderOpt.get().getCommandeId();
+            }
+            
             this.orderRepository.deleteById(id);
+            
+            // Update commande's orders list after deletion
+            if (commandeId != null) {
+                updateCommandeOrdersList(commandeId);
+            }
+            
             return true;
         }
         return false;

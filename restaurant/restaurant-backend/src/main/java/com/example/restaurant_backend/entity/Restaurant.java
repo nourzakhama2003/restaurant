@@ -23,6 +23,7 @@ public class Restaurant {
     private String address;
     private String phone;
     private String cuisineType;
+    private String profileImageBase64;
 
     private List<Commande> commandes = new ArrayList<>();
     private List<MenuItem> menus = new ArrayList<>();
@@ -39,7 +40,17 @@ public class Restaurant {
     }
 
     // Full constructor for updates
-
+    public Restaurant(final String id, final String name, final String description, final String address, final String phone, final String cuisineType, final List<Commande> commandes, final List<MenuItem> menus, final boolean deleted) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.address = address;
+        this.phone = phone;
+        this.cuisineType = cuisineType;
+        this.commandes = commandes;
+        this.menus = menus;
+        this.deleted = deleted;
+    }
 
 
     // Getters and Setters

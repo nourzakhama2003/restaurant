@@ -49,7 +49,7 @@ public class RestaurantService {
         });
     }
 
-    // Correction ici: le paramètre est 'id' et non 'description'
+    // Correction ici: le paramÃ¨tre est 'id' et non 'description'
     public void deleteRestaurant(String id) {
         restaurantRepository.findById(id).ifPresent(r -> {
             r.setDeleted(true);

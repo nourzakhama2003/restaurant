@@ -26,8 +26,6 @@ public class GroupOrderController {
                     request.getRestaurantId(),
                     request.getCreatorId(),
                     request.getCreatorName(),
-                    request.getDeliveryAddress(),
-                    request.getDeliveryPhone(),
                     request.getOrderDeadline()
             );
             return ResponseEntity.ok(commande);
