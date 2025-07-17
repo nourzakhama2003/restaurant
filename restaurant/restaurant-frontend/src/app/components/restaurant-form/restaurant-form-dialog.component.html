@@ -1,50 +1,60 @@
 <h2 mat-dialog-title>
-  {{ isEditMode ? 'Modifier le restaurant' : 'Ajouter un restaurant' }}
+    {{ isEditMode ? 'Modifier le restaurant' : 'Ajouter un restaurant' }}
 </h2>
 
 <form [formGroup]="restaurantForm" (ngSubmit)="onSubmit()" class="restaurant-form">
 
-  <mat-form-field appearance="fill">
-    <mat-label>Nom</mat-label>
-    <input matInput formControlName="name" placeholder="Nom du restaurant" required />
-    <mat-error *ngIf="restaurantForm.get('name')?.hasError('required') && restaurantForm.get('name')?.touched">
-      Le nom est obligatoire
-    </mat-error>
-  </mat-form-field>
+    <mat-form-field appearance="fill">
+        <mat-label>Nom</mat-label>
+        <input matInput formControlName="name" placeholder="Nom du restaurant" required />
+        <mat-error *ngIf="restaurantForm.get('name')?.hasError('required') && restaurantForm.get('name')?.touched">
+            Le nom est obligatoire
+        </mat-error>
+    </mat-form-field>
 
-  <mat-form-field appearance="fill">
-    <mat-label>Description</mat-label>
-    <textarea matInput formControlName="description" placeholder="Description du restaurant" rows="3"></textarea>
-  </mat-form-field>
+    <mat-form-field appearance="fill">
+        <mat-label>Description</mat-label>
+        <textarea matInput formControlName="description" placeholder="Description du restaurant" rows="3"></textarea>
+    </mat-form-field>
 
-  <mat-form-field appearance="fill">
-    <mat-label>Adresse</mat-label>
-    <input matInput formControlName="address" placeholder="Adresse complète" />
-  </mat-form-field>
+    <mat-form-field appearance="fill">
+        <mat-label>Adresse</mat-label>
+        <input matInput formControlName="address" placeholder="Adresse complète" />
+    </mat-form-field>
 
-  <mat-form-field appearance="fill">
-    <mat-label>Téléphone</mat-label>
-    <input matInput formControlName="phone" placeholder="Numéro de téléphone" />
-  </mat-form-field>
+    <mat-form-field appearance="fill">
+        <mat-label>Téléphone</mat-label>
+        <input matInput formControlName="phone" placeholder="Numéro de téléphone" />
+    </mat-form-field>
 
-  <mat-form-field appearance="fill">
-    <mat-label>Type de cuisine</mat-label>
-    <input matInput formControlName="cuisineType" placeholder="Ex: Italienne, Tunisienne" />
-  </mat-form-field>
+    <mat-form-field appearance="fill">
+        <mat-label>Type de cuisine</mat-label>
+        <input matInput formControlName="cuisineType" placeholder="Ex: Italienne, Tunisienne" />
+    </mat-form-field>
 
-<div>
-      <label for="imageUpload">Upload Profile Image</label>
-      <input id="imageUpload" type="file" accept="image/*" (change)="onFileSelected($event)">
+    <div class="upload-container">
+        <!-- Hidden file input -->
+        <input id="imageUpload" type="file" accept="image/*" (change)="onFileSelected($event)" class="hidden-input">
+
+        <!-- Visible SVG trigger -->
+        <label for="imageUpload" class="upload-label">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="upload-icon">
+      <path d="M12 13v8"/>
+      <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/>
+      <path d="m8 17 4-4 4 4"/>
+    </svg>
+    <span class="upload-text">Upload Image</span>
+  </label>
     </div>
 
     <!-- Image preview -->
     <div *ngIf="selectedImage" class="image-preview">
-      <img [src]="selectedImage" alt="Profile Image Preview" style="max-width: 200px; max-height: 200px;">
+        <img [src]="selectedImage" alt="Profile Image Preview" style="max-width: 200px; max-height: 200px;">
     </div>
 
-  <mat-dialog-actions align="end" class="form-actions">
-    <button mat-stroked-button type="button" (click)="onCancel()">Annuler</button>
-    <button mat-flat-button color="primary" type="submit" [disabled]="restaurantForm.invalid" (click)="onSubmit()">Enregistrer</button>
-  </mat-dialog-actions>
+    <mat-dialog-actions align="end" class="form-actions">
+        <button mat-stroked-button type="button" (click)="onCancel()">Annuler</button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="restaurantForm.invalid" (click)="onSubmit()">Enregistrer</button>
+    </mat-dialog-actions>
 
 </form>
