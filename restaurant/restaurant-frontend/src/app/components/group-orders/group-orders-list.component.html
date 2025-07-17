@@ -2,7 +2,7 @@
     <div class="row">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>Group Orders</h2>
+                <h2>commandes</h2>
                 <div class="header-actions">
                     <button mat-button color="accent" (click)="goToMyOrders()">
                 <mat-icon>history</mat-icon>
@@ -10,14 +10,14 @@
               </button>
                     <button mat-raised-button color="primary" (click)="createGroupOrder()">
                 <mat-icon>add</mat-icon>
-                Create Group Order
+                Create commande
               </button>
                 </div>
             </div>
 
             <div class="row mb-3">
                 <div class="col-md-4">
-                    <mat-form-field appearance="outline" class="w-100">
+                    <mat-form-field class="w-100">
                         <mat-label>Filter by Restaurant</mat-label>
                         <mat-select [(value)]="selectedRestaurantId" (selectionChange)="filterByRestaurant()">
                             <mat-option value="">All Restaurants</mat-option>
@@ -61,7 +61,22 @@
 
                             <p><strong>Creator:</strong> {{commande.creatorName}}</p>
                             <div class="deadline-clock-list">
-                                <mat-icon class="clock-icon-list" [ngClass]="getCountdownColor(commande.id)">schedule</mat-icon>
+                                <div class="realistic-clock flex gap-0">
+                                    <div class="clock-face">
+                                        <div class="glass-cover"></div>
+                                        <div class="hour hand"></div>
+                                        <div class="minute hand"></div>
+                                        <div class="second hand"></div>
+                                        <div class="center-circle"></div>
+                                        <div class="clock-numbers">
+                                            <p style="top: 0.5px; left: 135px;" class="number">12</p>
+                                            <p style="top: 100px; right: 10px;" class="number">3</p>
+                                            <p style="bottom: 0.5px; left: 135px;" class="number">6</p>
+                                            <p style="top: 100px; left: 10px;" class="number">9</p>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <span class="countdown-time-list" [ngClass]="getCountdownColor(commande.id)">{{getCountdownDisplay(commande.id)}}</span>
                             </div>
                             <p><strong>Participants:</strong> {{getParticipantCount(commande.id)}} </p>

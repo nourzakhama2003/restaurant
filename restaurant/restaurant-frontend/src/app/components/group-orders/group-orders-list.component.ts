@@ -6,11 +6,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { CommandeService, Commande } from '../../services/commande.service';
 import { RestaurantService } from '../../services/restaurant.service';
 import { OrderService } from '../../services/order.service';
 import { Restaurant } from '../../models/restaurant.model';
+import { OrderSubmissionComponent } from '../order-submission/order-submission.component';
 import { forkJoin } from 'rxjs';
 import { CountdownService } from '../../services/counttdown.service';
 import { Subscription } from 'rxjs';
@@ -45,7 +48,9 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
     private orderService: OrderService,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private countdownService: CountdownService
+    private countdownService: CountdownService,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
@@ -161,7 +166,36 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
   }
 
   participateInOrder(commandeId: string): void {
-    this.router.navigate(['/group-orders/participate', commandeId]);
+    // Find the commande to get restaurantId
+    const commande = this.commandes.find(c => c.id === commandeId);
+    if (!commande) {
+      this.snackBar.open('Group order not found', 'Close', { duration: 3000 });
+      return;
+    }
+
+    // Check if participation is still open
+    if (!this.canParticipate(commande)) {
+      this.snackBar.open('Participation time has expired for this group order.', 'Close', { duration: 3000 });
+      return;
+    }
+
+    const dialogRef = this.dialog.open(OrderSubmissionComponent, {
+      width: '1000px',
+      maxWidth: '95vw',
+      data: {
+        commandeId: commandeId,
+        restaurantId: commande.restaurantId
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Order was submitted successfully
+        this.snackBar.open('Order submitted successfully!', 'Close', { duration: 3000 });
+        // Refresh the commandes to show updated orders
+        this.loadAllCommandes();
+      }
+    });
   }
 
   isParticipationExpired(commande: Commande): boolean {

@@ -49,7 +49,6 @@ public class GroupOrderController {
                     request.getCommandeId(),
                     request.getParticipantId(),
                     request.getParticipantName(),
-                    request.getParticipantPhone(),
                     request.getItems(),
                     request.getNotes()
             );
@@ -139,7 +138,6 @@ public class GroupOrderController {
         private String commandeId;
         private String participantId;
         private String participantName;
-        private String participantPhone;
         private List<OrderItem> items;
         private String notes;
 
@@ -150,8 +148,6 @@ public class GroupOrderController {
         public void setParticipantId(String participantId) { this.participantId = participantId; }
         public String getParticipantName() { return participantName; }
         public void setParticipantName(String participantName) { this.participantName = participantName; }
-        public String getParticipantPhone() { return participantPhone; }
-        public void setParticipantPhone(String participantPhone) { this.participantPhone = participantPhone; }
         public List<OrderItem> getItems() { return items; }
         public void setItems(List<OrderItem> items) { this.items = items; }
         public String getNotes() { return notes; }

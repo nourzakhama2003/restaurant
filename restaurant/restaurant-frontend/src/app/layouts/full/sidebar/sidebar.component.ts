@@ -11,13 +11,17 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { navItems } from './sidebar-data';
+import { AppNavItemComponent } from './nav-item/nav-item.component';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [BrandingComponent, TablerIconsModule,  MatCardModule,
-                                                   MatIconModule,
-                                                   MatButtonModule],
+  imports: [BrandingComponent, TablerIconsModule, MatCardModule,
+    MatIconModule,
+    MatButtonModule,
+    AppNavItemComponent
+  ],
   templateUrl: './sidebar.component.html',
 })
 export class SidebarComponent implements OnInit {
@@ -25,7 +29,13 @@ export class SidebarComponent implements OnInit {
   @Output() toggleMobileNav = new EventEmitter<void>();
   @Output() toggleCollapsed = new EventEmitter<void>();
 
-  constructor() {}
+  public navItems = navItems;
 
-  ngOnInit(): void {}
+  constructor() { }
+
+  ngOnInit(): void { }
+
+  trackByFn(index: number, item: any) {
+    return item.route || item.displayName || index;
+  }
 }

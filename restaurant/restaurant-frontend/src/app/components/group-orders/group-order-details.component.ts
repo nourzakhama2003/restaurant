@@ -287,7 +287,7 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
       return;
     }
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '300px',
+      width: '600px',
       data: { title: 'Delete Order', message: `Are you sure you want to delete ${order.participantName}'s order?` }
     });
     dialogRef.afterClosed().subscribe(result => {

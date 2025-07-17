@@ -1,4 +1,197 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+@import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: Roboto, Helvetica Neue, sans-serif;
+}
+
+/* Global form field styling - Make all Material fields look like regular HTML inputs */
+.mat-mdc-form-field {
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+/* Remove the outlined appearance and make them look like regular inputs */
+.mat-mdc-form-field.mat-mdc-form-field-appearance-outline .mat-mdc-form-field-wrapper {
+    padding: 0;
+}
+
+.mat-mdc-form-field.mat-mdc-form-field-appearance-outline .mat-mdc-form-field-flex {
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px;
+    min-height: 40px;
+    transition: border-color 0.2s ease;
+}
+
+.mat-mdc-form-field.mat-mdc-form-field-appearance-outline .mat-mdc-form-field-flex:hover {
+    border-color: #999;
+}
+
+.mat-mdc-form-field.mat-mdc-form-field-appearance-outline.mat-focused .mat-mdc-form-field-flex {
+    border-color: #007bff;
+    border-width: 2px;
+}
+
+/* Remove the outline border */
+.mat-mdc-form-field.mat-mdc-form-field-appearance-outline .mat-mdc-form-field-outline {
+    display: none !important;
+}
+
+/* Style the input field */
+.mat-mdc-form-field.mat-mdc-form-field-appearance-outline .mat-mdc-input-element {
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    color: #333;
+}
+
+.mat-mdc-form-field.mat-mdc-form-field-appearance-outline .mat-mdc-input-element::placeholder {
+    color: #999;
+}
+
+/* Style the label */
+.mat-mdc-form-field.mat-mdc-form-field-appearance-outline .mat-mdc-form-field-label {
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+/* Style the select dropdown */
+.mat-mdc-form-field.mat-mdc-form-field-appearance-outline .mat-mdc-select {
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    color: #333;
+}
+
+/* Style textarea */
+.mat-mdc-form-field.mat-mdc-form-field-appearance-outline .mat-mdc-text-field-wrapper {
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px;
+    min-height: 40px;
+    transition: border-color 0.2s ease;
+}
+
+.mat-mdc-form-field.mat-mdc-form-field-appearance-outline .mat-mdc-text-field-wrapper:hover {
+    border-color: #999;
+}
+
+.mat-mdc-form-field.mat-mdc-form-field-appearance-outline.mat-focused .mat-mdc-text-field-wrapper {
+    border-color: #007bff;
+    border-width: 2px;
+}
+
+/* Remove textarea outline */
+.mat-mdc-form-field.mat-mdc-form-field-appearance-outline .mat-mdc-text-field-wrapper .mat-mdc-form-field-outline {
+    display: none !important;
+}
+
+/* Style textarea input */
+.mat-mdc-form-field.mat-mdc-form-field-appearance-outline textarea.mat-mdc-input-element {
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    color: #333;
+    resize: vertical;
+    min-height: 60px;
+}
+
+/* Error states */
+.mat-mdc-form-field.mat-mdc-form-field-appearance-outline.mat-form-field-invalid .mat-mdc-form-field-flex,
+.mat-mdc-form-field.mat-mdc-form-field-appearance-outline.mat-form-field-invalid .mat-mdc-text-field-wrapper {
+    border-color: #dc3545;
+}
+
+/* Disabled state */
+.mat-mdc-form-field.mat-mdc-form-field-appearance-outline.mat-form-field-disabled .mat-mdc-form-field-flex,
+.mat-mdc-form-field.mat-mdc-form-field-appearance-outline.mat-form-field-disabled .mat-mdc-text-field-wrapper {
+    background-color: #f8f9fa;
+    border-color: #e9ecef;
+    color: #6c757d;
+}
+
+/* Remove form field spacing */
+.mat-mdc-form-field-subscript-wrapper {
+    display: none !important;
+}
+
+/* Style error messages */
+.mat-mdc-form-field-error {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+/* Make buttons look more regular too */
+.mat-mdc-raised-button {
+    border-radius: 4px !important;
+    font-weight: 500 !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+}
+
+.mat-mdc-button {
+    border-radius: 4px !important;
+    font-weight: 500 !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+}
+
+/* Style cards to look more regular */
+.mat-mdc-card {
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.mat-mdc-card-header {
+    padding: 16px 20px !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+    background-color: #f8f9fa !important;
+}
+
+.mat-mdc-card-content {
+    padding: 20px !important;
+}
+
+/* Make chips look more regular */
+.mat-mdc-chip {
+    border-radius: 16px !important;
+    font-weight: 500 !important;
+}
+
+/* Style select dropdown options */
+.mat-mdc-option {
+    padding: 8px 16px !important;
+    font-size: 14px !important;
+}
+
+.mat-mdc-option.mat-mdc-option-active {
+    background-color: #f8f9fa !important;
+}
+
+.mat-mdc-option.mat-mdc-selected {
+    background-color: #e3f2fd !important;
+    color: #1976d2 !important;
+}

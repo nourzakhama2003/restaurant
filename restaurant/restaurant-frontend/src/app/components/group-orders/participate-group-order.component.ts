@@ -10,12 +10,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
-import { CommandeService, Commande, OrderItem } from '../../services/commande.service';
+import { OrderSubmissionComponent } from '../order-submission/order-submission.component';
+import { CommandeService, Commande } from '../../services/commande.service';
+import { OrderItem } from '../../models/group-order.model';
 import { MenuService } from '../../services/menu.service';
 import { UserService } from '../../services/user.service';
 import { OrderService } from '../../services/order.service';
 import { MenuItem } from '../../models/menu-item.model';
-import { OrderSubmissionComponent } from '../order-submission/order-submission.component';
 import { CountdownService } from '../../services/counttdown.service';
 import { Subscription } from 'rxjs';
 
@@ -24,7 +25,6 @@ interface ParticipateRequest {
   commandeId: string;
   participantId: string;
   participantName: string;
-  participantPhone: string;
   items: OrderItem[];
   notes?: string;
 }
@@ -70,7 +70,6 @@ export class ParticipateGroupOrderComponent implements OnInit, OnDestroy {
     this.participateForm = this.fb.group({
       participantId: [''],
       participantName: [''],
-      participantPhone: ['', Validators.required],
       items: this.fb.array([]),
       notes: ['']
     });
@@ -220,7 +219,6 @@ export class ParticipateGroupOrderComponent implements OnInit, OnDestroy {
         commandeId: this.commandeId,
         participantId: this.participateForm.value.participantId,
         participantName: this.participateForm.value.participantName,
-        participantPhone: this.participateForm.value.participantPhone,
         items: items,
         totalAmount: this.getTotalAmount(),
         notes: this.participateForm.value.notes

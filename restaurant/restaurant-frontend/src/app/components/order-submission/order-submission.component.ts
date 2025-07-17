@@ -10,6 +10,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { OrderService } from '../../services/order.service';
 import { RestaurantService } from '../../services/restaurant.service';
@@ -31,278 +33,12 @@ import { OrderItem, Order } from '../../models/group-order.model';
     MatSelectModule,
     MatCardModule,
     MatIconModule,
-    MatDividerModule
+    MatDividerModule,
+    MatProgressSpinnerModule,
+    MatTooltipModule
   ],
-  template: `
-    <div class="order-submission-dialog">
-      <h1 mat-dialog-title>{{isEditMode ? 'Edit Your Order' : 'Submit Your Order'}}</h1>
-      
-      <mat-dialog-content class="dialog-content">
-        <form [formGroup]="orderForm">
-          <!-- User Information (Auto-filled) -->
-          <mat-card class="user-info-card mb-3">
-            <mat-card-header>
-              <mat-card-title>Your Information</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-              <div class="row">
-                <div class="col-md-6">
-                  <mat-form-field appearance="outline" class="w-100">
-                    <mat-label>Your Name</mat-label>
-                    <input matInput formControlName="participantName" readonly>
-                  </mat-form-field>
-                </div>
-                <div class="col-md-6">
-                  <mat-form-field appearance="outline" class="w-100">
-                    <mat-label>Phone Number *</mat-label>
-                    <input matInput formControlName="participantPhone" required placeholder="Enter your phone number">
-                    <mat-hint>Required for order delivery coordination</mat-hint>
-                    <mat-error *ngIf="orderForm.get('participantPhone')?.hasError('required')">
-                      Phone number is required for delivery
-                    </mat-error>
-                  </mat-form-field>
-                </div>
-              </div>
-            </mat-card-content>
-          </mat-card>
-
-          <!-- Menu Items Selection -->
-          <mat-card class="menu-items-card mb-3">
-            <mat-card-header>
-              <mat-card-title>Select Menu Items</mat-card-title>
-              <button mat-icon-button type="button" (click)="addMenuItem()" class="add-item-btn">
-                <mat-icon>add</mat-icon>
-              </button>
-            </mat-card-header>
-            <mat-card-content>
-              <!-- Loading state -->
-              <div *ngIf="menuItems.length === 0" class="loading-message">
-                <p>Loading menu items...</p>
-              </div>
-              
-              <!-- Menu items form -->
-              <div formArrayName="items" *ngIf="menuItems.length > 0">
-                <div *ngFor="let item of orderItems.controls; let i = index" [formGroupName]="i" class="menu-item-row mb-3">
-                  <mat-card class="item-card">
-                    <mat-card-content>
-                  <div class="row align-items-end">
-                    <div class="col-md-5"> <!-- Increased from col-md-4 to col-md-5 -->
-                      <mat-form-field appearance="outline" class="w-100">
-                        <mat-label>Menu Item</mat-label>
-                        <mat-select formControlName="menuItemId" (selectionChange)="onMenuItemSelect(i, $event.value)">
-                          <mat-option *ngFor="let menuItem of menuItems" [value]="menuItem.id">
-                            {{menuItem.name}} - \${{menuItem.price.toFixed(2)}}
-                            <br><small class="text-muted">{{menuItem.description}}</small>
-                          </mat-option>
-                        </mat-select>
-                        <mat-error *ngIf="item.get('menuItemId')?.hasError('required')">
-                          Menu item is required
-                        </mat-error>
-                      </mat-form-field>
-                    </div>
-                    <div class="col-md-2">
-                      <mat-form-field appearance="outline" class="w-100">
-                        <mat-label>Quantity</mat-label>
-                        <input matInput type="number" formControlName="quantity" min="1" 
-                               (input)="calculateItemTotal(i)">
-                        <mat-error *ngIf="item.get('quantity')?.hasError('required')">
-                          Quantity is required
-                        </mat-error>
-                        <mat-error *ngIf="item.get('quantity')?.hasError('min')">
-                          Minimum quantity is 1
-                        </mat-error>
-                      </mat-form-field>
-                    </div>
-                    <div class="col-md-3">
-                      <mat-form-field appearance="outline" class="w-100">
-                        <mat-label>Special Notes</mat-label>
-                        <input matInput formControlName="notes" placeholder="e.g., no onions">
-                      </mat-form-field>
-                    </div>
-                    <div class="col-md-1">
-                      <div class="item-total">
-                        <strong>\${{getItemSubtotal(i).toFixed(2)}}</strong>
-                      </div>
-                    </div>
-                    <div class="col-md-1">
-                      <button mat-icon-button type="button" (click)="removeMenuItem(i)" 
-                              [disabled]="orderItems.length === 1" color="warn">
-                        <mat-icon>remove</mat-icon>
-                      </button>
-                    </div>
-                  </div>
-                    </mat-card-content>
-                  </mat-card>
-                </div>
-              </div>
-              
-              <div *ngIf="orderItems.length === 0" class="no-items-message">
-                <p>No items added yet. Click the + button to add menu items.</p>
-              </div>
-            </mat-card-content>
-          </mat-card>
-
-          <!-- Order Notes -->
-          <mat-card class="notes-card mb-3">
-            <mat-card-header>
-              <mat-card-title>Additional Notes</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-              <mat-form-field appearance="outline" class="w-100">
-                <mat-label>Order Notes (Optional)</mat-label>
-                <textarea matInput formControlName="notes" rows="3" 
-                          placeholder="Any special instructions or requests..."></textarea>
-              </mat-form-field>
-            </mat-card-content>
-          </mat-card>
-
-          <!-- Order Summary -->
-          <mat-card class="summary-card">
-            <mat-card-header>
-              <mat-card-title>Order Summary</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-              <div class="order-summary">
-                <div class="summary-row">
-                  <span>Total Items:</span>
-                  <span>{{getTotalQuantity()}}</span>
-                </div>
-                <mat-divider></mat-divider>
-                <div class="summary-row total">
-                  <span><strong>Total Amount:</strong></span>
-                  <span><strong>\${{getTotalAmount()}}</strong></span>
-                </div>
-              </div>
-            </mat-card-content>
-          </mat-card>
-        </form>
-      </mat-dialog-content>
-
-      <mat-dialog-actions align="end">
-        <button mat-button (click)="onCancel()">Cancel</button>
-        <button mat-raised-button color="primary" (click)="onSubmit()" 
-                [disabled]="orderForm.invalid || isLoading || orderItems.length === 0">
-          {{isLoading ? (isEditMode ? 'Updating...' : 'Submitting...') : (isEditMode ? 'Update Order' : 'Submit Order')}}
-        </button>
-      </mat-dialog-actions>
-    </div>
-  `,
-  styles: [`
-    .order-submission-dialog {
-      width: 1200px; /* Further increased to 1200px for better field visibility */
-      max-width: 98vw; /* Increased to 98vw for maximum screen usage */
-      min-width: 900px; /* Set minimum width to ensure proper layout */
-    }
-
-    .dialog-content {
-      max-height: 80vh; /* Increased to 80vh for more content space */
-      overflow-y: auto;
-      padding: 20px; /* Increased padding for better spacing */
-    }
-
-    .user-info-card,
-    .menu-items-card,
-    .notes-card,
-    .summary-card {
-      margin-bottom: 20px; /* Increased spacing */
-    }
-
-    .add-item-btn {
-      margin-left: auto;
-    }
-
-    .item-card {
-      background-color: #f8f9fa;
-      margin-bottom: 12px; /* Increased spacing */
-      border: 1px solid #e0e0e0;
-    }
-
-    .menu-item-row {
-      border: 1px solid #dee2e6;
-      border-radius: 8px;
-      padding: 20px; /* Increased padding */
-      background-color: #fff;
-      margin-bottom: 16px;
-    }
-
-    .item-total {
-      text-align: center;
-      padding: 12px;
-      font-size: 18px; /* Increased font size */
-      color: #2e7d32;
-      font-weight: 600;
-    }
-
-    .no-items-message {
-      text-align: center;
-      color: #666;
-      padding: 30px;
-      font-size: 16px;
-    }
-
-    .loading-message {
-      text-align: center;
-      color: #666;
-      padding: 30px;
-      font-size: 16px;
-      font-style: italic;
-    }
-
-    .order-summary {
-      padding: 20px;
-      background-color: #f5f5f5;
-      border-radius: 8px;
-    }
-
-    .summary-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 0;
-      font-size: 16px;
-    }
-
-    .summary-row.total {
-      font-size: 20px; /* Increased font size */
-      color: #2e7d32;
-      border-top: 2px solid #e0e0e0;
-      margin-top: 10px;
-      padding-top: 15px;
-    }
-
-    .w-100 {
-      width: 100%;
-    }
-
-    .mb-3 {
-      margin-bottom: 1.5rem; /* Increased margin */
-    }
-
-    /* Better spacing for form fields */
-    .mat-form-field {
-      margin-bottom: 12px; /* Increased margin for better spacing */
-    }
-
-    /* Make menu item select dropdown wider and more readable */
-    .mat-select-panel {
-      max-width: 500px !important; /* Increased width for better visibility */
-      min-width: 400px !important; /* Increased minimum width */
-    }
-
-    /* Better alignment for menu item rows with more space */
-    .row.align-items-end {
-      min-height: 90px; /* Increased height for better spacing */
-    }
-
-    /* Improve form field appearance */
-    .mat-form-field-appearance-outline .mat-form-field-outline {
-      color: rgba(0,0,0,.12);
-    }
-
-    /* Better spacing for cards */
-    .mat-card {
-      padding: 20px; /* Increased padding for cards */
-    }
-  `]
+  templateUrl: './order-submission.component.html',
+  styleUrls: ['./order-submission.component.css']
 })
 export class OrderSubmissionComponent implements OnInit {
   orderForm: FormGroup;
@@ -330,7 +66,6 @@ export class OrderSubmissionComponent implements OnInit {
     this.orderForm = this.fb.group({
       participantId: [''],
       participantName: [''],
-      participantPhone: ['', Validators.required],
       items: this.fb.array([]),
       notes: ['']
     });
@@ -356,8 +91,7 @@ export class OrderSubmissionComponent implements OnInit {
         if (userInfo) {
           this.orderForm.patchValue({
             participantId: userInfo.id,
-            participantName: userInfo.name,
-            participantPhone: '' // User must provide phone number
+            participantName: userInfo.name
           });
         }
       },
@@ -375,7 +109,6 @@ export class OrderSubmissionComponent implements OnInit {
     this.orderForm.patchValue({
       participantId: existingOrder.participantId,
       participantName: existingOrder.participantName,
-      participantPhone: existingOrder.participantPhone,
       notes: existingOrder.notes || ''
     });
 
@@ -487,7 +220,6 @@ export class OrderSubmissionComponent implements OnInit {
         commandeId: this.data.commandeId,
         participantId: this.orderForm.value.participantId,
         participantName: this.orderForm.value.participantName,
-        participantPhone: this.orderForm.value.participantPhone,
         items: this.orderForm.value.items,
         totalAmount: this.getTotalAmount(),
         notes: this.orderForm.value.notes,

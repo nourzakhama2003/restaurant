@@ -1,20 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MenuDialogComponent } from '../menu-dialog/menu-dialog.component';
-
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RestaurantService } from '../../services/restaurant.service';
 import { Restaurant } from '../../models/restaurant.model';
 import { RestaurantFormDialogComponent } from '../restaurant-form/restaurant-form-dialog.component';
 import { ConfirmDialogRestaurantComponent } from '../../confirm-dialog-restaurant.component';
+import { MenuDialogComponent } from '../menu-dialog/menu-dialog.component';
+
 @Component({
   selector: 'app-restaurant-list',
   standalone: true,
@@ -24,10 +23,10 @@ import { ConfirmDialogRestaurantComponent } from '../../confirm-dialog-restauran
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
-    MatTableModule,
     MatIconModule,
     MatButtonModule,
-    MatDialogModule
+    MatDialogModule,
+    MatSnackBarModule
   ],
   templateUrl: './restaurant-list.component.html',
   styleUrls: ['./restaurant-list.component.css']
@@ -35,12 +34,11 @@ import { ConfirmDialogRestaurantComponent } from '../../confirm-dialog-restauran
 export class RestaurantListComponent implements OnInit {
   searchText = '';
   restaurants: Restaurant[] = [];
-  columns: string[] = ['index', 'name', 'address', 'phone', 'cuisineType', 'menu', 'actions'];
-  displayedColumns: string[] = ['name', 'address', 'menu', 'actions'];
 
   constructor(
     private restaurantService: RestaurantService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
@@ -49,38 +47,53 @@ export class RestaurantListComponent implements OnInit {
 
   loadRestaurants(): void {
     this.restaurantService.getAllRestaurants().subscribe({
-      next: (data) => this.restaurants = data,
+      next: (data) => (this.restaurants = data),
       error: (err) => this.handleError(err)
     });
   }
 
   filteredRestaurants(): Restaurant[] {
     const text = this.searchText.toLowerCase();
-    return this.restaurants.filter(r =>
-      (r.name ?? '').toLowerCase().includes(text) ||
-      (r.description ?? '').toLowerCase().includes(text)
+    return this.restaurants.filter(
+      (r) =>
+        (r.name ?? '').toLowerCase().includes(text) ||
+        (r.description ?? '').toLowerCase().includes(text)
     );
   }
 
   openDialog(restaurant?: Restaurant): void {
     const dialogRef = this.dialog.open(RestaurantFormDialogComponent, {
-      width: '500px',
+      width: '600px',
       data: restaurant || {}
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         if (restaurant && restaurant.id) {
           this.restaurantService.updateRestaurant(restaurant.id, result).subscribe({
-            next: updated => {
-              const index = this.restaurants.findIndex(r => r.id === restaurant.id);
-              if (index !== -1) this.restaurants[index] = updated;
+            next: (updated) => {
+              const index = this.restaurants.findIndex((r) => r.id === restaurant.id);
+              if (index !== -1) {
+                this.restaurants[index] = updated;
+                this.snackBar.open('Restaurant updated successfully!', 'Close', {
+                  duration: 3000,
+                  horizontalPosition: 'center',
+                  verticalPosition: 'top'
+                });
+              }
             },
             error: (err) => this.handleError(err)
           });
         } else {
           this.restaurantService.createRestaurant(result).subscribe({
-            next: newRest => this.restaurants.push(newRest),
+            next: (newRest) => {
+              this.restaurants.push(newRest);
+              this.snackBar.open('Restaurant added successfully!', 'Close', {
+                duration: 3000,
+                horizontalPosition: 'center',
+                verticalPosition: 'top'
+              });
+            },
             error: (err) => this.handleError(err)
           });
         }
@@ -90,15 +103,20 @@ export class RestaurantListComponent implements OnInit {
 
   deleteRestaurant(id: string): void {
     const dialogRef = this.dialog.open(ConfirmDialogRestaurantComponent, {
-      width: '300px',
+      width: '600px',
       data: { message: 'Voulez-vous vraiment supprimer ce restaurant ?' }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result === true) {
         this.restaurantService.deleteRestaurant(id).subscribe({
           next: () => {
-            this.restaurants = this.restaurants.filter(r => r.id !== id);
+            this.restaurants = this.restaurants.filter((r) => r.id !== id);
+            this.snackBar.open('Restaurant deleted successfully!', 'Close', {
+              duration: 3000,
+              horizontalPosition: 'center',
+              verticalPosition: 'top'
+            });
           },
           error: (err) => this.handleError(err)
         });
@@ -106,20 +124,24 @@ export class RestaurantListComponent implements OnInit {
     });
   }
 
-
   openMenuDialog(restaurant: Restaurant): void {
     const dialogRef = this.dialog.open(MenuDialogComponent, {
       width: '600px',
       data: restaurant
     });
 
-    dialogRef.afterClosed().subscribe(updatedRestaurant => {
-      // Refresh the restaurants list to get the latest menu items
+    dialogRef.afterClosed().subscribe(() => {
       this.loadRestaurants();
     });
   }
 
   private handleError(err: any): void {
     console.error(err);
+    this.snackBar.open('An error occurred. Please try again.', 'Close', {
+      duration: 3000,
+      horizontalPosition: 'center',
+      verticalPosition: 'top',
+      panelClass: ['error-snackbar']
+    });
   }
 }

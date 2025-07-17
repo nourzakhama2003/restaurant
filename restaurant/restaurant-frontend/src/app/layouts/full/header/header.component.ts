@@ -31,6 +31,7 @@ import { KeycloakService } from 'keycloak-angular';
     MatToolbarModule
   ],
   templateUrl: './header.component.html',
+  styleUrls: ['./header.component.css'],
   encapsulation: ViewEncapsulation.None,
 })
 export class HeaderComponent {

@@ -1,11 +1,16 @@
 <div class="d-flex align-items-center justify-content-between">
-  <div class="branding"><app-branding></app-branding></div>
+    <div class="branding">
+        <app-branding></app-branding>
+    </div>
 
-  @if(showToggle) {
-  <a href="javascript:void(0)" (click)="toggleMobileNav.emit()"
-     class="d-flex justify-content-center ng-star-inserted icon-40 align-items-center">
-    <i-tabler name="x" class="icon-20 d-flex"></i-tabler>
-  </a>
-  }
+    @if(showToggle) {
+    <a href="javascript:void(0)" (click)="toggleMobileNav.emit()" class="d-flex justify-content-center ng-star-inserted icon-40 align-items-center">
+        <i-tabler name="x" class="icon-20 d-flex"></i-tabler>
+    </a>
+    }
+</div>
 
+<!-- Render nav items with icons and labels -->
+<div class="sidebar-nav-list">
+    <app-nav-item *ngFor="let item of navItems; trackBy: trackByFn" [item]="item"></app-nav-item>
 </div>

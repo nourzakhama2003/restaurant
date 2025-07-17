@@ -18,13 +18,18 @@ export const navItems: NavItem[] = [
     chipContent: 'PRO',
   },
   {
-    displayName: 'Group Orders',
-    iconName: 'users',
+    displayName: 'commandes',
+    iconName: 'notebook-pen', // matches the SVG in the top strip
     route: '/group-orders',
     chip: true,
     chipClass: 'bg-light-success text-success',
     chipContent: 'NEW',
-  }
+  },
+  {
+    displayName: 'my orders',
+    iconName: 'list-check', // matches the SVG in the top strip
+    route: '/group-orders/my-orders',
+  },
 ];
 
 

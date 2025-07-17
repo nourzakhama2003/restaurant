@@ -20,7 +20,6 @@ public class Order {
     private String commandeId;
     private String participantId;
     private String participantName;
-    private String participantPhone;
     private List<OrderItem> items = new ArrayList<>();
     private double totalAmount;
     private String notes;

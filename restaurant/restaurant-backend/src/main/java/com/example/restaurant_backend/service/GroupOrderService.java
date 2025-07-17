@@ -53,7 +53,7 @@ public class GroupOrderService {
 
     // 3. Participate in a group commande
     public Order participateInGroupCommande(String commandeId, String participantId, String participantName, 
-                                           String participantPhone, List<OrderItem> items, String notes) {
+                                           List<OrderItem> items, String notes) {
         
         // Validate commande exists and is open for participation
         Commande commande = commandeRepository.findById(commandeId)
@@ -86,7 +86,6 @@ public class GroupOrderService {
         order.setCommandeId(commandeId);
         order.setParticipantId(participantId);
         order.setParticipantName(participantName);
-        order.setParticipantPhone(participantPhone);
         order.setItems(items);
         order.setTotalAmount(totalAmount);
         order.setNotes(notes);

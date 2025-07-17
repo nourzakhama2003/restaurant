@@ -63,7 +63,7 @@
                                     <mat-card-header>
                                         <mat-card-title class="text-sm">{{order?.participantName || 'Unknown Participant'}}</mat-card-title>
                                         <mat-card-subtitle>
-                                            Phone: {{order?.participantPhone || 'N/A'}} • {{order?.items?.length || 0}} items
+                                            {{order?.items?.length || 0}} items
                                         </mat-card-subtitle>
                                     </mat-card-header>
                                     <mat-card-content>
@@ -117,7 +117,19 @@
                         <h3>Order Deadline</h3>
                         <div class="deadline-clock-container">
                             <div class="deadline-label-row">
-                                <mat-icon class="clock-icon" [ngClass]="countdownColor">schedule</mat-icon>
+                                <div class="face">
+                                    <p class="v-index">II
+                                    </p>
+                                    <p class="h-index">II
+                                    </p>
+                                    <div class="hand">
+                                        <div class="hand">
+                                            <div class="hour"></div>
+                                            <div class="minute"></div>
+                                            <div class="second"></div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <span class="deadline-label">Time Remaining</span>
                             </div>
                             <div class="countdown-row">

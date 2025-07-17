@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { Order, OrderItem } from '../models/group-order.model';
 
 export interface Commande {
     id: string;
@@ -17,27 +18,6 @@ export interface Commande {
     allowParticipation?: boolean; // Whether participation is allowed
     orders?: Order[];
     deleted?: boolean;
-}
-
-export interface Order {
-    id: string;
-    commandeId: string;
-    participantId: string;
-    participantName: string;
-    participantPhone: string;
-    items: OrderItem[];
-    totalAmount: number;
-    notes?: string;
-    createdAt: Date;
-    deleted?: boolean;
-}
-
-export interface OrderItem {
-    menuItemId: string;
-    menuItemName: string;
-    unitPrice: number;
-    quantity: number;
-    notes?: string;
 }
 
 export interface CreateCommandeRequest {
@@ -125,9 +105,9 @@ export class CommandeService {
     // Update commande status
     updateCommandeStatus(commandeId: string, newStatus: string): Observable<Commande> {
         const statusUrl = `${this.apiUrl}/${commandeId}/status`;
-      { status: newStatus };
+        { status: newStatus };
 
-  
+
 
         return this.http.patch<Commande>(statusUrl, { status: newStatus });
     }
