@@ -13,6 +13,7 @@ import { Restaurant } from '../../models/restaurant.model';
 import { RestaurantFormDialogComponent } from '../restaurant-form/restaurant-form-dialog.component';
 import { ConfirmDialogRestaurantComponent } from '../../confirm-dialog-restaurant.component';
 import { MenuDialogComponent } from '../menu-dialog/menu-dialog.component';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-restaurant-list',
@@ -26,7 +27,8 @@ import { MenuDialogComponent } from '../menu-dialog/menu-dialog.component';
     MatIconModule,
     MatButtonModule,
     MatDialogModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    RouterModule
   ],
   templateUrl: './restaurant-list.component.html',
   styleUrls: ['./restaurant-list.component.css']

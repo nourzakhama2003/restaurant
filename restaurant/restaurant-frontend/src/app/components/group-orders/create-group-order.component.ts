@@ -11,11 +11,14 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { Router } from '@angular/router';
 import { RestaurantService } from '../../services/restaurant.service';
 import { CommandeService, Commande } from '../../services/commande.service';
 import { UserService } from '../../services/user.service';
 import { Restaurant } from '../../models/restaurant.model';
+import { Observable } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
 
 @Component({
   selector: 'app-create-group-order',
@@ -32,7 +35,8 @@ import { Restaurant } from '../../models/restaurant.model';
     MatCardModule,
     MatSnackBarModule,
     MatIconModule,
-    MatChipsModule
+    MatChipsModule,
+    MatAutocompleteModule
   ],
   templateUrl: "./create-group-order.component.html",
   styleUrls: ["./create-group-order.component.css"]
@@ -40,6 +44,7 @@ import { Restaurant } from '../../models/restaurant.model';
 export class CreateGroupOrderComponent implements OnInit {
   groupOrderForm: FormGroup;
   restaurants: Restaurant[] = [];
+  filteredRestaurants: Observable<Restaurant[]> = new Observable();
   isLoading = false;
   deadlineValidationMessage = '';
   isDeadlineValid = true;
@@ -53,7 +58,8 @@ export class CreateGroupOrderComponent implements OnInit {
     private snackBar: MatSnackBar
   ) {
     this.groupOrderForm = this.fb.group({
-      restaurantId: ['', Validators.required],
+      restaurantId: [''], // Hidden field, set when restaurant is selected
+      restaurantSearch: ['', Validators.required], // Search input field
       creatorId: [''], // Hidden field
       creatorName: [''], // Display only, readonly
       orderDeadlineDate: ['', Validators.required],
@@ -129,13 +135,59 @@ export class CreateGroupOrderComponent implements OnInit {
     this.restaurantService.getAllRestaurants().subscribe({
       next: (restaurants: Restaurant[]) => {
         this.restaurants = restaurants.filter((r: Restaurant) => !r.deleted);
+        this.setupRestaurantFilter();
       },
       error: (error: any) => {
         console.error('Error loading restaurants:', error);
         this.snackBar.open('Error loading restaurants', 'Close', { duration: 3000 });
       }
     });
-  } private validateDeadline(): { isValid: boolean; errorMessage?: string } {
+  }
+
+  private setupRestaurantFilter(): void {
+    this.filteredRestaurants = this.groupOrderForm.get('restaurantSearch')!.valueChanges.pipe(
+      startWith(''),
+      map(value => this._filterRestaurants(value || ''))
+    );
+
+    // Clear restaurantId when search field is cleared
+    this.groupOrderForm.get('restaurantSearch')!.valueChanges.subscribe(value => {
+      if (!value) {
+        this.groupOrderForm.patchValue({ restaurantId: '' });
+      }
+    });
+  }
+
+  private _filterRestaurants(value: string): Restaurant[] {
+    const filterValue = value.toLowerCase();
+    return this.restaurants.filter(restaurant =>
+      restaurant.name.toLowerCase().includes(filterValue) ||
+      (restaurant.cuisineType && restaurant.cuisineType.toLowerCase().includes(filterValue))
+    );
+  }
+
+  onRestaurantSelected(restaurant: Restaurant): void {
+    this.groupOrderForm.patchValue({
+      restaurantId: restaurant.id,
+      restaurantSearch: restaurant.name
+    });
+  }
+
+  // Custom validator to check if a restaurant is actually selected
+  isRestaurantSelected(): boolean {
+    const restaurantId = this.groupOrderForm.get('restaurantId')?.value;
+    const restaurantSearch = this.groupOrderForm.get('restaurantSearch')?.value;
+
+    // Check if restaurantId is set and search field matches a restaurant name
+    return restaurantId && restaurantSearch &&
+      this.restaurants.some(r => r.id === restaurantId && r.name === restaurantSearch);
+  }
+
+  displayRestaurantFn = (restaurant: Restaurant): string => {
+    return restaurant ? `${restaurant.name} - ${restaurant.cuisineType || 'No cuisine type'}` : '';
+  }
+
+  private validateDeadline(): { isValid: boolean; errorMessage?: string } {
     const dateValue = this.groupOrderForm.value.orderDeadlineDate;
     const timeValue = this.groupOrderForm.value.orderDeadlineTime;
 

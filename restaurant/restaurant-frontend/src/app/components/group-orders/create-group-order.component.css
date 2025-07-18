@@ -1,60 +1,99 @@
 .container-fluid {
-      padding: 20px;
-    }
-    
-    .mat-card {
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    
-    .mat-form-field {
-      margin-bottom: 16px;
-    }
-    
-    .status-indicator {
-      padding: 12px 16px;
-      background-color: #f5f5f5;
-      border-radius: 8px;
-      border-left: 4px solid #2196F3;
-      margin-bottom: 16px;
-    }
-    
-    .status-indicator .mat-icon {
-      margin-right: 8px;
-    }
-    
-    .text-primary {
-      color: #2196F3 !important;
-    }
-    
-    .text-warn {
-      color: #ff5722 !important;
-    }
-    
-    .text-accent {
-      color: #ff9800 !important;
-    }
-    
-    .alert {
-      padding: 12px 16px;
-      border-radius: 8px;
-      border: 1px solid transparent;
-    }
-    
-    .alert-warning {
-      background-color: #fff3cd;
-      border-color: #ffecb5;
-      color: #856404;
-    }
-    
-    .alert-success {
-      background-color: #d1edff;
-      border-color: #b8daff;
-      color: #0c5460;
-    }
-    
-    .alert .mat-icon {
-      margin-right: 8px;
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-    }
+    padding: 20px;
+}
+
+.mat-card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.mat-form-field {
+    margin-bottom: 16px;
+}
+
+.status-indicator {
+    padding: 12px 16px;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    border-left: 4px solid #2196F3;
+    margin-bottom: 16px;
+}
+
+.status-indicator .mat-icon {
+    margin-right: 8px;
+}
+
+.text-primary {
+    color: #2196F3 !important;
+}
+
+.text-warn {
+    color: #ff5722 !important;
+}
+
+.text-accent {
+    color: #ff9800 !important;
+}
+
+.alert {
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+}
+
+.alert-warning {
+    background-color: #fff3cd;
+    border-color: #ffecb5;
+    color: #856404;
+}
+
+.alert-success {
+    background-color: #d1edff;
+    border-color: #b8daff;
+    color: #0c5460;
+}
+
+.alert .mat-icon {
+    margin-right: 8px;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+}
+
+
+/* Restaurant search autocomplete styling */
+
+.restaurant-option {
+    display: flex;
+    flex-direction: column;
+    padding: 4px 0;
+}
+
+.restaurant-name {
+    font-weight: 500;
+    color: #333;
+    font-size: 14px;
+}
+
+.restaurant-cuisine {
+    font-size: 12px;
+    color: #666;
+    margin-top: 2px;
+}
+
+.mat-autocomplete-panel {
+    max-height: 300px !important;
+}
+
+.mat-option {
+    height: auto !important;
+    line-height: 1.4 !important;
+    padding: 8px 16px !important;
+}
+
+.mat-option:hover {
+    background-color: #f5f5f5;
+}
+
+.mat-form-field-suffix .mat-icon {
+    color: #666;
+}

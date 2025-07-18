@@ -18,14 +18,28 @@
             <div class="row mb-3">
                 <div class="col-md-4">
                     <mat-form-field class="w-100">
-                        <mat-label>Filter by Restaurant</mat-label>
-                        <mat-select [(value)]="selectedRestaurantId" (selectionChange)="filterByRestaurant()">
-                            <mat-option value="">All Restaurants</mat-option>
-                            <mat-option *ngFor="let restaurant of restaurants" [value]="restaurant.id">
-                                {{restaurant.name}}
+                        <mat-label>Search Restaurant</mat-label>
+                        <input type="text" matInput [formControl]="restaurantSearchControl" [matAutocomplete]="auto" placeholder="Type restaurant name or cuisine type..." (input)="onSearchInput()">
+                        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onRestaurantSelected($event.option.value)" [displayWith]="displayRestaurantFn">
+                            <mat-option value="">
+                                <em>All Restaurants</em>
                             </mat-option>
-                        </mat-select>
+                            <mat-option *ngFor="let restaurant of filteredRestaurants | async" [value]="restaurant">
+                                <div class="restaurant-option">
+                                    <div class="restaurant-name">{{restaurant.name}}</div>
+                                    <div class="restaurant-cuisine">{{restaurant.cuisineType || 'No cuisine type'}}</div>
+                                </div>
+                            </mat-option>
+                        </mat-autocomplete>
+                        <mat-icon matSuffix>search</mat-icon>
+                        <mat-hint>Start typing to search restaurants by name or cuisine type</mat-hint>
                     </mat-form-field>
+                </div>
+                <div class="col-md-2">
+                    <button mat-stroked-button (click)="clearRestaurantFilter()" class="w-100">
+                        <mat-icon>clear</mat-icon>
+                        Clear Filter
+                    </button>
                 </div>
             </div>
 

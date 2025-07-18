@@ -21,13 +21,20 @@
             </div>
 
             <!-- Loading state -->
-            <div *ngIf="menuItems.length === 0" class="loading-state">
+            <div *ngIf="isLoadingMenuItems" class="loading-state">
                 <mat-spinner diameter="30"></mat-spinner>
                 <p>Loading menu items...</p>
             </div>
 
+            <!-- No menu items available -->
+            <div *ngIf="!isLoadingMenuItems && menuItems.length === 0" class="no-menu-items">
+                <mat-icon>restaurant_menu</mat-icon>
+                <p>No menu items available for this restaurant.</p>
+                <p class="text-muted">Please contact the restaurant administrator.</p>
+            </div>
+
             <!-- Menu items -->
-            <div formArrayName="items" *ngIf="menuItems.length > 0" class="items-container">
+            <div formArrayName="items" *ngIf="!isLoadingMenuItems && menuItems.length > 0" class="items-container">
                 <div *ngFor="let item of orderItems.controls; let i = index" [formGroupName]="i" class="item-row">
                     <div class="item-content">
                         <div class="item-select">

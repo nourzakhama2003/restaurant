@@ -6,8 +6,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { FormsModule } from '@angular/forms';
 import { OrderService } from '../../services/order.service';
-import { CommandeService } from '../../services/commande.service';
+import { CommandeService, CommandeWithRestaurant } from '../../services/commande.service';
 import { UserService } from '../../services/user.service';
 import { Order } from '../../models/group-order.model';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -23,7 +28,11 @@ import { ConfirmDialogComponent } from '../../confirm-dialog.component';
     MatIconModule,
     MatTableModule,
     MatDialogModule,
-  
+    MatFormFieldModule,
+    MatInputModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    FormsModule
   ],
   template: `
     <div class="my-orders-wrapper">
@@ -38,15 +47,43 @@ import { ConfirmDialogComponent } from '../../confirm-dialog.component';
         </button>
       </div>
 
+      <!-- Search and Filter Section -->
+      <div class="search-filter-section">
+        <div class="search-row">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Search by restaurant name</mat-label>
+            <input matInput [(ngModel)]="searchTerm" (input)="applyFilters()" placeholder="Enter restaurant name...">
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline" class="date-field">
+            <mat-label>Filter by date</mat-label>
+            <input matInput [matDatepicker]="picker" [(ngModel)]="selectedDate" (dateChange)="applyFilters()" placeholder="Choose a date">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+          
+          <button mat-stroked-button (click)="clearFilters()" class="clear-btn">
+            <mat-icon>clear</mat-icon>
+            Clear Filters
+          </button>
+        </div>
+        
+        <div class="filter-info" *ngIf="searchTerm || selectedDate">
+          <mat-icon>filter_list</mat-icon>
+          <span>Showing {{ filteredOrders.length }} of {{ orders.length }} orders</span>
+        </div>
+      </div>
+
       <div *ngIf="isLoading" class="loading-state">
         <mat-icon class="spinning">refresh</mat-icon>
         <p>Loading your orders...</p>
       </div>
 
       <ng-container *ngIf="!isLoading">
-        <div *ngIf="orders.length > 0; else noOrders">
+        <div *ngIf="filteredOrders.length > 0; else noOrders">
           <div class="orders-timeline">
-            <div *ngFor="let order of orders; let i = index" class="timeline-item">
+            <div *ngFor="let order of filteredOrders; let i = index" class="timeline-item">
               <div class="timeline-badge">
                 <span class="order-number">{{ i + 1 }}</span>
               </div>
@@ -58,11 +95,14 @@ import { ConfirmDialogComponent } from '../../confirm-dialog.component';
                   </mat-card-title>
                   <mat-card-subtitle>
                     <div class="order-meta">
+                      <span class="restaurant-name" *ngIf="getRestaurantName(order.commandeId)">
+                        <mat-icon>restaurant</mat-icon> {{ getRestaurantName(order.commandeId) }}
+                      </span>
                       <span><mat-icon>person</mat-icon> {{ order.participantName }}</span>
                       <span><mat-icon>schedule</mat-icon> {{ formatDate(order.createdAt) }}</span>
                       <span *ngIf="getCommandeInfo(order.commandeId)">
                         <mat-icon>info</mat-icon>
-                        <span class="status-badge" [ngClass]="getCommandeInfo(order.commandeId)?.status.toLowerCase()">{{ getCommandeInfo(order.commandeId)?.status }}</span>
+                        <span class="status-badge" [ngClass]="getCommandeInfo(order.commandeId)?.status?.toLowerCase() || ''">{{ getCommandeInfo(order.commandeId)?.status || 'Unknown' }}</span>
                       </span>
                     </div>
                   </mat-card-subtitle>
@@ -93,9 +133,12 @@ import { ConfirmDialogComponent } from '../../confirm-dialog.component';
                   <div class="group-order-info mt-3" *ngIf="getCommandeInfo(order.commandeId)">
                     <h5>Group Order</h5>
                     <div class="group-info">
+                      <span class="restaurant-info" *ngIf="getRestaurantName(order.commandeId)">
+                        <mat-icon>restaurant</mat-icon> <strong>Restaurant:</strong> {{ getRestaurantName(order.commandeId) }}
+                      </span>
                       <span><mat-icon>person</mat-icon> <strong>Created by:</strong> {{ getCommandeInfo(order.commandeId)?.creatorName }}</span>
                       <span><mat-icon>attach_money</mat-icon> <strong>Total:</strong> {{ getCommandeInfo(order.commandeId)?.totalPrice | currency:'USD':'symbol':'1.2-2' }}</span>
-                      <span><mat-icon>schedule</mat-icon> <strong>Status:</strong> <span class="status-badge" [ngClass]="getCommandeInfo(order.commandeId)?.status.toLowerCase()">{{ getCommandeInfo(order.commandeId)?.status }}</span></span>
+                      <span><mat-icon>schedule</mat-icon> <strong>Status:</strong> <span class="status-badge" [ngClass]="getCommandeInfo(order.commandeId)?.status?.toLowerCase() || ''">{{ getCommandeInfo(order.commandeId)?.status || 'Unknown' }}</span></span>
                     </div>
                   </div>
                 </mat-card-content>
@@ -116,8 +159,13 @@ import { ConfirmDialogComponent } from '../../confirm-dialog.component';
         <ng-template #noOrders>
           <div class="empty-state">
             <mat-icon class="large-icon">shopping_cart_off</mat-icon>
-            <h3>No Orders Yet</h3>
-            <p class="text-muted">You haven't participated in any group orders yet. Start exploring and join your first group order!</p>
+            <h3>No Orders Found</h3>
+            <p class="text-muted" *ngIf="searchTerm || selectedDate">
+              No orders match your current filters. Try adjusting your search criteria.
+            </p>
+            <p class="text-muted" *ngIf="!searchTerm && !selectedDate">
+              You haven't participated in any group orders yet. Start exploring and join your first group order!
+            </p>
             <button mat-raised-button color="primary" (click)="goToGroupOrders()">
               <mat-icon>add_shopping_cart</mat-icon>
               Browse Group Orders
@@ -151,6 +199,41 @@ import { ConfirmDialogComponent } from '../../confirm-dialog.component';
       color: #6c757d;
       font-size: 1.1rem;
       margin-bottom: 0;
+    }
+    .search-filter-section {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      border: 1px solid #e9ecef;
+    }
+    .search-row {
+      display: flex;
+      gap: 16px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+    .search-field {
+      flex: 1;
+      min-width: 250px;
+    }
+    .date-field {
+      min-width: 200px;
+    }
+    .clear-btn {
+      height: 56px;
+      white-space: nowrap;
+    }
+    .filter-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: #e3f2fd;
+      border-radius: 8px;
+      color: #1976d2;
+      font-size: 0.9rem;
     }
     .orders-timeline {
       display: flex;
@@ -227,6 +310,14 @@ import { ConfirmDialogComponent } from '../../confirm-dialog.component';
       gap: 5px;
       font-size: 0.97em;
       color: #555;
+    }
+    .restaurant-name {
+      font-weight: 600;
+      color: #4f46e5 !important;
+      background: #f3f4f6;
+      padding: 4px 12px;
+      border-radius: 8px;
+      margin-right: 8px;
     }
     .status-badge {
       padding: 2px 10px;
@@ -335,6 +426,10 @@ import { ConfirmDialogComponent } from '../../confirm-dialog.component';
       margin-right: 4px;
       color: #7c3aed;
     }
+    .restaurant-info {
+      color: #4f46e5 !important;
+      font-weight: 500;
+    }
     .empty-state {
       text-align: center;
       padding: 60px 0 40px 0;
@@ -372,6 +467,16 @@ import { ConfirmDialogComponent } from '../../confirm-dialog.component';
         align-items: flex-start;
         gap: 8px;
       }
+      .search-row {
+        flex-direction: column;
+        gap: 12px;
+      }
+      .search-field, .date-field {
+        min-width: 100%;
+      }
+      .clear-btn {
+        width: 100%;
+      }
       .orders-timeline {
         gap: 10px;
       }
@@ -389,9 +494,12 @@ import { ConfirmDialogComponent } from '../../confirm-dialog.component';
 })
 export class MyOrdersComponent implements OnInit {
   orders: Order[] = [];
-  commandeDetails: { [key: string]: any } = {};
+  commandeDetails: { [key: string]: CommandeWithRestaurant } = {};
   isLoading = false;
   currentUserId: string = '';
+  searchTerm: string = '';
+  selectedDate: Date | null = null;
+  filteredOrders: Order[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -431,6 +539,7 @@ export class MyOrdersComponent implements OnInit {
     this.orderService.getOrdersByParticipantId(this.currentUserId).subscribe({
       next: (orders) => {
         this.orders = orders.filter(order => !order.deleted);
+        this.filteredOrders = [...this.orders]; // Initialize filtered orders
         this.loadCommandeDetails();
         this.isLoading = false;
       },
@@ -446,9 +555,11 @@ export class MyOrdersComponent implements OnInit {
     const commandeIds = [...new Set(this.orders.map(order => order.commandeId))];
 
     commandeIds.forEach(commandeId => {
-      this.commandeService.getCommandeById(commandeId).subscribe({
+      this.commandeService.getCommandeWithRestaurantById(commandeId).subscribe({
         next: (commande) => {
           this.commandeDetails[commandeId] = commande;
+          // Apply filters after each commande is loaded to update restaurant names
+          this.applyFilters();
         },
         error: (error) => {
           console.error(`Error loading commande ${commandeId}:`, error);
@@ -457,8 +568,13 @@ export class MyOrdersComponent implements OnInit {
     });
   }
 
-  getCommandeInfo(commandeId: string): any {
-    return this.commandeDetails[commandeId];
+  getCommandeInfo(commandeId: string): CommandeWithRestaurant | null {
+    return this.commandeDetails[commandeId] || null;
+  }
+
+  getRestaurantName(commandeId: string): string | null {
+    const commandeInfo = this.getCommandeInfo(commandeId);
+    return commandeInfo?.restaurantName || null;
   }
 
   formatDate(date: Date): string {
@@ -472,9 +588,10 @@ export class MyOrdersComponent implements OnInit {
     // Allow deletion only if group order is still open for participation
     const now = new Date();
     const createdAt = new Date(commandeInfo.createdAt);
-    const participationEndTime = new Date(createdAt.getTime() + (commandeInfo.participationDurationMinutes * 60 * 1000));
+    const participationDurationMinutes = commandeInfo.participationDurationMinutes || 60; // Default to 60 minutes
+    const participationEndTime = new Date(createdAt.getTime() + (participationDurationMinutes * 60 * 1000));
 
-    return now < participationEndTime && commandeInfo.allowParticipation;
+    return now < participationEndTime && (commandeInfo.allowParticipation ?? true);
   }
 
   canManageOrder(order: Order): boolean {
@@ -535,5 +652,27 @@ export class MyOrdersComponent implements OnInit {
 
   goToGroupOrders(): void {
     this.router.navigate(['/group-orders']);
+  }
+
+  applyFilters(): void {
+    this.filteredOrders = this.orders.filter(order => {
+      // Check restaurant name from commande details
+      const commandeInfo = this.getCommandeInfo(order.commandeId);
+      const restaurantName = commandeInfo?.restaurantName || '';
+      const matchesSearchTerm = this.searchTerm ?
+        restaurantName.toLowerCase().includes(this.searchTerm.toLowerCase()) : true;
+
+      // Check date (considering only the date part, not time)
+      const matchesDate = this.selectedDate ?
+        new Date(order.createdAt).toDateString() === this.selectedDate.toDateString() : true;
+
+      return matchesSearchTerm && matchesDate;
+    });
+  }
+
+  clearFilters(): void {
+    this.searchTerm = '';
+    this.selectedDate = null;
+    this.applyFilters();
   }
 }

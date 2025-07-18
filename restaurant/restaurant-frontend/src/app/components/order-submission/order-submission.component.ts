@@ -44,6 +44,7 @@ export class OrderSubmissionComponent implements OnInit {
   orderForm: FormGroup;
   menuItems: MenuItem[] = [];
   isLoading = false;
+  isLoadingMenuItems = false;
   isEditMode = false;
   existingOrderId: string = '';
 
@@ -136,20 +137,34 @@ export class OrderSubmissionComponent implements OnInit {
     this.orderItems.push(itemGroup);
   }
 
-  loadMenuItems(): void {
+    loadMenuItems(): void {
+    if (!this.data.restaurantId) {
+      console.error('Restaurant ID is missing from dialog data');
+      this.snackBar.open('Error: Restaurant information is missing. Please try again.', 'Close', { duration: 3000 });
+      this.menuItems = [];
+      return;
+    }
+
+    this.isLoadingMenuItems = true;
     console.log('Loading menu items for restaurant ID:', this.data.restaurantId);
     // Use MenuService to load menu items directly, just like menu-dialog component
     this.menuService.getMenuItemsByRestaurant(this.data.restaurantId).subscribe({
       next: (menuItems: MenuItem[]) => {
+        this.isLoadingMenuItems = false;
         console.log('Menu items loaded from MenuService:', menuItems);
         // Filter for non-deleted items only
         this.menuItems = menuItems.filter((item: MenuItem) => !item.deleted);
         console.log('Filtered available menu items:', this.menuItems);
         console.log('Number of available menu items:', this.menuItems.length);
+        
+        if (this.menuItems.length === 0) {
+          this.snackBar.open('No menu items available for this restaurant.', 'Close', { duration: 3000 });
+        }
       },
       error: (error: any) => {
+        this.isLoadingMenuItems = false;
         console.error('Error loading menu items from MenuService:', error);
-        this.snackBar.open('Error loading menu items', 'Close', { duration: 3000 });
+        this.snackBar.open('Error loading menu items. Please try again.', 'Close', { duration: 3000 });
         this.menuItems = [];
       }
     });

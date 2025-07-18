@@ -1,11 +1,14 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
@@ -17,18 +20,24 @@ import { OrderSubmissionComponent } from '../order-submission/order-submission.c
 import { forkJoin } from 'rxjs';
 import { CountdownService } from '../../services/counttdown.service';
 import { Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-group-orders-list',
   standalone: true,
   imports: [
     CommonModule,
+    ReactiveFormsModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
     MatChipsModule,
     MatSelectModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    MatInputModule,
+    MatAutocompleteModule
   ],
   templateUrl: './group-orders-list.component.html',
   styleUrls: ['./group-orders-list.component.css']
@@ -38,6 +47,8 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
   filteredCommandes: Commande[] = [];
   restaurants: Restaurant[] = [];
   selectedRestaurantId: string = '';
+  restaurantSearchControl = new FormControl('');
+  filteredRestaurants: Observable<Restaurant[]> = new Observable();
   orderCounts: { [commandeId: string]: number } = {};
   orderTotals: { [commandeId: string]: number } = {};
   countdowns: { [commandeId: string]: { display: string, color: string, subscription: Subscription | null } } = {};
@@ -69,11 +80,51 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
     this.restaurantService.getAllRestaurants().subscribe({
       next: (restaurants: Restaurant[]) => {
         this.restaurants = restaurants.filter((r: Restaurant) => !r.deleted);
+        this.setupRestaurantFilter();
       },
       error: (error: any) => {
         console.error('Error loading restaurants:', error);
       }
     });
+  }
+
+  private setupRestaurantFilter(): void {
+    this.filteredRestaurants = this.restaurantSearchControl.valueChanges.pipe(
+      startWith(''),
+      map(value => this._filterRestaurants(value || ''))
+    );
+  }
+
+  private _filterRestaurants(value: string): Restaurant[] {
+    const filterValue = value.toLowerCase();
+    return this.restaurants.filter(restaurant =>
+      restaurant.name.toLowerCase().includes(filterValue) ||
+      (restaurant.cuisineType && restaurant.cuisineType.toLowerCase().includes(filterValue))
+    );
+  }
+
+  onRestaurantSelected(restaurant: Restaurant): void {
+    this.selectedRestaurantId = restaurant.id || '';
+    this.restaurantSearchControl.setValue(restaurant.name || '');
+    this.filterByRestaurant();
+  }
+
+  displayRestaurantFn = (restaurant: Restaurant): string => {
+    return restaurant ? `${restaurant.name} - ${restaurant.cuisineType || 'No cuisine type'}` : '';
+  }
+
+  onSearchInput(): void {
+    // When user types but doesn't select, clear the filter
+    if (!this.restaurantSearchControl.value) {
+      this.selectedRestaurantId = '';
+      this.filterByRestaurant();
+    }
+  }
+
+  clearRestaurantFilter(): void {
+    this.selectedRestaurantId = '';
+    this.restaurantSearchControl.setValue('');
+    this.filterByRestaurant();
   }
 
   loadAllCommandes(): void {

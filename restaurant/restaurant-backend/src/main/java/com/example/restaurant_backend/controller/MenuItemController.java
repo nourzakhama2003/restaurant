@@ -22,6 +22,11 @@ public class MenuItemController {
         return menuItemService.getByRestaurant(restaurantId);
     }
 
+    @GetMapping
+    public List<MenuItem> getAllMenuItems() {
+        return menuItemService.getAll();
+    }
+
     @PostMapping
     public MenuItem createMenuItem(@RequestBody MenuItem menuItem) {
 

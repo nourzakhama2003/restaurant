@@ -187,8 +187,8 @@ button[mat-flat-button]:disabled {
     align-items: center;
     gap: 0.5rem;
     padding: 1rem 2rem;
-    /* Tailwind blue-500 */
-    color: white;
+    color: #111;
+    background: #fff;
     border-radius: 0.5rem;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
@@ -196,25 +196,39 @@ button[mat-flat-button]:disabled {
     font-weight: 500;
     text-align: center;
     width: 100%;
+    border: 2px solid #222;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
-.upload-label:hover {
-    background-color: #2563eb;
-    /* Tailwind blue-600 */
-    transform: translateY(-2px);
-}
-
+.upload-label:hover,
 .upload-label:focus {
-    outline: 2px solid #2563eb;
-    outline-offset: 2px;
+    background: #fff;
+    color: #000;
+    border-color: #000;
+    font-weight: 700;
+    outline: none;
 }
 
 .upload-icon {
     width: 2rem;
     height: 2rem;
-    stroke: white;
+    stroke: #111;
+    transition: stroke 0.2s;
+}
+
+.upload-label:hover .upload-icon,
+.upload-label:focus .upload-icon {
+    stroke: #000;
 }
 
 .upload-text {
     margin-top: 0.25rem;
+    color: #111;
+    transition: color 0.2s;
+}
+
+.upload-label:hover .upload-text,
+.upload-label:focus .upload-text {
+    color: #000;
+    font-weight: 700;
 }

@@ -6,8 +6,10 @@ import com.example.restaurant_backend.service.OrderService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -170,6 +172,16 @@ public class OrderController {
             return ResponseEntity.ok(total);
         } catch (Exception e) {
             throw new GlobalException("Failed to calculate total price for participant: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/participant/{participantId}/filter")
+    public ResponseEntity<List<Order>> getOrdersByParticipant(@PathVariable String participantId) {
+        try {
+            List<Order> orders = this.orderService.getOrdersByParticipantId(participantId);
+            return ResponseEntity.ok(orders);
+        } catch (Exception e) {
+            throw new GlobalException("Failed to filter orders: " + e.getMessage());
         }
     }
 }

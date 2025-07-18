@@ -1,146 +1,227 @@
 /* Formulaire global - Style professionnel raffiné */
+
 .restaurant-form {
-  background-color: #ffffff;
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-  max-width: 580px;
-  margin: 40px auto;
-  font-family: 'Inter', system-ui, sans-serif;
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    max-width: 580px;
+    margin: 40px auto;
+    font-family: 'Inter', system-ui, sans-serif;
 }
 
+.upload-icon {
+    display: none !important;
+}
+
+
 /* Titre du formulaire */
+
 h2[mat-dialog-title] {
-  font-size: 28px;
-  color: #1a1a1a;
-  text-align: center;
-  margin-bottom: 32px;
-  font-weight: 600;
-  position: relative;
+    font-size: 28px;
+    color: #1a1a1a;
+    text-align: center;
+    margin-bottom: 32px;
+    font-weight: 600;
+    position: relative;
 }
 
 h2[mat-dialog-title]::after {
-  content: '';
-  position: absolute;
-  bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 3px;
-  background: linear-gradient(90deg, #4f46e5, #7c3aed);
-  border-radius: 3px;
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #4f46e5, #7c3aed);
+    border-radius: 3px;
 }
+
 
 /* Conteneur des champs */
+
 mat-form-field {
-  width: 100%;
-  margin-bottom: 24px;
+    width: 100%;
+    margin-bottom: 24px;
 }
 
+
 /* Style des inputs - Simple and clean like regular HTML inputs */
+
 .mat-mdc-text-field-wrapper {
-  background-color: white !important;
-  border-radius: 4px !important;
-  border: 1px solid #ccc !important;
-  transition: border-color 0.2s ease;
+    background-color: white !important;
+    border-radius: 4px !important;
+    border: 1px solid #ccc !important;
+    transition: border-color 0.2s ease;
 }
 
 .mat-mdc-form-field:hover .mat-mdc-text-field-wrapper {
-  border-color: #999 !important;
+    border-color: #999 !important;
 }
 
 .mat-mdc-form-field.mat-focused .mat-mdc-text-field-wrapper {
-  border-color: #007bff !important;
-  border-width: 2px !important;
-  box-shadow: none !important;
+    border-color: #007bff !important;
+    border-width: 2px !important;
+    box-shadow: none !important;
 }
+
 
 /* Remove the outline border completely */
+
 .mat-mdc-form-field .mat-mdc-form-field-outline {
-  display: none !important;
+    display: none !important;
 }
 
+
 /* Textes et labels */
+
 .mat-mdc-form-field-label,
 .mat-mdc-input-element {
-  color: #333 !important;
-  font-size: 14px !important;
+    color: #333 !important;
+    font-size: 14px !important;
 }
 
 .mat-mdc-input-element::placeholder {
-  color: #999 !important;
+    color: #999 !important;
 }
 
+
 /* Messages d'erreur */
+
 mat-error {
-  color: #dc2626 !important;
-  font-size: 13px;
-  margin-top: 6px;
-  display: flex;
-  align-items: center;
+    color: #dc2626 !important;
+    font-size: 13px;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
 }
 
 mat-error::before {
-  content: "⚠";
-  margin-right: 6px;
-  font-size: 14px;
+    content: "⚠";
+    margin-right: 6px;
+    font-size: 14px;
 }
+
 
 /* Zone d'actions */
+
 .mat-dialog-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 16px;
-  margin-top: 32px;
-  padding-top: 24px;
-  border-top: 1px solid #f3f4f6;
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid #f3f4f6;
 }
 
+
 /* Boutons */
+
 button[mat-stroked-button] {
-  border: 1px solid #d1d5db;
-  color: #374151;
-  font-weight: 500;
-  padding: 10px 24px;
-  border-radius: 4px;
-  transition: all 0.2s ease;
+    border: 1px solid #d1d5db;
+    color: #374151;
+    font-weight: 500;
+    padding: 10px 24px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
 }
 
 button[mat-stroked-button]:hover {
-  border-color: #007bff;
-  color: #007bff;
-  background-color: #f8f9fa;
+    border-color: #007bff;
+    color: #007bff;
+    background-color: #f8f9fa;
 }
 
 button[mat-flat-button] {
-  background-color: #007bff;
-  color: white;
-  padding: 10px 28px;
-  border-radius: 4px;
-  font-weight: 500;
-  transition: all 0.2s ease;
+    background-color: #007bff;
+    color: white;
+    padding: 10px 28px;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: all 0.2s ease;
 }
 
 button[mat-flat-button]:hover {
-  background-color: #0056b3;
+    background-color: #0056b3;
 }
 
 button[mat-flat-button]:disabled {
-  background: #e5e7eb;
-  color: #9ca3af;
+    background: #e5e7eb;
+    color: #9ca3af;
 }
 
+
 /* États des champs */
+
 .mat-mdc-form-field.ng-invalid .mat-mdc-text-field-wrapper {
-  border-color: #dc3545 !important;
-  background-color: #fff5f5 !important;
+    border-color: #dc3545 !important;
+    background-color: #fff5f5 !important;
 }
 
 .mat-mdc-form-field.ng-valid .mat-mdc-text-field-wrapper {
-  border-color: #28a745 !important;
+    border-color: #28a745 !important;
 }
 
+
 /* Remove form field spacing */
+
 .mat-mdc-form-field-subscript-wrapper {
-  display: none !important;
+    display: none !important;
+}
+
+.hidden-input {
+    display: none !important;
+}
+
+.upload-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    color: #111;
+    background: #fff;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    font-size: 1rem;
+    font-weight: 500;
+    text-align: center;
+    width: 100%;
+    border: 2px solid #222;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.upload-label:hover,
+.upload-label:focus {
+    background: #fff;
+    color: #000;
+    border-color: #000;
+    font-weight: 700;
+    outline: none;
+}
+
+.upload-icon {
+    width: 2rem;
+    height: 2rem;
+    stroke: #111;
+    transition: stroke 0.2s;
+}
+
+.upload-label:hover .upload-icon,
+.upload-label:focus .upload-icon {
+    stroke: #000;
+}
+
+.upload-text {
+    margin-top: 0.25rem;
+    color: #111;
+    transition: color 0.2s;
+}
+
+.upload-label:hover .upload-text,
+.upload-label:focus .upload-text {
+    color: #000;
+    font-weight: 700;
 }

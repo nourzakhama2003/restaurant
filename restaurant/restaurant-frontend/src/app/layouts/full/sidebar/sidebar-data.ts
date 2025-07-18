@@ -30,6 +30,11 @@ export const navItems: NavItem[] = [
     iconName: 'list-check', // matches the SVG in the top strip
     route: '/group-orders/my-orders',
   },
+  {
+    displayName: 'All Menu Items',
+    iconName: 'list-details',
+    route: '/all-menu-items',
+  },
 ];
 
 

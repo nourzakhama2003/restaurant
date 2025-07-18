@@ -2,6 +2,7 @@ package com.example.restaurant_backend.service;
 
 import com.example.restaurant_backend.entity.Commande;
 import com.example.restaurant_backend.entity.Order;
+import com.example.restaurant_backend.entity.Restaurant;
 import com.example.restaurant_backend.repository.CommandeRepository;
 import com.example.restaurant_backend.repository.OrderRepository;
 import org.springframework.stereotype.Service;
@@ -10,19 +11,22 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import com.example.restaurant_backend.dto.CommandeWithRestaurantDto;
 
 @Service
 public class CommandeService {
     private CommandeRepository commandeRepository;
     private OrderRepository orderRepository;
+    private RestaurantService restaurantService;
     
     // Cache for expiration check to avoid too frequent database calls
     private LocalDateTime lastExpirationCheck = LocalDateTime.now().minusMinutes(5);
     private static final int EXPIRATION_CHECK_INTERVAL_MINUTES = 1; // Check every minute
 
-    public CommandeService(CommandeRepository commandeRepository, OrderRepository orderRepository) {
+    public CommandeService(CommandeRepository commandeRepository, OrderRepository orderRepository, RestaurantService restaurantService) {
         this.commandeRepository = commandeRepository;
         this.orderRepository = orderRepository;
+        this.restaurantService = restaurantService;
     }
     
     /**
@@ -95,6 +99,35 @@ public class CommandeService {
         }
         
         return commande;
+    }
+
+    // Read by ID with restaurant information
+    public Optional<CommandeWithRestaurantDto> getCommandeWithRestaurantById(String id) {
+        Optional<Commande> commande = this.commandeRepository.findById(id);
+        
+        if (commande.isPresent()) {
+            Commande cmd = commande.get();
+            
+            // Auto-check this specific commande for expiration
+            if (cmd.shouldAutoClose()) {
+                cmd.autoCloseIfExpired();
+                cmd = this.commandeRepository.save(cmd);
+                System.out.println("✅ Auto-closed expired commande on access: " + cmd.getId());
+            }
+            
+            // Get restaurant information
+            String restaurantName = "Unknown Restaurant";
+            if (cmd.getRestaurantId() != null) {
+                Optional<Restaurant> restaurant = this.restaurantService.getRestaurantById(cmd.getRestaurantId());
+                if (restaurant.isPresent()) {
+                    restaurantName = restaurant.get().getName();
+                }
+            }
+            
+            return Optional.of(CommandeWithRestaurantDto.fromCommande(cmd, restaurantName));
+        }
+        
+        return Optional.empty();
     }
 
     // Read by Restaurant ID

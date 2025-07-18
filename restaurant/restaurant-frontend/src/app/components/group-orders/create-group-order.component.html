@@ -12,14 +12,23 @@
                         <div class="row">
                             <div class="col-md-12 mb-3">
                                 <mat-form-field class="w-100">
-                                    <mat-label>Select Restaurant</mat-label>
-                                    <mat-select formControlName="restaurantId" required>
-                                        <mat-option *ngFor="let restaurant of restaurants" [value]="restaurant.id">
-                                            {{restaurant.name}} - {{restaurant.cuisineType}}
+                                    <mat-label>Search Restaurant</mat-label>
+                                    <input type="text" matInput formControlName="restaurantSearch" [matAutocomplete]="auto" placeholder="Type restaurant name or cuisine type..." required>
+                                    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onRestaurantSelected($event.option.value)" [displayWith]="displayRestaurantFn">
+                                        <mat-option *ngFor="let restaurant of filteredRestaurants | async" [value]="restaurant">
+                                            <div class="restaurant-option">
+                                                <div class="restaurant-name">{{restaurant.name}}</div>
+                                                <div class="restaurant-cuisine">{{restaurant.cuisineType || 'No cuisine type'}}</div>
+                                            </div>
                                         </mat-option>
-                                    </mat-select>
-                                    <mat-error *ngIf="groupOrderForm.get('restaurantId')?.hasError('required')">
+                                    </mat-autocomplete>
+                                    <mat-icon matSuffix>search</mat-icon>
+                                    <mat-hint>Start typing to search restaurants by name or cuisine type</mat-hint>
+                                    <mat-error *ngIf="groupOrderForm.get('restaurantSearch')?.hasError('required')">
                                         Restaurant is required
+                                    </mat-error>
+                                    <mat-error *ngIf="groupOrderForm.get('restaurantSearch')?.value && !isRestaurantSelected()">
+                                        Please select a restaurant from the dropdown
                                     </mat-error>
                                 </mat-form-field>
                             </div>
@@ -78,7 +87,7 @@
 
                 <mat-card-actions align="end">
                     <button mat-button (click)="onCancel()" type="button">Cancel</button>
-                    <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="groupOrderForm.invalid || isLoading || !isDeadlineValid">
+                    <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="groupOrderForm.invalid || isLoading || !isDeadlineValid || !isRestaurantSelected()">
                 {{isLoading ? 'Creating...' : 'Create Group Order'}}
               </button>
                 </mat-card-actions>

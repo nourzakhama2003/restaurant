@@ -80,4 +80,7 @@ public class MenuItemService {
         });
     }
 
+    public List<MenuItem> getAll() {
+        return menuItemRepository.findAll();
+    }
 }

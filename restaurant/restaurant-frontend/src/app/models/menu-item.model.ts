@@ -1,8 +1,9 @@
 export interface MenuItem {
   id?: string;
-  name: string;              // obligatoire
+  restaurantId: string;
+  name: string;
   description?: string;
-  price: number;             // obligatoire
-  restaurantId: string;      // obligatoire (pas optionnel)
+  price: number;
+  imageBase64?: string; // Optional image in base64
   deleted?: boolean;
 }

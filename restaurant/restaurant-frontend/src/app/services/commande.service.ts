@@ -20,6 +20,10 @@ export interface Commande {
     deleted?: boolean;
 }
 
+export interface CommandeWithRestaurant extends Commande {
+    restaurantName: string;
+}
+
 export interface CreateCommandeRequest {
     restaurantId: string;
     creatorId: string;
@@ -48,6 +52,11 @@ export class CommandeService {
     // Get commande by ID
     getCommandeById(commandeId: string): Observable<Commande> {
         return this.http.get<Commande>(`${this.apiUrl}/${commandeId}`);
+    }
+
+    // Get commande by ID with restaurant information
+    getCommandeWithRestaurantById(commandeId: string): Observable<CommandeWithRestaurant> {
+        return this.http.get<CommandeWithRestaurant>(`${this.apiUrl}/${commandeId}/with-restaurant`);
     }
 
     // Get commandes by status

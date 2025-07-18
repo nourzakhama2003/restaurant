@@ -3,6 +3,7 @@ package com.example.restaurant_backend.controller;
 import com.example.restaurant_backend.Exception.GlobalException;
 import com.example.restaurant_backend.entity.Commande;
 import com.example.restaurant_backend.service.CommandeService;
+import com.example.restaurant_backend.dto.CommandeWithRestaurantDto;
 import jakarta.websocket.MessageHandler;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -68,6 +69,20 @@ CommandeController {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
             throw new GlobalException("Failed to retrieve commande: " + e.getMessage());
+        }
+    }
+
+    // Read by ID with restaurant information
+    @GetMapping("/{id}/with-restaurant")
+    public ResponseEntity<CommandeWithRestaurantDto> getCommandeWithRestaurantById(@PathVariable String id) {
+        try {
+            Optional<CommandeWithRestaurantDto> commande = this.commandeService.getCommandeWithRestaurantById(id);
+            if (commande.isPresent()) {
+                return ResponseEntity.ok(commande.get());
+            }
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            throw new GlobalException("Failed to retrieve commande with restaurant: " + e.getMessage());
         }
     }
 

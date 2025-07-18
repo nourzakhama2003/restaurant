@@ -27,7 +27,7 @@
 
                     <!-- Image -->
                     <div class="relative h-48 w-full bg-gray-100 overflow-hidden">
-                        <img [src]="restaurant.profileImageBase64 ? restaurant.profileImageBase64 : '/assets/images/vue-de-dehors.jpg'" [alt]="restaurant.name + ' Image'" class="absolute h-full w-full object-cover object-center transition-transform duration-500 hover:scale-105"
+                        <img [src]="restaurant.profileImageBase64 ? restaurant.profileImageBase64 : '/assets/images/vue-de-dehors.png'" [alt]="restaurant.name + ' Image'" class="absolute h-full w-full object-cover object-center transition-transform duration-500 hover:scale-105"
                         />
                     </div>
 
@@ -54,9 +54,9 @@
 
                         <!-- Actions -->
                         <div class="flex justify-between  mt-4">
-                            <button mat-icon-button color="primary" (click)="openMenuDialog(restaurant)" matTooltip="Voir Menu" class="rounded-full hover:bg-blue-50">
-                <mat-icon class="inset-y-1 right-2.5">restaurant_menu</mat-icon>
-              </button>
+                            <a [routerLink]="['/restaurants', restaurant.id, 'menu']" mat-stroked-button color="primary" class="menu-link">
+                                <mat-icon>restaurant_menu</mat-icon> View Menu
+                            </a>
                             <button mat-icon-button color="accent" class="rounded-full hover:bg-purple-50" (click)="openDialog(restaurant)" matTooltip="Modifier">
                 <mat-icon class="inset-y-1 right-2.5">edit</mat-icon>
               </button>

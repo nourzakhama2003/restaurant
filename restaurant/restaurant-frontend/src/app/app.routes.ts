@@ -6,6 +6,8 @@ import { RegisterComponent } from './auth/register/register.component';
 import { LoginComponent } from './auth/login/login.component';
 import { RegistrationSuccessComponent } from './auth/registration-success/registration-success.component';
 import { AuthGuard } from './guards/auth.guard';
+import { MenuListComponent } from './components/menu-list/menu-list.component';
+import { AllMenuItemsComponent } from './components/menu-list/all-menu-items.component';
 
 export const routes: Routes = [
   // Default route - let the auth guard handle the redirect
@@ -43,6 +45,14 @@ export const routes: Routes = [
         path: 'group-orders',
         loadChildren: () =>
           import('./pages/group-orders/group-orders.routes').then(m => m.GroupOrderRoutes),
+      },
+      {
+        path: 'restaurants/:id/menu',
+        component: MenuListComponent
+      },
+      {
+        path: 'all-menu-items',
+        component: AllMenuItemsComponent
       },
     ],
   },

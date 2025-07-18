@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MenuService } from '../../services/menu.service';
 import { MenuItem } from '../../models/menu-item.model';
 import { MatDialogModule } from '@angular/material/dialog';
+import { DomSanitizer } from '@angular/platform-browser';
 interface MenuItemFormData {
   restaurantId: string;
   menuItem?: MenuItem;
@@ -32,21 +33,35 @@ export class MenuItemFormComponent {
   form: FormGroup;
   restaurantId: string;
   menuItem?: MenuItem;
+  imageBase64: string | null = null;
 
   constructor(
     private fb: FormBuilder,
     private menuService: MenuService,
     public dialogRef: MatDialogRef<MenuItemFormComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: MenuItemFormData
+    @Inject(MAT_DIALOG_DATA) public data: MenuItemFormData,
+    private sanitizer: DomSanitizer
   ) {
     this.restaurantId = data.restaurantId;
     this.menuItem = data.menuItem;
+    this.imageBase64 = data.menuItem?.imageBase64 || null;
 
     this.form = this.fb.group({
       name: [this.menuItem?.name || '', Validators.required],
       description: [this.menuItem?.description || ''],
       price: [this.menuItem?.price ?? 0, [Validators.required, Validators.min(0)]],
     });
+  }
+
+  onImageSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.imageBase64 = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
   }
 
   submit(): void {
@@ -58,6 +73,7 @@ export class MenuItemFormComponent {
       id: this.menuItem?.id,
       restaurantId: this.restaurantId,
       ...this.form.value,
+      imageBase64: this.imageBase64
     };
 
     const request = menuItem.id

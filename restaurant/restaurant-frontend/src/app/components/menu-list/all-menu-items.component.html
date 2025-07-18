@@ -1,0 +1,48 @@
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold">All Menu Items</h2>
+        <div class="input-group w-50">
+            <span class="input-group-text"><mat-icon>search</mat-icon></span>
+            <input type="text" class="form-control" placeholder="Search by name, description, or restaurant..." [(ngModel)]="searchText">
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle bg-white">
+            <thead class="table-light">
+                <tr>
+                    <th scope="col">Image</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Restaurant</th>
+                    <th scope="col" class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of filteredMenuItems">
+                    <td class="text-center">
+                        <img [src]="getItemImage(item)" [alt]="item.name" style="width: 48px; height: 48px; object-fit: cover; border-radius: 50%; border: 2px solid #eee;" />
+                    </td>
+                    <td class="fw-semibold">{{ item.name }}</td>
+                    <td>{{ item.description }}</td>
+                    <td><span class="badge bg-success">${{ item.price | number:'1.2-2' }}</span></td>
+                    <td><span class="text-muted small">{{ getRestaurantName(item.restaurantId) }}</span></td>
+                    <td class="text-center">
+                        <button mat-icon-button color="accent" (click)="editItem(item)" matTooltip="Edit">
+              <mat-icon>edit</mat-icon>
+            </button>
+                        <button mat-icon-button color="warn" (click)="delete(item.id)" matTooltip="Delete">
+              <mat-icon>delete</mat-icon>
+            </button>
+                    </td>
+                </tr>
+                <tr *ngIf="filteredMenuItems.length === 0">
+                    <td colspan="6" class="text-center text-muted py-5">
+                        <mat-icon style="font-size: 48px; color: #bdbdbd;">restaurant_menu</mat-icon>
+                        <div class="mt-2">No menu items found.</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

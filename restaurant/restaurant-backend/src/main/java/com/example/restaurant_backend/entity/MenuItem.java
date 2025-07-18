@@ -19,7 +19,7 @@ public class MenuItem {
     private double price;
     private String restaurantId;
     private boolean deleted = false;
-
+    private String imageBase64; // Optional base64 image for the menu item
 
 
 }

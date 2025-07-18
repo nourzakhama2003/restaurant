@@ -255,12 +255,18 @@ export class ParticipateGroupOrderComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Check if commande and restaurantId are available
+    if (!this.commande || !this.commande.restaurantId) {
+      this.snackBar.open('Error: Restaurant information not available. Please try again.', 'Close', { duration: 3000 });
+      return;
+    }
+
     const dialogRef = this.dialog.open(OrderSubmissionComponent, {
       width: '1000px',
       maxWidth: '95vw',
       data: {
         commandeId: this.commandeId,
-        restaurantId: this.commande?.restaurantId
+        restaurantId: this.commande.restaurantId
       }
     });
 
