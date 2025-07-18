@@ -1,67 +1,63 @@
+<!-- Minimal Uiverse Card Demo for Testing -->
+
+
 <!-- menu-list.component.html -->
-<mat-card class="restaurant-card w-full">
-    <ng-container *ngIf="restaurant">
-        <div class="flex flex-col md:flex-row items-center gap-6 p-6 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl mb-6 shadow">
-            <img *ngIf="restaurant.profileImageBase64" [src]="restaurant.profileImageBase64" [alt]="restaurant.name + ' Image'" class="w-28 h-28 object-cover rounded-xl border border-gray-200 shadow-md" />
-            <div class="flex-1 text-center md:text-left">
-                <h2 class="text-3xl font-extrabold text-blue-900 mb-1">{{ restaurant.name }}</h2>
-                <div class="flex flex-col md:flex-row md:items-center gap-2 text-gray-600 text-base justify-center md:justify-start">
-                    <span *ngIf="restaurant.address" class="flex items-center"><mat-icon class="mr-1 text-blue-700">location_on</mat-icon> {{ restaurant.address }}</span>
-                    <span *ngIf="restaurant.cuisineType" class="flex items-center"><mat-icon class="mr-1 text-green-700">restaurant</mat-icon> {{ restaurant.cuisineType }}</span>
-                    <span *ngIf="restaurant.phone" class="flex items-center"><mat-icon class="mr-1 text-purple-700">phone</mat-icon> {{ restaurant.phone }}</span>
-                </div>
-                <p *ngIf="restaurant.description" class="mt-2 text-gray-500 italic">{{ restaurant.description }}</p>
+<ng-container *ngIf="restaurant">
+    <div class="flex flex-col md:flex-row items-center gap-6 p-6 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl mb-6 shadow">
+        <img *ngIf="restaurant.profileImageBase64" [src]="restaurant.profileImageBase64" [alt]="restaurant.name + ' Image'" class="w-28 h-28 object-cover rounded-xl border border-gray-200 shadow-md" />
+        <div class="flex-1 text-center md:text-left">
+            <h2 class="text-3xl font-extrabold text-blue-900 mb-1">{{ restaurant.name }}</h2>
+            <div class="flex flex-col md:flex-row md:items-center gap-2 text-gray-600 text-base justify-center md:justify-start">
+                <span *ngIf="restaurant.address" class="flex items-center"><mat-icon class="mr-1 text-blue-700">location_on</mat-icon> {{ restaurant.address }}</span>
+                <span *ngIf="restaurant.cuisineType" class="flex items-center"><mat-icon class="mr-1 text-green-700">restaurant</mat-icon> {{ restaurant.cuisineType }}</span>
+                <span *ngIf="restaurant.phone" class="flex items-center"><mat-icon class="mr-1 text-purple-700">phone</mat-icon> {{ restaurant.phone }}</span>
             </div>
+            <p *ngIf="restaurant.description" class="mt-2 text-gray-500 italic">{{ restaurant.description }}</p>
         </div>
-    </ng-container>
-
-    <div class="header-container flex justify-end">
-        <button mat-raised-button color="primary" (click)="addItem()">
-    <span class="text-lg font-semibold">+</span> Add Item
-  </button>
     </div>
+</ng-container>
 
-    <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 m-5">
-        <ng-container *ngIf="menuItems.length > 0; else noMenuItems">
-            <li *ngFor="let item of menuItems" class="w-full">
-                <div class="max-w-sm rounded-xl overflow-hidden shadow-md bg-white hover:shadow-xl transition-shadow border border-gray-200 relative mt-5">
-                    <!-- Enhanced Delete & Edit Buttons -->
-                    <div class="w-full flex justify-end">
-                        <button mat-icon-button color="accent" class="z-10 mb-2 bg-white/90 rounded-full shadow-lg hover:bg-purple-50 hover:shadow-xl transition-all transform hover:scale-110 mr-2" (click)="editItem(item)" matTooltip="Edit">
-              <mat-icon>edit</mat-icon>
-              <span class="sr-only">Edit menu item</span>
-          </button>
-                        <button mat-icon-button color="warn" class="z-10 mb-2 bg-white/90 rounded-full shadow-lg hover:bg-red-50 hover:shadow-xl transition-all transform hover:scale-110" (click)="delete(item.id)" matTooltip="Delete">
-              <mat-icon class="text-red-600">delete</mat-icon>
-              <span class="sr-only">Delete menu item</span>
-          </button>
-                    </div>
+<div class="header-container flex justify-end">
+    <button mat-raised-button color="primary" (click)="addItem()">
+<span class="text-lg font-semibold">+</span> Add Item
+</button>
+</div>
 
-                    <!-- Image -->
-                    <div class="relative h-48 w-full bg-gray-100 overflow-hidden">
-                        <img [src]="getItemImage(item)" [alt]="item.name + ' Image'" class="absolute h-full w-full object-cover object-center transition-transform duration-500 hover:scale-105" />
-                    </div>
-
-                    <!-- Content -->
-                    <div class="p-5">
-                        <h3 class="text-xl font-bold text-gray-800 truncate">{{ item.name }}</h3>
-                        <p class="text-sm text-gray-600 mb-3 truncate">{{ item.description }}</p>
-                        <div class="flex items-center gap-2 mt-2">
-                            <span class="font-bold text-green-700 bg-green-100 px-2 py-1 rounded-md text-base">${{ item.price.toFixed(2) }}</span>
-                        </div>
-                    </div>
+<ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 m-5">
+    <ng-container *ngIf="menuItems.length > 0; else noMenuItems">
+        <li *ngFor="let item of menuItems" class="w-full">
+            <div class="card">
+                <!-- Image -->
+                <div style="width: 100%; display: flex; justify-content: center;">
+                    <img [src]="getItemImage(item)" [alt]="item.name + ' Image'" style="width: 90%; height: 80px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.10);" />
                 </div>
-            </li>
-        </ng-container>
-        <ng-template #noMenuItems>
-            <li class="col-span-full flex flex-col items-center justify-center py-16 text-gray-500">
-                <mat-icon style="font-size: 64px; color: #bdbdbd;">restaurant_menu</mat-icon>
-                <div class="text-2xl font-semibold mt-4 mb-2">No menu items yet</div>
-                <div class="mb-6 text-base text-gray-400">Start by adding your first delicious menu item for this restaurant!</div>
-                <button mat-raised-button color="primary" (click)="addItem()">
-                    <mat-icon class="mr-2">add</mat-icon> Add First Menu Item
-                </button>
-            </li>
-        </ng-template>
-    </ul>
-</mat-card>
+                <!-- Content -->
+                <div style="width: 100%; text-align: center;">
+                    <p class="heading" style="margin-bottom: 2px; color: #222;">{{ item.name }}</p>
+                    <p style="font-size: 14px; color: #444; margin-bottom: 2px;">{{ item.description }}</p>
+                    <p style="color: #e81cff; font-weight: 600;">${{ item.price.toFixed(2) }}</p>
+                </div>
+                <div class="w-full flex justify-end ">
+                    <button mat-icon-button color="accent" class="mb-2 bg-white/90 rounded-full shadow-lg hover:bg-purple-50 hover:shadow-xl transition-all transform hover:scale-110 mr-2" (click)="editItem(item)" matTooltip="Edit">
+          <mat-icon>edit</mat-icon>
+          <span class="sr-only">Edit menu item</span>
+      </button>
+                    <button mat-icon-button color="warn" class="mb-2 bg-white/90 rounded-full shadow-lg hover:bg-red-50 hover:shadow-xl transition-all transform hover:scale-110" (click)="delete(item.id)" matTooltip="Delete">
+          <mat-icon class="text-red-600">delete</mat-icon>
+          <span class="sr-only">Delete menu item</span>
+      </button>
+                </div>
+            </div>
+        </li>
+    </ng-container>
+    <ng-template #noMenuItems>
+        <li class="col-span-full flex flex-col items-center justify-center py-16 text-gray-500">
+            <mat-icon style="font-size: 64px; color: #bdbdbd;">restaurant_menu</mat-icon>
+            <div class="text-2xl font-semibold mt-4 mb-2">No menu items yet</div>
+            <div class="mb-6 text-base text-gray-400">Start by adding your first delicious menu item for this restaurant!</div>
+            <button mat-raised-button color="primary" (click)="addItem()">
+                <mat-icon class="mr-2">add</mat-icon> Add First Menu Item
+            </button>
+        </li>
+    </ng-template>
+</ul>

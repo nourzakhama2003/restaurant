@@ -1,232 +1,73 @@
-/* Titre principal */
+/* From Uiverse.io by juan-sued */
 
-h3 {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #1e3d58;
-    /* Un bleu profond */
-    margin-bottom: 16px;
-    text-align: center;
-    font-size: 24px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-
-/* Style du mat-list */
-
-mat-list {
-    background: #ffffff;
-    /* Fond blanc pour plus de clarté */
-    border-radius: 12px;
-    margin: 20px auto;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    /* Ombre douce */
-    padding: 16px;
-    border: 1px solid #ddd;
-    /* Une bordure douce pour délimiter */
-}
-
-
-/* Style de chaque item */
-
-mat-list-item {
-    font-size: 18px;
-    color: #444;
-    /* Texte un peu plus sombre pour une bonne lisibilité */
-    padding: 14px 20px;
-    border-radius: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-    cursor: pointer;
-}
-
-mat-list-item:hover {
-    background-color: #f0f4ff;
-    /* Survol en bleu clair */
-    transform: scale(1.02);
-    /* Effet de zoom subtil au survol */
-}
-
-
-/* Style du bouton delete */
-
-button.mat-icon-button {
-    color: #ff6f61;
-    /* Rouge doux */
-    transition: color 0.3s ease, transform 0.3s ease;
-}
-
-button.mat-icon-button:hover {
-    color: #b73d32;
-    /* Rouge plus foncé sur hover */
-    transform: scale(1.1);
-    /* Légère agrandissement sur hover */
-}
-
-
-/* Style des éléments dans le mat-list-item (le texte) */
-
-mat-list-item .item-text {
-    flex-grow: 1;
-    font-weight: 500;
-    color: #333;
-}
-
-
-/* Ajout d'une ligne de séparation entre les items */
-
-mat-list-item+mat-list-item {
-    border-top: 1px solid #eee;
-}
-
-
-/* Espacement et alignement du bouton dans le mat-list-item */
-
-mat-list-item .mat-icon-button {
-    padding: 8px;
-    background-color: transparent;
-    border-radius: 50%;
-    transition: background-color 0.3s ease;
-}
-
-mat-list-item .mat-icon-button:hover {
-    background-color: #ffe0e0;
-    /* Fond léger pour le bouton */
-}
-
-
-/* Hover effet supplémentaire pour les éléments */
-
-mat-list-item:hover .mat-icon-button {
-    background-color: #ffebee;
-}
-
-.menu-list-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-}
-
-ul {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
-}
-
-@media (min-width: 768px) {
-    ul {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (min-width: 1024px) {
-    ul {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-li {
-    width: 100%;
-}
-
-.menu-card,
-.max-w-sm {
-    max-width: 24rem;
-    border-radius: 1rem;
-    overflow: hidden;
-    box-shadow: 0 2px 12px rgba(44, 62, 80, 0.07);
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    transition: box-shadow 0.2s, transform 0.2s;
+.card {
     position: relative;
-    margin: 1.25rem auto 0 auto;
-    height: 100%;
+    width: 190px;
+    height: 254px;
+    /* z-index: 0;  Remove or set to 0 for stacking context */
+    background-color: #eeee;
+    border-radius: 8px;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    padding: 12px;
+    gap: 12px;
+    cursor: pointer;
+    box-sizing: border-box;
 }
 
-.max-w-sm:hover,
-.menu-card:hover {
-    box-shadow: 0 8px 24px rgba(44, 62, 80, 0.13);
-    transform: translateY(-2px) scale(1.01);
+.card::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 260px;
+    height: 320px;
+    border-radius: 24px;
+    background: linear-gradient(-45deg, red 0%, yellow 100%);
+    z-index: -1;
+    pointer-events: none;
+    transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform: translate(-50%, -50%);
 }
 
-.relative.h-48.w-full.bg-gray-100.overflow-hidden {
-    height: 12rem;
-    background: #f3f4f6;
-    border-radius: 1rem 1rem 0 0;
-    overflow: hidden;
-}
-
-.absolute.h-full.w-full.object-cover.object-center.transition-transform.duration-500.hover\:scale-105 {
+.card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    transition: transform 0.5s;
-}
-
-.p-5 {
-    padding: 1.25rem;
-}
-
-.text-xl.font-bold.text-gray-800.truncate {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #22223b;
-    margin: 0 0 0.5rem 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.text-sm.text-gray-600.mb-3.truncate {
-    color: #6c757d;
-    font-size: 0.98rem;
-    margin-bottom: 0.5rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.flex.items-center.gap-2.mt-2 span {
-    font-weight: bold;
-    color: #4caf50;
-    background: #e8f5e9;
-    padding: 4px 12px;
     border-radius: 8px;
-    font-size: 1rem;
+    background: linear-gradient(-45deg, red 0%, yellow 100%);
+    transform: translate3d(0, 0, 0) scale(0.95);
+    filter: blur(20px);
+    z-index: -2;
 }
 
-
-/* Button styles for edit/delete */
-
-button[mat-icon-button] {
-    margin-left: 0.5rem;
-    margin-right: 0.5rem;
-    background: #fff;
-    border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(44, 62, 80, 0.07);
-    transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+.heading {
+    font-size: 20px;
+    text-transform: capitalize;
+    font-weight: 700;
 }
 
-button[mat-icon-button]:hover {
-    background: #f3f4f6;
-    box-shadow: 0 4px 16px rgba(44, 62, 80, 0.13);
-    transform: scale(1.08);
+.card p:not(.heading) {
+    font-size: 14px;
 }
 
+.card p:last-child {
+    color: #e81cff;
+    font-weight: 600;
+}
 
-/* Remove old grid and card styles that conflict */
+.card:hover::after {
+    filter: blur(30px);
+}
 
-.menu-grid,
-.menu-card,
-.menu-image,
-.menu-info,
-.menu-desc,
-.menu-meta,
-.menu-price,
-.menu-actions {
-    all: unset;
+.card:hover::before {
+    transform: translate(-50%, -50%) rotate(-90deg) scaleX(1.34) scaleY(0.77);
+}
+
+.card:hover {
+    transform: rotate(-3deg) scale(1.04);
 }
