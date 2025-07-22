@@ -105,6 +105,7 @@ mat-error::before {
 
 .mat-dialog-actions {
     display: flex;
+    flex-direction: row;
     justify-content: flex-end;
     gap: 16px;
     margin-top: 32px;
@@ -231,4 +232,63 @@ button[mat-flat-button]:disabled {
 .upload-label:focus .upload-text {
     color: #000;
     font-weight: 700;
+}
+
+
+/*
+.Input {
+    border p-3 rounded w-full focus: outline-none focus: ring-2 focus: ring-blue-500
+}*/
+
+@media (max-width: 600px) {
+    .cdk-overlay-pane {
+        max-height: 100vh !important;
+        height: 100vh !important;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+    }
+    .mat-dialog-container {
+        max-height: 100vh !important;
+        overflow-y: auto !important;
+        padding: 0 !important;
+    }
+    .restaurant-form {
+        padding: 8px;
+        margin: 8px auto;
+        max-width: 99vw;
+        border-radius: 6px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    }
+    h2[mat-dialog-title] {
+        font-size: 18px;
+        margin-bottom: 10px;
+    }
+    h2[mat-dialog-title]::after {
+        width: 28px;
+        height: 2px;
+        bottom: -4px;
+    }
+    mat-form-field {
+        margin-bottom: 8px;
+    }
+    .upload-container {
+        max-width: 100%;
+        margin: 0.25rem auto;
+        padding: 0;
+    }
+    .upload-label {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.9rem;
+    }
+    .image-preview img {
+        max-width: 100%;
+        max-height: 80px;
+    }
+    button[mat-stroked-button],
+    button[mat-flat-button] {
+        width: 100%;
+        padding: 8px 0;
+        font-size: 0.95rem;
+    }
 }

@@ -1,3 +1,5 @@
+@import '@angular/cdk/overlay-prebuilt.css';
+
 /* You can add global styles to this file, and also import other style files */
 
 @import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
@@ -7,6 +9,9 @@
 html,
 body {
     height: 100%;
+    margin: 0;
+    padding: 0;
+    background: none;
 }
 
 body {
@@ -230,4 +235,99 @@ body {
 .mat-mdc-option.mat-mdc-selected {
     background-color: #e3f2fd !important;
     color: #1976d2 !important;
+}
+
+:root {
+    --font-sans: ''
+}
+
+:root {
+    --background: 0deg 0% 100%;
+    --foreground: 0deg 0.02% 3.94%;
+    --card: 0deg 0% 100%;
+    --card-foreground: 0deg 0.02% 3.94%;
+    --popover: 0deg 0% 100%;
+    --popover-foreground: 0deg 0.02% 3.94%;
+    --primary: 0deg 0.02% 9.06%;
+    --primary-foreground: 0deg 0.5% 98.03%;
+    --secondary: 0deg 0.24% 96.06%;
+    --secondary-foreground: 0deg 0.02% 9.06%;
+    --muted: 0deg 0.24% 96.06%;
+    --muted-foreground: 0deg 0.01% 45.16%;
+    --accent: 0deg 0.24% 96.06%;
+    --accent-foreground: 0deg 0.02% 9.06%;
+    --destructive: 351.72deg 100% 40.53%;
+    --border: 0deg 0.09% 89.82%;
+    --input: 0deg 0.09% 89.82%;
+    --ring: 0deg 0.02% 63.02%;
+    --radius: 0.625rem;
+}
+
+:root.dark {
+    --background: 0deg 0.02% 3.94%;
+    --foreground: 0deg 0.5% 98.03%;
+    --card: 0deg 0.02% 9.06%;
+    --card-foreground: 0deg 0.5% 98.03%;
+    --popover: 0deg 0.02% 9.06%;
+    --popover-foreground: 0deg 0.5% 98.03%;
+    --primary: 0deg 0.09% 89.82%;
+    --primary-foreground: 0deg 0.02% 9.06%;
+    --secondary: 0deg 0.01% 14.94%;
+    --secondary-foreground: 0deg 0.5% 98.03%;
+    --muted: 0deg 0.01% 14.94%;
+    --muted-foreground: 0deg 0.02% 63.02%;
+    --accent: 0deg 0% 14.9%;
+    --accent-foreground: 0deg 0.5% 98.03%;
+    --destructive: 358.76deg 100% 69.84%;
+    --border: 0deg 0% 13.73%;
+    --input: 0deg 0% 18.43%;
+    --ring: 0deg 0.01% 45.16%;
+}
+
+.input {
+    width: 100%;
+    height: 60px;
+    line-height: 28px;
+    padding: 0 1rem;
+    padding-left: 2.5rem;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    outline: none;
+    background-color: #f3f3f4;
+    color: #0d0c22;
+    transition: .3s ease;
+}
+
+.Input {
+    border: 1px solid #ccc;
+    /* gris clair */
+    padding: 0.75rem 1rem;
+    /* espace intérieur horizontal + vertical */
+    border-radius: 0.375rem;
+    /* arrondi moyen */
+    width: 100%;
+    font-size: 1rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: all 0.2s ease-in-out;
+    background-color: #fff;
+}
+
+.Input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    /* bleu professionnel */
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    /* effet focus (ring) */
+}
+
+.Input::placeholder {
+    color: #a0aec0;
+    /* placeholder plus discret */
+    opacity: 1;
+}
+
+@layer base {
+    .with-border {
+        @apply border border-gray-200;
+    }
 }

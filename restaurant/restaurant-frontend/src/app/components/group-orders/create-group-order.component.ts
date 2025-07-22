@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,6 +12,7 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router } from '@angular/router';
 import { RestaurantService } from '../../services/restaurant.service';
 import { CommandeService, Commande } from '../../services/commande.service';
@@ -26,6 +27,7 @@ import { map, startWith } from 'rxjs/operators';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule, // <-- Add this for ngModel
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
@@ -36,7 +38,8 @@ import { map, startWith } from 'rxjs/operators';
     MatSnackBarModule,
     MatIconModule,
     MatChipsModule,
-    MatAutocompleteModule
+    MatAutocompleteModule,
+    MatProgressBarModule // <-- Add this for mat-progress-bar
   ],
   templateUrl: "./create-group-order.component.html",
   styleUrls: ["./create-group-order.component.css"]
@@ -48,6 +51,10 @@ export class CreateGroupOrderComponent implements OnInit {
   isLoading = false;
   deadlineValidationMessage = '';
   isDeadlineValid = true;
+
+  // --- ENHANCED RESTAURANT SEARCH LOGIC ---
+  // Remove searchText and filteredRestaurantNames
+  // Restore filteredRestaurants Observable and setupRestaurantFilter logic
 
   constructor(
     private fb: FormBuilder,
@@ -70,11 +77,7 @@ export class CreateGroupOrderComponent implements OnInit {
   ngOnInit(): void {
     this.loadRestaurants();
     this.loadCurrentUser();
-
-    // Set default values for date and time
     this.setDefaultDateAndTime();
-
-    // Initial validation
     this.validateAndUpdateStatus();
   }
 
@@ -169,7 +172,7 @@ export class CreateGroupOrderComponent implements OnInit {
   onRestaurantSelected(restaurant: Restaurant): void {
     this.groupOrderForm.patchValue({
       restaurantId: restaurant.id,
-      restaurantSearch: restaurant.name
+      restaurantSearch: restaurant // set the full object, not just the name
     });
   }
 
@@ -178,13 +181,19 @@ export class CreateGroupOrderComponent implements OnInit {
     const restaurantId = this.groupOrderForm.get('restaurantId')?.value;
     const restaurantSearch = this.groupOrderForm.get('restaurantSearch')?.value;
 
-    // Check if restaurantId is set and search field matches a restaurant name
-    return restaurantId && restaurantSearch &&
-      this.restaurants.some(r => r.id === restaurantId && r.name === restaurantSearch);
+    // If restaurantSearch is an object, check its id
+    if (restaurantSearch && typeof restaurantSearch === 'object' && restaurantSearch.id) {
+      return restaurantSearch.id === restaurantId;
+    }
+    return false;
   }
 
-  displayRestaurantFn = (restaurant: Restaurant): string => {
-    return restaurant ? `${restaurant.name} - ${restaurant.cuisineType || 'No cuisine type'}` : '';
+  displayRestaurantFn = (restaurant: Restaurant | string): string => {
+    if (!restaurant) return '';
+    if (typeof restaurant === 'string') return restaurant;
+    if (!restaurant.name && restaurant.cuisineType) return restaurant.cuisineType;
+    if (!restaurant.name && !restaurant.cuisineType) return '';
+    return `${restaurant.name}${restaurant.cuisineType ? ' - ' + restaurant.cuisineType : ''}`;
   }
 
   private validateDeadline(): { isValid: boolean; errorMessage?: string } {

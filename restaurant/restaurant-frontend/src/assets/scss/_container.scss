@@ -17,13 +17,10 @@ body {
     min-height: calc(100vh - 72px);
     width: 100%;
     flex: 1;
-    margin-top: 72px;
 }
 
 @media (max-width: 991px) {
-    .mainWrapper {
-        margin-top: 154px;
-    }
+    .mainWrapper {}
 }
 
 .container {

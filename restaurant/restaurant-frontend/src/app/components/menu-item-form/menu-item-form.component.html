@@ -6,7 +6,7 @@
 
     <mat-form-field appearance="fill">
         <mat-label>Nom du plat</mat-label>
-        <input matInput formControlName="name" />
+        <input class="Input" formControlName="name" />
         <mat-error *ngIf="form.get('name')?.hasError('required')">
             Le nom est obligatoire
         </mat-error>
@@ -14,7 +14,7 @@
 
     <mat-form-field appearance="fill">
         <mat-label>Description</mat-label>
-        <textarea matInput formControlName="description" rows="3" placeholder="Description du plat..."></textarea>
+        <textarea class="Input" formControlName="description" rows="3" placeholder="Description du plat..."></textarea>
     </mat-form-field>
 
     <div class="upload-container">
@@ -38,7 +38,7 @@
 
     <mat-form-field appearance="fill">
         <mat-label>Prix (DT)</mat-label>
-        <input matInput type="number" formControlName="price" />
+        <input class="Input" type="number" formControlName="price" />
         <mat-error *ngIf="form.get('price')?.hasError('required')">
             Le prix est obligatoire
         </mat-error>

@@ -1,65 +1,65 @@
-<mat-card class="restaurant-card w-full">
+<mat-card class="restaurant-card w-full mt-0">
     <div class="header-container flex ">
-
-        <div class="flex justify-between w-[50%]">
-            <div class="group">
-                <svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><g><path d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z"></path></g></svg>
-                <input [(ngModel)]="searchText" placeholder="Search restaurant by name or description" type="search" class="input">
+        <div class="flex md:justify-center md:w-full sm:w-[280px] gap-3 md:gap-[30%]">
+            <div class="group relative">
+                <svg class="icon absolute top-5 left-1" aria-hidden="true" viewBox="0 0 24 24"><g><path d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z"></path></g></svg>
+                <input [(ngModel)]="searchText" placeholder="Search restaurant" type="search" class="input">
             </div>
-            <button mat-raised-button color="primary" (click)="openDialog()">
-      Ajouter un restaurant
-    </button></div>
-
-
+            <button mat-raised-button color="primary" class="min-w-[200px]" (click)="openDialog()">
+                Ajouter
+            </button>
+        </div>
     </div>
+    <mat-spinner *ngIf="isLoading" class="size-8 md:size-10 mx-auto my-2 block"></mat-spinner>
 
-    <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  m-5">
-        <ng-container *ngIf="filteredRestaurants().length > 0; else noRestaurants">
-            <li *ngFor="let restaurant of filteredRestaurants(); let i = index">
-                <div class="max-w-sm rounded-xl overflow-hidden shadow-md bg-white hover:shadow-xl transition-shadow border border-gray-200 relative mt-5">
+    <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mt-2 md:mt-4 md:gap-20 md:m-20">
+        <ng-container *ngIf="filteredRestaurants().length> 0; else noRestaurants">
+            <li *ngFor="let restaurant of filteredRestaurants(); let i = index" #restaurantCard class="restaurant-anim-card w-full md:min-w-md " [@fadeIn]>
+                <div class=" w-full rounded-xl overflow-hidden shadow-md bg-white hover:shadow-xl transition-shadow border border-gray-200 relative mt-3 md:mt-5 ">
                     <!-- Enhanced Delete Button -->
-                    <div class="w-full flex justify-end">
-                        <a mat-icon-button color="warn" class=" z-10 mb-2 bg-white/90 rounded-full shadow-lg hover:bg-red-50 hover:shadow-xl transition-all transform hover:scale-110" *ngIf="restaurant.id" (click)="deleteRestaurant(restaurant.id)" matTooltip="Supprimer">
-                            <mat-icon class="text-red-600">delete</mat-icon>
-                            <span class="sr-only">Delete restaurant</span>
-                        </a>
-                    </div>
+
 
                     <!-- Image -->
-                    <div class="relative h-48 w-full bg-gray-100 overflow-hidden">
-                        <img [src]="restaurant.profileImageBase64 ? restaurant.profileImageBase64 : '/assets/images/vue-de-dehors.png'" [alt]="restaurant.name + ' Image'" class="absolute h-full w-full object-cover object-center transition-transform duration-500 hover:scale-105"
-                        />
+                    <div class="relative h-36 md:h-48 w-full bg-gray-100 overflow-hidden ">
+                        <img [src]="restaurant.profileImageBase64 ? restaurant.profileImageBase64 : '/assets/images/restaurant.jpeg' " [alt]="restaurant.name + ' Image' " class="absolute h-full w-full object-cover object-center transition-transform
+                duration-500 hover:scale-105 " />
                     </div>
 
                     <!-- Content -->
-                    <div class="p-5">
-                        <h3 class="text-xl font-bold text-gray-800 truncate">{{ restaurant.name }}</h3>
-                        <p class="text-sm text-gray-600 mb-3 truncate">{{ restaurant.description || 'No description available' }}</p>
+                    <div class="p-3 md:p-5 ">
+                        <h3 class="text-lg md:text-xl font-bold text-gray-800 truncate ">{{ restaurant.name }}</h3>
+                        <p class="text-xs md:text-sm text-gray-600 mb-2 md:mb-3 truncate ">{{ restaurant.description || 'No description available' }}</p>
 
                         <!-- Details -->
-                        <div class="space-y-2 text-gray-600 text-sm">
-                            <div *ngIf="restaurant.address" class="flex items-center">
-                                <mat-icon class="text-gray-500 mr-2">location_on</mat-icon>
+                        <div class="space-y-1 md:space-y-2 text-gray-600 text-xs md:text-sm ">
+                            <div *ngIf="restaurant.address " class="flex items-center ">
+                                <mat-icon class="text-gray-500 mr-2 ">location_on</mat-icon>
                                 <span>{{ restaurant.address }}</span>
                             </div>
-                            <div *ngIf="restaurant.phone" class="flex items-center">
-                                <mat-icon class="text-gray-500 mr-2">phone</mat-icon>
+                            <div *ngIf="restaurant.phone " class="flex items-center ">
+                                <mat-icon class="text-gray-500 mr-2 ">phone</mat-icon>
                                 <span>{{ restaurant.phone }}</span>
                             </div>
-                            <div *ngIf="restaurant.cuisineType" class="flex items-center">
-                                <mat-icon class="text-gray-500 mr-2">restaurant</mat-icon>
+                            <div *ngIf="restaurant.cuisineType " class="flex items-center ">
+                                <mat-icon class="text-gray-500 mr-2 ">restaurant</mat-icon>
                                 <span>{{ restaurant.cuisineType }}</span>
                             </div>
                         </div>
 
                         <!-- Actions -->
-                        <div class="flex justify-between  mt-4">
-                            <a [routerLink]="['/restaurants', restaurant.id, 'menu']" mat-stroked-button color="primary" class="menu-link">
-                                <mat-icon>restaurant_menu</mat-icon> View Menu
-                            </a>
-                            <button mat-icon-button color="accent" class="rounded-full hover:bg-purple-50" (click)="openDialog(restaurant)" matTooltip="Modifier">
-                <mat-icon class="inset-y-1 right-2.5">edit</mat-icon>
+                        <div class="flex justify-between mt-3 md:mt-4 ">
+                            <button mat-icon-button color="primary " class="hover:bg-purple-50 menu-link rounded-full " [routerLink]="[ '/restaurants', restaurant.id, 'menu'] " matTooltip="View Menu ">
+  <mat-icon class="inset-y-1 right-2.5 ">restaurant_menu</mat-icon>
+</button>
+                            <button mat-icon-button color="accent " class="rounded-full hover:bg-purple-50 " (click)="openDialog(restaurant) " matTooltip="Modifier ">
+                <mat-icon class="inset-y-1 right-2.5 ">edit</mat-icon>
               </button>
+                            <button mat-icon-button color="warn " class="rounded-full hover:bg-purple-50 " *ngIf="restaurant.id " (click)="deleteRestaurant(restaurant.id) " matTooltip="Supprimer ">
+                <mat-icon class="inset-y-1 right-2.5 hover:text-red-600 ">delete</mat-icon>
+                <span class="sr-only ">Delete restaurant</span>
+              </button>
+
+
                         </div>
                     </div>
                 </div>
@@ -67,8 +67,19 @@
         </ng-container>
 
         <ng-template #noRestaurants>
-            <li class="col-span-full text-center py-8 text-gray-500">
-                Aucun restaurant trouvé
+            <li class="col-span-full text-center py-8 text-gray-500 ">
+                <div *ngIf="!isLoading && filteredRestaurants().length === 0" class="alert alert-info restaurant-empty" role="alert">
+                    <div class="empty-flex-row">
+                        <span class="icon large" aria-hidden="true">
+            <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="home"></mat-icon>
+          </span>
+                        <span class="empty-flex-text">
+            No restaurants found. <a href="#" class="alert-link" (click)="$event.preventDefault(); openDialog();">Click here to add a new restaurant.</a>
+          </span>
+                    </div>
+                </div>
+
+
             </li>
         </ng-template>
     </ul>

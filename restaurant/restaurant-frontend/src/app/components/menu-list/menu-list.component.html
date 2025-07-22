@@ -17,47 +17,68 @@
     </div>
 </ng-container>
 
+<mat-spinner *ngIf="isLoading" class="size-8 md:size-10 mx-auto my-8 block"></mat-spinner>
+
 <div class="header-container flex justify-end">
     <button mat-raised-button color="primary" (click)="addItem()">
 <span class="text-lg font-semibold">+</span> Add Item
 </button>
 </div>
 
+
+
 <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 m-5">
     <ng-container *ngIf="menuItems.length > 0; else noMenuItems">
         <li *ngFor="let item of menuItems" class="w-full">
-            <div class="card">
-                <!-- Image -->
-                <div style="width: 100%; display: flex; justify-content: center;">
-                    <img [src]="getItemImage(item)" [alt]="item.name + ' Image'" style="width: 90%; height: 80px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.10);" />
-                </div>
-                <!-- Content -->
-                <div style="width: 100%; text-align: center;">
-                    <p class="heading" style="margin-bottom: 2px; color: #222;">{{ item.name }}</p>
-                    <p style="font-size: 14px; color: #444; margin-bottom: 2px;">{{ item.description }}</p>
-                    <p style="color: #e81cff; font-weight: 600;">${{ item.price.toFixed(2) }}</p>
-                </div>
-                <div class="w-full flex justify-end ">
-                    <button mat-icon-button color="accent" class="mb-2 bg-white/90 rounded-full shadow-lg hover:bg-purple-50 hover:shadow-xl transition-all transform hover:scale-110 mr-2" (click)="editItem(item)" matTooltip="Edit">
-          <mat-icon>edit</mat-icon>
-          <span class="sr-only">Edit menu item</span>
-      </button>
-                    <button mat-icon-button color="warn" class="mb-2 bg-white/90 rounded-full shadow-lg hover:bg-red-50 hover:shadow-xl transition-all transform hover:scale-110" (click)="delete(item.id)" matTooltip="Delete">
-          <mat-icon class="text-red-600">delete</mat-icon>
-          <span class="sr-only">Delete menu item</span>
-      </button>
+            <div class="card-wrapper">
+                <div class="card">
+                    <div class="content">
+                        <div class="front">
+                            <div class="img">
+                                <div class="circle"></div>
+                                <div class="circle" id="right"></div>
+                                <div class="circle" id="bottom"></div>
+                                <img [src]="getItemImage(item)" [alt]="item.name + ' Image'" class="front-img" />
+                            </div>
+                            <div class="front-content">
+                                <div class="hover-hint">
+                                    <mat-icon class="hover-icon">pan_tool</mat-icon>
+                                    <span>Hover Me</span>
+                                </div>
+                                <div class="front-title">{{ item.name }}</div>
+                            </div>
+                        </div>
+                        <div class="back">
+                            <div class="back-content">
+                                <div class="pro-badge pro-price">${{ item.price | number:'1.2-2' }}</div>
+                                <div class="pro-badge pro-restaurant">{{ getRestaurantName(item.restaurantId) }}</div>
+                                <div class="back-desc">{{ item.description }}</div>
+                                <div class="card-actions">
+                                    <button mat-icon-button color="accent" (click)="editItem(item)" matTooltip="Edit" aria-label="Edit menu item">
+                                    <mat-icon>edit</mat-icon>
+                                  </button>
+                                    <button mat-icon-button color="warn" (click)="delete(item.id)" matTooltip="Delete" aria-label="Delete menu item">
+                                    <mat-icon>delete</mat-icon>
+                                  </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </li>
     </ng-container>
     <ng-template #noMenuItems>
-        <li class="col-span-full flex flex-col items-center justify-center py-16 text-gray-500">
-            <mat-icon style="font-size: 64px; color: #bdbdbd;">restaurant_menu</mat-icon>
-            <div class="text-2xl font-semibold mt-4 mb-2">No menu items yet</div>
-            <div class="mb-6 text-base text-gray-400">Start by adding your first delicious menu item for this restaurant!</div>
-            <button mat-raised-button color="primary" (click)="addItem()">
-                <mat-icon class="mr-2">add</mat-icon> Add First Menu Item
-            </button>
-        </li>
+        <div *ngIf="!isLoading && menuItems.length === 0" class="alert alert-info restaurant-empty" role="alert">
+            <div class="empty-flex-row">
+                <span class="icon large" aria-hidden="true">
+        <mat-icon aria-hidden="false" aria-label="Add menu item" fontIcon="restaurant_menu"></mat-icon>
+      </span>
+                <span class="empty-flex-text">
+        No menu items found. <a href="#" class="alert-link" (click)="$event.preventDefault(); openAddMenuItemDialog();">Click here to add a new menu item.</a>
+      </span>
+            </div>
+        </div>
+        <!-- Removed old empty state block. Use only the new alert above. -->
     </ng-template>
 </ul>

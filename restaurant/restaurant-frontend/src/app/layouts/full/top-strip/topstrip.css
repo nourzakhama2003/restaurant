@@ -1,35 +1,115 @@
-/* From Uiverse.io by akshat-patel28 */ 
+/* From Uiverse.io by akshat-patel28 */
+
 .button-container {
-  display: flex;
-  background-color: rgb(73, 136, 245);
-  width: 250px;
-  height: 40px;
-  align-items: center;
-  justify-content: space-around;
-  border-radius: 10px;
-  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px,
-        rgba(73, 153, 245, 0.5) 5px 10px 15px;
+    display: flex;
+    background-color: rgb(73, 136, 245);
+    width: 250px;
+    height: 40px;
+    align-items: center;
+    justify-content: space-around;
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px, rgba(73, 153, 245, 0.5) 5px 10px 15px;
 }
 
 .button {
-  outline: 0 !important;
-  border: 0 !important;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  transition: all ease-in-out 0.3s;
-  cursor: pointer;
+    outline: 0 !important;
+    border: 0 !important;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    transition: all ease-in-out 0.3s;
+    cursor: pointer;
 }
 
 .button:hover {
-  transform: translateY(-3px);
+    transform: translateY(-3px);
 }
 
 .icon {
-  font-size: 20px;
+    font-size: 20px;
+}
+
+.custom-linkbar {
+    background: rgba(30, 136, 229, 0.15);
+    /* Soft blue with transparency */
+    padding: 0.5rem 1.5rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 16px rgba(30, 136, 229, 0.12);
+    backdrop-filter: blur(4px);
+    margin-left: 1rem;
+    flex: 1 1 60%;
+    justify-content: center;
+}
+
+.custom-linkbar .button {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    margin: 0 0.25rem;
+}
+
+.custom-linkbar .button:hover,
+.custom-linkbar .button:focus {
+    background: rgba(30, 136, 229, 0.25);
+    color: #1976d2;
+    box-shadow: 0 2px 8px rgba(30, 136, 229, 0.18);
+}
+
+.custom-linkbar svg {
+    width: 28px;
+    height: 28px;
+}
+
+.topstrip-flex {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.profile-btn {
+    display: flex;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    background: rgba(30, 136, 229, 0.15);
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 16px rgba(30, 136, 229, 0.12);
+}
+
+.profile-btn img {
+    width: 35px;
+    height: 35px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin: 0;
+}
+
+.logo-link {
+    /* No flex-basis, natural size */
+}
+
+@media (max-width: 768px) {
+    .topstrip-flex {
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 0.5rem;
+    }
+    .custom-linkbar {
+        order: 1;
+    }
 }

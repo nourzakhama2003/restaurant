@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterModule } from '@angular/router';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 @Component({
   selector: 'app-restaurant-form-dialog',
   standalone: true,
@@ -19,7 +20,8 @@ import { RouterModule } from '@angular/router';
     MatButtonModule,
     MatDialogModule,
     MatSnackBarModule,
-    RouterModule
+    RouterModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './restaurant-form-dialog.component.html',
   styleUrls: ['./restaurant-form-dialog.component.css']
@@ -28,6 +30,7 @@ export class RestaurantFormDialogComponent {
   selectedImage: string | null = null;
   restaurantForm: FormGroup;
   isEditMode: boolean;
+  isLoading = false;
 
   constructor(
     private snackBar: MatSnackBar,

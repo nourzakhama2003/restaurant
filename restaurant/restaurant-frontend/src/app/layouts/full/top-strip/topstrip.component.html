@@ -1,67 +1,89 @@
-<div class="app-topstrip bg-dark text-white p-y-16 p-x-24 w-100 d-flex align-items-center justify-content-between">
-    <div class="d-none d-sm-flex align-items-center justify-content-center gap-20">
-        <a class="d-flex align-items-center">
-            <img src="/assets/images/logos/logo-wrappixel.svg" alt="" width="147">
-        </a>
-
-        <div class="linkbar d-none d-lg-flex align-items-center justify-content-center gap-16">
-
-            <!-- Restaurant -->
-            <!-- From Uiverse.io by akshat-patel28 -->
-            <div class="button-container">
-                <a class="button" routerLink="/dashboard">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chart-no-axes-combined-icon lucide-chart-no-axes-combined"><path d="M12 16v5"/><path d="M16 14v7"/><path d="M20 10v11"/><path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15"/><path d="M4 18v3"/><path d="M8 14v7"/></svg>
-                </a>
-                <button class="button" routerLink="/restaurant">
-   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-utensils-crossed-icon lucide-utensils-crossed"><path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"/><path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7"/><path d="m2.1 21.8 6.4-6.3"/><path d="m19 5-7 7"/></svg>
-      </button>
-
-
-                <button class="button" routerLink="/group-orders">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-notebook-pen-icon lucide-notebook-pen"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"/><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/></svg>
-    
-      </button>
-
-
-
-                <button class="button" routerLink="/group-orders/my-orders"> <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" stroke-linejoin="round" stroke-linecap="round" viewBox="0 0 24 24" stroke-width="2" fill="none" stroke="currentColor" class="icon">
-          <circle r="1" cy="21" cx="9"></circle>
-          <circle r="1" cy="21" cx="20"></circle>
-          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-        </svg>
-        </button>
-            </div>
-
-        </div>
-    </div>
-
-    <div class="topstrip-right-inner d-flex justify-content-center align-items-center gap-10">
-        <div class="d-flex justify-content-center align-items-center gap-10">
-
-            <button mat-mini-fab [matMenuTriggerFor]="profilemenu" aria-label="Notifications">
-    <img src="/assets/images/profile/user-1.jpg" class="rounded-circle object-cover d-block" width="35" />
-  </button>
-            <mat-menu #profilemenu="matMenu" class="cardWithShadow topbar-dd">
-                <button mat-menu-item>
-      <mat-icon class="d-flex align-items-center"><i-tabler name="user" class="icon-18 d-flex"></i-tabler></mat-icon>My
-      Profile
-    </button>
-                <button mat-menu-item>
-      <mat-icon class="d-flex align-items-center"><i-tabler name="mail" class="icon-18 d-flex"></i-tabler></mat-icon>My
-      Account
-    </button>
-                <button mat-menu-item>
-      <mat-icon class="d-flex align-items-center"><i-tabler name="list-check"
-                                                            class="icon-18 d-flex"></i-tabler></mat-icon>My Task
-    </button>
-
-
-                <div class="p-x-12 m-t-12">
-                    <button mat-stroked-button class="w-100" (click)="logout()">Logout</button>
+<div class="app-topstrip bg-dark text-white p-y-16 p-x-24 w-100">
+    <div class="topstrip-flex">
+        <div class="flex justify-between w-full">
+            <div class="md:hidden relative">
+                <div *ngIf="!visible;else navItems"> <button matMiniFab aria-label="Example icon button with a menu icon">
+               <mat-icon (click)="visible=!visible">menu</mat-icon>
+               </button>
                 </div>
-            </mat-menu>
+                <ng-template #navItems>
+                    <div class="absolute min-w-[150px] bg-white rounded-xl shadow-2xl p-3 flex flex-col gap-2 border border-gray-200 animate-fade-in">
+                        <div class="flex justify-end mb-2">
+                            <button (click)="visible = false" class="hover:bg-gray-100 rounded-full p-1 transition">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute lucide top-1 right-0 lucide-x-icon text-gray-700 tranform duration-300  hover:rotate-90 ">
+          <path d="M18 6 6 18"/>
+          <path d="m6 6 12 12"/>
+        </svg>
+      </button>
+                        </div>
+                        <a routerLink="/dashboard" (click)="visible = false" class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-800 hover:bg-blue-50 hover:text-blue-700 font-medium transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chart-no-axes-combined"><path d="M12 16v5"/><path d="M16 14v7"/><path d="M20 10v11"/><path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15"/><path d="M4 18v3"/><path d="M8 14v7"/></svg>                            Dashboard
+                        </a>
+                        <a (click)="visible = false" routerLink="/restaurant" class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-800 hover:bg-blue-50 hover:text-blue-700 font-medium transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-utensils-crossed"><path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"/><path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7"/><path d="m2.1 21.8 6.4-6.3"/><path d="m19 5-7 7"/></svg>                            Restaurants
+                        </a>
+                        <a (click)="visible = false" routerLink="/group-orders" class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-800 hover:bg-blue-50 hover:text-blue-700 font-medium transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-notebook-pen"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"/><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/></svg>                            commandes
+                        </a>
+                        <a (click)="visible = false" routerLink="/group-orders/my-orders" class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-800 hover:bg-blue-50 hover:text-blue-700 font-medium transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" stroke-linejoin="round" stroke-linecap="round" viewBox="0 0 24 24" stroke-width="2" fill="none" stroke="currentColor" class="icon">
+        <circle r="1" cy="21" cx="9"></circle>
+        <circle r="1" cy="21" cx="20"></circle>
+        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+      </svg> My Orders
+                        </a>
+                        <a (click)="visible = false" routerLink="/all-menu-items" class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-800 hover:bg-blue-50 hover:text-blue-700 font-medium transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>                            Menu Items
+                        </a>
+                    </div>
+                </ng-template>
 
-
+            </div>
+            <div class="hidden md:flex left-group  align-items-center gap-20">
+                <a class="d-flex align-items-center logo-link">
+                    <img src="/assets/images/logos/logo-wrappixel.svg" alt="" width="147">
+                </a>
+                <div class="linkbar d-flex align-items-center justify-content-center gap-16 custom-linkbar">
+                    <div class="button-container">
+                        <a class="button" routerLink="/dashboard">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chart-no-axes-combined-icon lucide-chart-no-axes-combined"><path d="M12 16v5"/><path d="M16 14v7"/><path d="M20 10v11"/><path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15"/><path d="M4 18v3"/><path d="M8 14v7"/></svg>
+                        </a>
+                        <button class="button" routerLink="/restaurant">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-utensils-crossed-icon lucide-utensils-crossed"><path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"/><path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7"/><path d="m2.1 21.8 6.4-6.3"/><path d="m19 5-7 7"/></svg>
+                    </button>
+                        <button class="button" routerLink="/group-orders">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-notebook-pen-icon lucide-notebook-pen"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"/><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/></svg>
+                    </button>
+                        <button class="button" routerLink="/group-orders/my-orders">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" stroke-linejoin="round" stroke-linecap="round" viewBox="0 0 24 24" stroke-width="2" fill="none" stroke="currentColor" class="icon">
+                            <circle r="1" cy="21" cx="9"></circle>
+                            <circle r="1" cy="21" cx="20"></circle>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                        </svg>
+                    </button>
+                        <button class="button" routerLink="/all-menu-items" title="Menu Items">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                    </button>
+                    </div>
+                </div>
+            </div>
+            <button mat-mini-fab [matMenuTriggerFor]="profilemenu" aria-label="Notifications" class="profile-btn">
+            <img src="/assets/images/profile/user-1.jpg" class="rounded-circle object-cover d-block" width="35" />
+        </button>
         </div>
+        <mat-menu #profilemenu="matMenu" class="cardWithShadow topbar-dd">
+            <button mat-menu-item>
+                <mat-icon class="d-flex align-items-center"><i-tabler name="user" class="icon-18 d-flex"></i-tabler></mat-icon>My Profile
+            </button>
+            <button mat-menu-item>
+                <mat-icon class="d-flex align-items-center"><i-tabler name="mail" class="icon-18 d-flex"></i-tabler></mat-icon>My Account
+            </button>
+            <button mat-menu-item>
+                <mat-icon class="d-flex align-items-center"><i-tabler name="list-check" class="icon-18 d-flex"></i-tabler></mat-icon>My Task
+            </button>
+            <div class="p-x-12 m-t-12">
+                <button mat-stroked-button class="w-100" (click)="logout()">Logout</button>
+            </div>
+        </mat-menu>
     </div>
 </div>

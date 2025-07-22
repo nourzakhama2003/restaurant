@@ -14,23 +14,26 @@
         <div class="menu-section">
             <div class="section-header">
                 <h3>Select Menu Items</h3>
-                <button mat-raised-button color="primary" type="button" (click)="addMenuItem()" class="add-btn">
-          <mat-icon>add</mat-icon>
-          Add Item
-        </button>
+                <button type="button" (click)="addMenuItem()" class="add-btn">
+                    <span class="icon">＋</span>
+                    Add Item
+                </button>
             </div>
 
             <!-- Loading state -->
             <div *ngIf="isLoadingMenuItems" class="loading-state">
-                <mat-spinner diameter="30"></mat-spinner>
+                <span class="spinner"></span>
                 <p>Loading menu items...</p>
             </div>
 
             <!-- No menu items available -->
             <div *ngIf="!isLoadingMenuItems && menuItems.length === 0" class="no-menu-items">
-                <mat-icon>restaurant_menu</mat-icon>
+                <span class="icon large">🍽️</span>
                 <p>No menu items available for this restaurant.</p>
                 <p class="text-muted">Please contact the restaurant administrator.</p>
+                <button class="add-item-btn" type="button" (click)="addItemToRestaurant()">
+                    <span class="icon">＋</span> Add Item to Restaurant
+                </button>
             </div>
 
             <!-- Menu items -->
@@ -38,37 +41,36 @@
                 <div *ngFor="let item of orderItems.controls; let i = index" [formGroupName]="i" class="item-row">
                     <div class="item-content">
                         <div class="item-select">
-                            <mat-form-field>
-                                <mat-label>Menu Item</mat-label>
-                                <mat-select formControlName="menuItemId" (selectionChange)="onMenuItemSelect(i, $event.value)">
-                                    <mat-option *ngFor="let menuItem of menuItems" [value]="menuItem.id">
+                            <div class="menu-search-wrapper">
+                                <input type="text" class="menu-search-input" placeholder="Search menu item..." [value]="orderItems.at(i).value.menuItemName" (input)="onMenuSearchInput(i)" (focus)="showMenuDropdown[i] = true" (blur)="hideMenuDropdown(i)" autocomplete="off" style="height: 44px; max-height: 44px;"
+                                />
+                                <div class="menu-dropdown" *ngIf="showMenuDropdown[i] && filteredMenuItems[i]?.length">
+                                    <div class="menu-dropdown-item" *ngFor="let menuItem of filteredMenuItems[i]" (mousedown)="selectMenuItem(i, menuItem)">
                                         {{ menuItem.name }} - ${{ menuItem.price.toFixed(2) }}
-                                    </mat-option>
-                                </mat-select>
-                                <mat-error *ngIf="item.get('menuItemId')?.hasError('required')">
-                                    Please select a menu item
-                                </mat-error>
-                            </mat-form-field>
+                                    </div>
+                                </div>
+                            </div>
+                            <div *ngIf="item.get('menuItemId')?.hasError('required') && item.touched" class="menu-error">
+                                Please select a menu item
+                            </div>
                         </div>
 
-                        <div class="item-quantity">
-                            <mat-form-field>
-                                <mat-label>Qty</mat-label>
-                                <input matInput type="number" formControlName="quantity" min="1" (input)="calculateItemTotal(i)">
-                                <mat-error *ngIf="item.get('quantity')?.hasError('required')">
-                                    Required
-                                </mat-error>
-                                <mat-error *ngIf="item.get('quantity')?.hasError('min')">
-                                    Min 1
-                                </mat-error>
-                            </mat-form-field>
+                        <!-- Custom styled quantity input -->
+                        <div class="item-quantity custom-input-group">
+                            <label for="quantity-{{i}}" class="custom-label">Qty</label>
+                            <input id="quantity-{{i}}" class="Input custom-input" type="number" formControlName="quantity" min="1" (input)="calculateItemTotal(i)" [class.input-error]="item.get('quantity')?.invalid && item.touched">
+                            <div class="input-error-message" *ngIf="item.get('quantity')?.hasError('required') && item.touched">
+                                Required
+                            </div>
+                            <div class="input-error-message" *ngIf="item.get('quantity')?.hasError('min') && item.touched">
+                                Min 1
+                            </div>
                         </div>
 
-                        <div class="item-notes">
-                            <mat-form-field>
-                                <mat-label>Notes</mat-label>
-                                <input matInput formControlName="notes" placeholder="e.g., no onions">
-                            </mat-form-field>
+                        <!-- Custom styled notes input -->
+                        <div class="item-notes custom-input-group">
+                            <label for="notes-{{i}}" class="custom-label">Notes</label>
+                            <input id="notes-{{i}}" class="Input custom-input" formControlName="notes" placeholder="e.g., no onions">
                         </div>
 
                         <div class="item-subtotal">
@@ -76,27 +78,25 @@
                         </div>
 
                         <div class="item-actions">
-                            <button mat-icon-button type="button" (click)="removeMenuItem(i)" [disabled]="orderItems.length === 1">
-                <mat-icon>delete</mat-icon>
-              </button>
+                            <button type="button" (click)="removeMenuItem(i)" [disabled]="orderItems.length === 1" class="icon-btn" title="Remove item">
+                                <span class="icon">🗑️</span>
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div *ngIf="orderItems.length === 0" class="no-items">
-                <mat-icon>add_shopping_cart</mat-icon>
-                <p>No items added yet. Click "Add Item" to get started.</p>
+            <div *ngIf="orderItems.length === 0" class="alert alert-info" role="alert">
+                No items added yet. <a href="#" class="alert-link" (click)="$event.preventDefault(); addMenuItem();">Click here to add your first item.</a>
+                <span class="icon large">🛒</span>
             </div>
         </div>
 
         <!-- Order Notes -->
-        <div class="notes-section">
+        <div class="notes-section custom-input-group">
             <h3>Additional Notes</h3>
-            <mat-form-field class="full-width">
-                <mat-label>Order Notes (Optional)</mat-label>
-                <textarea matInput formControlName="notes" placeholder="Any special instructions or requests..."></textarea>
-            </mat-form-field>
+            <label for="order-notes" class="custom-label">Order Notes (Optional)</label>
+            <textarea id="order-notes" class="Input custom-input full-width" formControlName="notes" placeholder="Any special instructions or requests..."></textarea>
         </div>
 
         <!-- Order Summary -->
@@ -115,13 +115,13 @@
 
         <!-- Form Actions -->
         <div class="form-actions">
-            <button mat-button (click)="onCancel()" class="cancel-btn">
-        Cancel
-      </button>
-            <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="orderForm.invalid || isLoading || orderItems.length === 0" class="submit-btn">
-        <mat-icon>{{ isLoading ? 'hourglass_empty' : 'send' }}</mat-icon>
-        {{ isLoading ? (isEditMode ? 'Updating...' : 'Submitting...') : (isEditMode ? 'Update Order' : 'Submit Order') }}
-      </button>
+            <button type="button" (click)="onCancel()" class="cancel-btn">
+                Cancel
+            </button>
+            <button type="button" (click)="onSubmit()" [disabled]="orderForm.invalid || isLoading || orderItems.length === 0" class="submit-btn">
+                <span class="icon">{{ isLoading ? '⏳' : '➡️' }}</span>
+                {{ isLoading ? (isEditMode ? 'Updating...' : 'Submitting...') : (isEditMode ? 'Update Order' : 'Submit Order') }}
+            </button>
         </div>
     </form>
 </div>

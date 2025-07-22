@@ -1,99 +1,247 @@
-.container-fluid {
-    padding: 20px;
+/* Glassmorphism background */
+
+.create-order-bg {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2vw;
 }
 
-.mat-card {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.create-order-wrapper {
+    width: 100%;
+    max-width: 540px;
+    margin: 0 auto;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+    backdrop-filter: blur(8px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    padding: 2rem 1.5rem 1.5rem 1.5rem;
+    margin: 2vw 0;
+    transition: box-shadow 0.3s;
+}
+
+.glass-card:hover {
+    box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.22);
+}
+
+.title-icon {
+    background: linear-gradient(135deg, #6366f1 0%, #a5b4fc 100%);
+    color: #fff;
+    border-radius: 50%;
+    padding: 0.5rem;
+    margin-right: 0.5rem;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15);
+    font-size: 1.5rem;
+    vertical-align: middle;
+}
+
+.modern-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.form-field {
+    flex: 1 1 200px;
+    min-width: 0;
+}
+
+.deadline-row {
+    gap: 1.5rem;
+}
+
+.deadline-progress-row {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.deadline-feedback {
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    gap: 0.5rem;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.deadline-feedback.valid {
+    color: #22c55e;
+    animation: fadeIn 0.5s;
+}
+
+.deadline-feedback.invalid {
+    color: #f59e42;
+    animation: shake 0.4s;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes shake {
+    0% {
+        transform: translateX(0);
+    }
+    20% {
+        transform: translateX(-4px);
+    }
+    40% {
+        transform: translateX(4px);
+    }
+    60% {
+        transform: translateX(-2px);
+    }
+    80% {
+        transform: translateX(2px);
+    }
+    100% {
+        transform: translateX(0);
+    }
 }
 
 .mat-form-field {
-    margin-bottom: 16px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(99, 102, 241, 0.07);
+    transition: box-shadow 0.2s;
 }
 
-.status-indicator {
-    padding: 12px 16px;
-    background-color: #f5f5f5;
-    border-radius: 8px;
-    border-left: 4px solid #2196F3;
-    margin-bottom: 16px;
+.mat-form-field-appearance-outline .mat-form-field-outline {
+    border-radius: 12px;
 }
 
-.status-indicator .mat-icon {
-    margin-right: 8px;
+.mat-form-field-appearance-outline.mat-focused .mat-form-field-outline {
+    border-color: #6366f1;
+    border-width: 2px;
 }
 
-.text-primary {
-    color: #2196F3 !important;
-}
-
-.text-warn {
-    color: #ff5722 !important;
-}
-
-.text-accent {
-    color: #ff9800 !important;
-}
-
-.alert {
-    padding: 12px 16px;
-    border-radius: 8px;
-    border: 1px solid transparent;
-}
-
-.alert-warning {
-    background-color: #fff3cd;
-    border-color: #ffecb5;
-    color: #856404;
-}
-
-.alert-success {
-    background-color: #d1edff;
-    border-color: #b8daff;
-    color: #0c5460;
-}
-
-.alert .mat-icon {
-    margin-right: 8px;
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-}
-
-
-/* Restaurant search autocomplete styling */
-
-.restaurant-option {
-    display: flex;
-    flex-direction: column;
-    padding: 4px 0;
-}
-
-.restaurant-name {
+.mat-form-field-appearance-outline .mat-form-field-label {
+    color: #6366f1;
     font-weight: 500;
-    color: #333;
-    font-size: 14px;
 }
 
-.restaurant-cuisine {
-    font-size: 12px;
-    color: #666;
-    margin-top: 2px;
+.mat-form-field-appearance-outline .mat-form-field-label.mat-focused {
+    color: #6366f1;
 }
 
-.mat-autocomplete-panel {
-    max-height: 300px !important;
+.mat-form-field-appearance-outline .mat-form-field-prefix .mat-icon,
+.mat-form-field-appearance-outline .mat-form-field-suffix .mat-icon {
+    color: #6366f1;
+    opacity: 0.8;
 }
 
-.mat-option {
-    height: auto !important;
-    line-height: 1.4 !important;
-    padding: 8px 16px !important;
+.mat-form-field-appearance-outline .mat-form-field-prefix .mat-icon {
+    margin-right: 0.3rem;
 }
 
-.mat-option:hover {
-    background-color: #f5f5f5;
+.mat-form-field-appearance-outline .mat-form-field-suffix .mat-icon {
+    margin-left: 0.3rem;
 }
 
-.mat-form-field-suffix .mat-icon {
-    color: #666;
+.mat-card-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+button[mat-stroked-button],
+button[mat-raised-button] {
+    font-size: 1rem;
+    border-radius: 8px;
+    padding: 0.7rem 1.5rem;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
+    transition: background 0.2s, box-shadow 0.2s, color 0.2s;
+}
+
+button[mat-stroked-button]:hover,
+button[mat-raised-button]:hover {
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.13);
+}
+
+.restaurant-search-group {
+    position: relative;
+    width: 100%;
+}
+
+.dropdown-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.13);
+    border: 1px solid #e5e7eb;
+    max-height: 220px;
+    overflow-y: auto;
+    margin-top: -4px;
+}
+
+.dropdown-item {
+    padding: 0.7rem 1.2rem;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #374151;
+    transition: background 0.18s, color 0.18s;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background: #e0e7ff;
+    color: #6366f1;
+}
+
+@media (max-width: 700px) {
+    .create-order-wrapper {
+        max-width: 98vw;
+        padding: 0;
+    }
+    .glass-card {
+        padding: 1rem 0.5rem;
+        border-radius: 14px;
+    }
+    .form-row,
+    .deadline-row {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .form-field {
+        min-width: 0;
+        width: 100%;
+    }
+    .dropdown-suggestions {
+        font-size: 0.98rem;
+        max-height: 160px;
+    }
+    .dropdown-item {
+        padding: 0.6rem 0.8rem;
+    }
 }

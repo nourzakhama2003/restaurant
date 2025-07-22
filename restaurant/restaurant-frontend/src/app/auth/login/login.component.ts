@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { KeycloakService } from 'keycloak-angular';
 import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatIconModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
@@ -76,6 +77,21 @@ export class LoginComponent implements OnInit {
       });
     } catch (error) {
       console.error('Registration failed:', error);
+      this.isLoading = false;
+    }
+  }
+
+  // Social login handler for provider buttons
+  async loginWithProvider(provider: string) {
+    this.isLoading = true;
+    try {
+      // This assumes Keycloak is configured with social identity providers
+      await this.keycloak.login({
+        idpHint: provider,
+        redirectUri: window.location.origin + this.returnUrl
+      });
+    } catch (error) {
+      console.error('Social login failed:', error);
       this.isLoading = false;
     }
   }

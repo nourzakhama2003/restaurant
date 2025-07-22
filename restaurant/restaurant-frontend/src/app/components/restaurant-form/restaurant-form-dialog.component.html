@@ -2,34 +2,36 @@
     {{ isEditMode ? 'Modifier le restaurant' : 'Ajouter un restaurant' }}
 </h2>
 
+<mat-spinner *ngIf="isLoading" class="size-8 md:size-10 mx-auto my-8 block"></mat-spinner>
+
 <form [formGroup]="restaurantForm" (ngSubmit)="onSubmit()" class="restaurant-form">
 
     <mat-form-field appearance="fill">
         <mat-label>Nom</mat-label>
-        <input matInput formControlName="name" placeholder="Nom du restaurant" required />
+        <input formControlName="name" placeholder="Nom du restaurant" class="Input" required />
         <mat-error *ngIf="restaurantForm.get('name')?.hasError('required') && restaurantForm.get('name')?.touched">
             Le nom est obligatoire
         </mat-error>
     </mat-form-field>
 
-    <mat-form-field appearance="fill">
+    <mat-form-field>
         <mat-label>Description</mat-label>
-        <textarea matInput formControlName="description" placeholder="Description du restaurant" rows="3"></textarea>
+        <textarea class="Input" formControlName="description" placeholder="Description du restaurant" rows="3"></textarea>
     </mat-form-field>
 
     <mat-form-field appearance="fill">
         <mat-label>Adresse</mat-label>
-        <input matInput formControlName="address" placeholder="Adresse complète" />
+        <input class="Input" formControlName="address" placeholder="Adresse complète" />
     </mat-form-field>
 
     <mat-form-field appearance="fill">
         <mat-label>Téléphone</mat-label>
-        <input matInput formControlName="phone" placeholder="Numéro de téléphone" />
+        <input class="Input" formControlName="phone" placeholder="Numéro de téléphone" />
     </mat-form-field>
 
-    <mat-form-field appearance="fill">
+    <mat-form-field>
         <mat-label>Type de cuisine</mat-label>
-        <input matInput formControlName="cuisineType" placeholder="Ex: Italienne, Tunisienne" />
+        <input class="Input" formControlName="cuisineType" placeholder="Ex: Italienne, Tunisienne" />
     </mat-form-field>
 
     <div class="upload-container">
@@ -52,7 +54,7 @@
         <img [src]="selectedImage" alt="Profile Image Preview" style="max-width: 200px; max-height: 200px;">
     </div>
 
-    <mat-dialog-actions align="end" class="form-actions">
+    <mat-dialog-actions align="end" class="form-actions flex flex-row gap-10  w-full">
         <button mat-stroked-button type="button" (click)="onCancel()">Annuler</button>
         <button mat-flat-button color="primary" type="submit" [disabled]="restaurantForm.invalid" (click)="onSubmit()">Enregistrer</button>
     </mat-dialog-actions>

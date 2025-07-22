@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { Restaurant } from '../../models/restaurant.model';
 import { MenuItem } from '../../models/menu-item.model';
@@ -21,13 +22,15 @@ import { MenuService } from '../../services/menu.service';
     MatButtonModule,
     MatIconModule,
     MatListModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './menu-dialog.component.html',
   styleUrls: ['./menu-dialog.component.css']
 })
 export class MenuDialogComponent {
   plats: MenuItem[];
+  isLoading = false;
 
   constructor(
     private dialog: MatDialog,
@@ -41,34 +44,47 @@ export class MenuDialogComponent {
   }
 
   private loadMenuItems() {
-    if (this.restaurant.id) {
-      console.log('Loading menu items for restaurant:', this.restaurant.id);
-      this.menuService.getMenuItemsByRestaurant(this.restaurant.id).subscribe({
+    this.isLoading = true;
+    const restaurantId = this.restaurant.id || '';
+    if (restaurantId) {
+      console.log('Loading menu items for restaurant:', restaurantId);
+      this.menuService.getMenuItemsByRestaurant(restaurantId).subscribe({
         next: (menuItems) => {
           console.log('Loaded menu items:', menuItems);
           this.plats = menuItems;
+          this.isLoading = false;
         },
         error: (err) => {
           console.error('Error loading menu items:', err);
           // Fallback to restaurant.menu if API call fails
           this.plats = this.restaurant.menus || [];
+          this.isLoading = false;
         }
       });
     } else {
       console.error('Restaurant ID is missing, cannot load menu items');
+      this.isLoading = false;
     }
   }
 
   openAddPlatForm() {
     const dialogRef = this.dialog.open(MenuItemFormComponent, {
       width: '600px',
-      data: { restaurantId: this.restaurant.id }
+      data: { restaurantId: this.restaurant.id || '' }
     });
 
     dialogRef.afterClosed().subscribe((savedItem: MenuItem) => {
       if (savedItem) {
-        // Add the new item to the local list immediately
-        this.plats.push(savedItem);
+        this.isLoading = true;
+        this.menuService.getMenuItemsByRestaurant(this.restaurant.id || '').subscribe({
+          next: (data) => {
+            this.plats = data;
+            this.isLoading = false;
+          },
+          error: (err) => {
+            this.isLoading = false;
+          }
+        });
       }
     });
   }
@@ -76,13 +92,21 @@ export class MenuDialogComponent {
   openEditPlatForm(index: number) {
     const dialogRef = this.dialog.open(MenuItemFormComponent, {
       width: '600px',
-      data: { restaurantId: this.restaurant.id, menuItem: this.plats[index] }
+      data: { restaurantId: this.restaurant.id || '', menuItem: this.plats[index] }
     });
 
     dialogRef.afterClosed().subscribe((savedItem: MenuItem) => {
       if (savedItem) {
-        // Update the item in the local list immediately
-        this.plats[index] = savedItem;
+        this.isLoading = true;
+        this.menuService.getMenuItemsByRestaurant(this.restaurant.id || '').subscribe({
+          next: (data) => {
+            this.plats = data;
+            this.isLoading = false;
+          },
+          error: (err) => {
+            this.isLoading = false;
+          }
+        });
       }
     });
   }
@@ -97,13 +121,21 @@ export class MenuDialogComponent {
       if (result === true) {
         const platToDelete = this.plats[index];
         if (platToDelete.id) {
+          this.isLoading = true;
           this.menuService.deleteMenuItem(platToDelete.id).subscribe({
             next: () => {
-              // Remove the item from the local list immediately
-              this.plats.splice(index, 1);
+              this.menuService.getMenuItemsByRestaurant(this.restaurant.id || '').subscribe({
+                next: (data) => {
+                  this.plats = data;
+                  this.isLoading = false;
+                },
+                error: (err) => {
+                  this.isLoading = false;
+                }
+              });
             },
             error: err => {
-              console.error('Erreur suppression plat', err);
+              this.isLoading = false;
             }
           });
         } else {

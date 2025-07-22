@@ -21,6 +21,8 @@ import { Restaurant } from '../../models/restaurant.model';
 import { RestaurantService } from '../../services/restaurant.service';
 import { CountdownService } from '../../services/counttdown.service';
 import { Subscription } from 'rxjs';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-group-order-details',
@@ -34,7 +36,9 @@ import { Subscription } from 'rxjs';
     MatChipsModule,
     MatDividerModule,
     MatSelectModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    MatProgressBarModule,
+    FormsModule,
   ],
   templateUrl: './group-order-details.component.html',
   styleUrls: ['./group-order-details.component.css']
@@ -56,6 +60,8 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
   countdownDisplay: string = 'Calculating...';
   countdownColor: string = 'time-normal';
   private countdownSubscription: Subscription | null = null;
+  orderSearchTerm: string = '';
+  filteredOrders: Order[] = [];
 
   availableStatuses = [
     { value: 'created', label: 'Created' },
@@ -86,6 +92,7 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
       this.loading = false;
       this.snackBar.open('Invalid group order ID', 'Close', { duration: 3000 });
     }
+    this.filteredOrders = this.orders;
   }
 
   ngOnDestroy(): void {
@@ -197,6 +204,7 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
           }
           this.loading = false;
           this.cdr.detectChanges();
+          this.applyOrderFilters();
         },
         error: (error: any) => {
           console.error('Error loading orders for commande:', error);
@@ -323,5 +331,43 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
     const now = new Date().getTime();
     const deadline = new Date(this.commande.orderDeadline).getTime();
     return now >= deadline;
+  }
+
+  getDeadlineProgress(createdAt: string | Date | null | undefined, orderDeadline: string | Date | null | undefined): number {
+    if (!createdAt || !orderDeadline) return 0;
+    const start = new Date(createdAt).getTime();
+    const end = new Date(orderDeadline).getTime();
+    const now = Date.now();
+    if (now >= end) return 100;
+    if (now <= start) return 0;
+    return Math.round(((now - start) / (end - start)) * 100);
+  }
+
+  getRestaurantName(restaurantId: string | null | undefined): string {
+    if (!restaurantId) return 'Unknown Restaurant';
+    if (this.restaurant && this.restaurant.id === restaurantId) {
+      return this.restaurant.name || 'Unknown Restaurant';
+    }
+    return 'Unknown Restaurant';
+  }
+
+  applyOrderFilters(): void {
+    this.filteredOrders = this.orders.filter(order => {
+      const participantName = order.participantName || '';
+      return this.orderSearchTerm
+        ? participantName.toLowerCase().includes(this.orderSearchTerm.toLowerCase())
+        : true;
+    });
+  }
+
+  clearOrderSearch(): void {
+    this.orderSearchTerm = '';
+    this.applyOrderFilters();
+  }
+
+  // When orders are loaded or changed, update filteredOrders
+  setOrders(orders: Order[]): void {
+    this.orders = orders;
+    this.applyOrderFilters();
   }
 }

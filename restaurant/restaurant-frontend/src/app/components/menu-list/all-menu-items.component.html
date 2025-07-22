@@ -6,43 +6,42 @@
             <input type="text" class="form-control" placeholder="Search by name, description, or restaurant..." [(ngModel)]="searchText">
         </div>
     </div>
-    <div class="table-responsive">
-        <table class="table table-bordered align-middle bg-white">
-            <thead class="table-light">
-                <tr>
-                    <th scope="col">Image</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Description</th>
-                    <th scope="col">Price</th>
-                    <th scope="col">Restaurant</th>
-                    <th scope="col" class="text-center">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let item of filteredMenuItems">
-                    <td class="text-center">
-                        <img [src]="getItemImage(item)" [alt]="item.name" style="width: 48px; height: 48px; object-fit: cover; border-radius: 50%; border: 2px solid #eee;" />
-                    </td>
-                    <td class="fw-semibold">{{ item.name }}</td>
-                    <td>{{ item.description }}</td>
-                    <td><span class="badge bg-success">${{ item.price | number:'1.2-2' }}</span></td>
-                    <td><span class="text-muted small">{{ getRestaurantName(item.restaurantId) }}</span></td>
-                    <td class="text-center">
-                        <button mat-icon-button color="accent" (click)="editItem(item)" matTooltip="Edit">
-              <mat-icon>edit</mat-icon>
-            </button>
-                        <button mat-icon-button color="warn" (click)="delete(item.id)" matTooltip="Delete">
-              <mat-icon>delete</mat-icon>
-            </button>
-                    </td>
-                </tr>
-                <tr *ngIf="filteredMenuItems.length === 0">
-                    <td colspan="6" class="text-center text-muted py-5">
-                        <mat-icon style="font-size: 48px; color: #bdbdbd;">restaurant_menu</mat-icon>
-                        <div class="mt-2">No menu items found.</div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <hlm-spinner *ngIf="isLoading" class="size-8 md:size-10 mx-auto my-8 block"></hlm-spinner>
+    <div class="menu-card-grid pro-card-grid">
+        <ng-container *ngIf="filteredMenuItems.length > 0; else noMenuItems">
+            <div *ngFor="let item of filteredMenuItems; let i = index" #menuCard class="menu-anim-card pro-menu-card" [ngStyle]="{'animation-delay': (i * 80) + 'ms'}">
+                <div class="pro-card-img-wrap">
+                    <img [src]="getItemImage(item)" [alt]="item.name" class="pro-card-img" />
+                </div>
+                <span class="pro-badge pro-price">${{ item.price | number:'1.2-2' }}</span>
+                <div class="pro-card-content">
+                    <h3 class="pro-card-title" title="{{ item.name }}">{{ item.name }}</h3>
+                    <p class="pro-card-desc" title="{{ item.description }}">{{ item.description }}</p>
+                    <div class="pro-card-badges">
+                        <span class="pro-badge pro-restaurant">{{ getRestaurantName(item.restaurantId) }}</span>
+                    </div>
+                </div>
+                <div class="pro-card-actions">
+                    <button mat-icon-button color="accent" (click)=" editItem(item) " matTooltip="Edit " aria-label="Edit menu item ">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn " (click)="delete(item.id) " matTooltip="Delete " aria-label="Delete menu item ">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </div>
+            </div>
+        </ng-container>
+        <ng-template #noMenuItems>
+            <div class="alert alert-info restaurant-empty " role="alert ">
+                <div class="empty-flex-row ">
+                    <span class="icon large " aria-hidden="true ">
+                        <mat-icon aria-hidden="false " aria-label="No menu items " fontIcon="restaurant_menu "></mat-icon>
+                    </span>
+                    <span class="empty-flex-text ">
+                        No menu items found. <a href="# " class="alert-link " (click)="$event.preventDefault(); addItem(); ">Click here to add a new menu item.</a>
+                    </span>
+                </div>
+            </div>
+        </ng-template>
     </div>
 </div>

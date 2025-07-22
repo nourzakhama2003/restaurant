@@ -1,4 +1,8 @@
 <div class="container-fluid" *ngIf="commande">
+    <div *ngIf="isLoading" class="loading-state">
+        <mat-spinner *ngIf="isLoading" class="size-8 md:size-10 mx-auto my-8 block"></mat-spinner>
+        <p>Loading group order participation...</p>
+    </div>
     <div class="row">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
@@ -117,7 +121,15 @@
                         </div>
                     </div>
                     <ng-template #noParticipants>
-                        <p class="text-muted">No participants yet. Be the first!</p>
+                        <div class="alert alert-info" role="alert">
+                            No participants yet. Be the first to join!
+                            <span class="icon large" aria-hidden="true">
+                              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="24" cy="18" r="8" fill="#6a82fb"/>
+                                <ellipse cx="24" cy="36" rx="14" ry="8" fill="#e9f7fe"/>
+                              </svg>
+                            </span>
+                        </div>
                     </ng-template>
                 </mat-card-content>
             </mat-card>

@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { routes } from './app/app.routes';
 import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { importProvidersFrom, APP_INITIALIZER } from '@angular/core';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { IconLogout, IconUser, IconHome } from 'angular-tabler-icons/icons';
 import { AuthInterceptor } from './app/auth.interceptor';
@@ -26,6 +27,7 @@ bootstrapApplication(AppComponent, {
 
     // Import required modules
     importProvidersFrom(
+      BrowserAnimationsModule,
       KeycloakAngularModule,
       TablerIconsModule.pick({
         IconLogout,

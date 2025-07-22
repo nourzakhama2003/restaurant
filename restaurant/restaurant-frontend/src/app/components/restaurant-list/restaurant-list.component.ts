@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ElementRef, QueryList, ViewChildren } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -14,7 +14,10 @@ import { RestaurantFormDialogComponent } from '../restaurant-form/restaurant-for
 import { ConfirmDialogRestaurantComponent } from '../../confirm-dialog-restaurant.component';
 import { MenuDialogComponent } from '../menu-dialog/menu-dialog.component';
 import { RouterModule } from '@angular/router';
-
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { trigger, state, style, animate, transition } from '@angular/animations';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { delay } from 'rxjs';
 @Component({
   selector: 'app-restaurant-list',
   standalone: true,
@@ -28,14 +31,36 @@ import { RouterModule } from '@angular/router';
     MatButtonModule,
     MatDialogModule,
     MatSnackBarModule,
-    RouterModule
+    RouterModule,
+    MatProgressSpinnerModule
+    // BrowserAnimationsModule removed
   ],
   templateUrl: './restaurant-list.component.html',
-  styleUrls: ['./restaurant-list.component.css']
+  styleUrls: ['./restaurant-list.component.css'],
+  animations: [
+    // Define the fade-in animation
+    trigger('fadeIn', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('600ms ease-in', style({ opacity: 1 }))
+      ])
+    ]),
+    trigger('slideIn', [
+      transition(':enter', [
+        style({ transform: 'translateX(-100px) scale(0.5)', opacity: 0 }),
+        animate('800ms cubic-bezier(.25,.8,.25,1)', style({ transform: 'translateX(0) scale(1)', opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('600ms cubic-bezier(.25,.8,.25,1)', style({ transform: 'translateX(100px) scale(0.5)', opacity: 0 }))
+      ])
+    ])
+  ]
 })
-export class RestaurantListComponent implements OnInit {
+export class RestaurantListComponent implements OnInit, AfterViewInit {
   searchText = '';
+  isLoading = false;
   restaurants: Restaurant[] = [];
+  @ViewChildren('restaurantCard', { read: ElementRef }) cards!: QueryList<ElementRef>;
 
   constructor(
     private restaurantService: RestaurantService,
@@ -47,11 +72,43 @@ export class RestaurantListComponent implements OnInit {
     this.loadRestaurants();
   }
 
-  loadRestaurants(): void {
-    this.restaurantService.getAllRestaurants().subscribe({
-      next: (data) => (this.restaurants = data),
-      error: (err) => this.handleError(err)
+  ngAfterViewInit() {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          } else {
+            entry.target.classList.remove('visible');
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    // Observe initial cards
+    this.cards.forEach(card => observer.observe(card.nativeElement));
+
+    // Re-observe whenever the list changes (e.g., after filtering or loading)
+    this.cards.changes.subscribe((cards: QueryList<ElementRef>) => {
+      cards.forEach(card => observer.observe(card.nativeElement));
     });
+  }
+
+  loadRestaurants(): void {
+    this.isLoading = true;
+    this.restaurantService.getAllRestaurants()
+      .pipe(delay(1000))
+      .subscribe({
+        next: (data: Restaurant[]) => {
+          this.restaurants = data;
+          this.isLoading = false;
+        },
+        error: (err) => {
+          this.handleError(err);
+          this.isLoading = false;
+        }
+      });
   }
 
   filteredRestaurants(): Restaurant[] {
@@ -66,6 +123,8 @@ export class RestaurantListComponent implements OnInit {
   openDialog(restaurant?: Restaurant): void {
     const dialogRef = this.dialog.open(RestaurantFormDialogComponent, {
       width: '600px',
+      maxHeight: '90vh',
+      height: 'auto',
       data: restaurant || {}
     });
 

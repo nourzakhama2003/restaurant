@@ -1,33 +1,40 @@
-<div class="login-container">
-  <div class="login-card">
-    <!-- Registration Success Message -->
-    <div *ngIf="showRegistrationSuccess" class="registration-success-banner">
-      <div class="success-icon">✅</div>
-      <h3>Registration Successful!</h3>
-      <p>Your account has been created successfully. You will be logged out in a moment so you can sign in with your new credentials.</p>
-    </div>
+<div class="login-bg">
+    <div class="login-card animated-fade-in">
+        <!-- Registration Success Message -->
+        <div *ngIf="showRegistrationSuccess" class="registration-success-banner">
+            <div class="success-icon">✅</div>
+            <h3>Registration Successful!</h3>
+            <p>Your account has been created successfully. You will be logged out in a moment so you can sign in with your new credentials.</p>
+        </div>
 
-    <h2>Welcome to Restaurant Management</h2>
-    <p>Please sign in to continue</p>
+        <div class="login-logo-row">
+            <img src="/assets/images/logos/logo-wrappixel.svg" alt="App Logo" class="login-logo" />
+        </div>
+        <h2>Welcome to Restaurant Management</h2>
+        <p class="subtitle">Sign in to continue</p>
 
-    <div class="login-buttons" [style.opacity]="showRegistrationSuccess ? '0.5' : '1'">
-      <button 
-        class="btn btn-primary" 
-        (click)="login()" 
-        [disabled]="isLoading || showRegistrationSuccess">
+        <div class="login-buttons" [style.opacity]="showRegistrationSuccess ? '0.5' : '1'">
+            <button class="btn btn-primary animated-btn" (click)="login()" [disabled]="isLoading || showRegistrationSuccess">
         <span *ngIf="isLoading">Logging in...</span>
-        <span *ngIf="!isLoading">Sign In with Keycloak</span>
+        <span *ngIf="!isLoading"><mat-icon class="icon-keycloak">vpn_key</mat-icon> Sign In with Keycloak</span>
       </button>
-
-      <button 
-        class="btn btn-secondary" 
-        (click)="register()" 
-        [disabled]="isLoading || showRegistrationSuccess">
+            <button class="btn btn-secondary animated-btn" (click)="register()" [disabled]="isLoading || showRegistrationSuccess">
         <span *ngIf="isLoading">Processing...</span>
-        <span *ngIf="!isLoading">Register New Account</span>
+        <span *ngIf="!isLoading"><mat-icon class="icon-keycloak">person_add</mat-icon> Register New Account</span>
       </button>
+        </div>
+
+        <div class="divider-row"><span>or sign in with</span></div>
+        <div class="social-login-row">
+            <button class="social-btn google" aria-label="Sign in with Google" (click)="loginWithProvider('google')">
+        <img src="/assets/images/svgs/google-icon.svg" alt="Google" />
+      </button>
+            <button class="social-btn facebook" aria-label="Sign in with Facebook" (click)="loginWithProvider('facebook')">
+        <img src="/assets/images/svgs/facebook-icon.svg" alt="Facebook" />
+      </button>
+            <button class="social-btn github" aria-label="Sign in with GitHub" (click)="loginWithProvider('github')">
+        <img src="/assets/images/svgs/github-icon.svg" alt="GitHub" />
+      </button>
+        </div>
     </div>
-
-
-  </div>
 </div>

@@ -11,7 +11,7 @@ export function initializeKeycloak(keycloak: KeycloakService): () => Promise<boo
       initOptions: {
         onLoad: 'check-sso',
         checkLoginIframe: false,
-        redirectUri: window.location.origin,
+        redirectUri: window.location.href, // Use full URL to preserve current page
         flow: 'standard',
         pkceMethod: 'S256'
       },

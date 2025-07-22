@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { OrderSubmissionComponent } from '../order-submission/order-submission.component';
 import { CommandeService, Commande } from '../../services/commande.service';
 import { OrderItem } from '../../models/group-order.model';
@@ -19,6 +19,7 @@ import { OrderService } from '../../services/order.service';
 import { MenuItem } from '../../models/menu-item.model';
 import { CountdownService } from '../../services/counttdown.service';
 import { Subscription } from 'rxjs';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 // Define interfaces for participation
 interface ParticipateRequest {
@@ -40,7 +41,8 @@ interface ParticipateRequest {
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
-    MatTableModule
+    MatTableModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './participate-group-order.component.html',
   styleUrls: ['./participate-group-order.component.css']
@@ -65,7 +67,8 @@ export class ParticipateGroupOrderComponent implements OnInit, OnDestroy {
     private orderService: OrderService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private countdownService: CountdownService
+    private countdownService: CountdownService,
+    private dialogRef: MatDialogRef<ParticipateGroupOrderComponent>
   ) {
     this.participateForm = this.fb.group({
       participantId: [''],
@@ -232,8 +235,8 @@ export class ParticipateGroupOrderComponent implements OnInit, OnDestroy {
           // Update commande total price in database
           this.updateCommandeTotalInDatabase();
 
-          // Navigate back to group orders
-          this.router.navigate(['/group-orders']);
+          // Close the dialog and return a result so parent can refresh
+          this.dialogRef.close(createdOrder);
         },
         error: (error) => {
           this.isLoading = false;

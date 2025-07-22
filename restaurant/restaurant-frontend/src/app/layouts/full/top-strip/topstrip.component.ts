@@ -7,14 +7,23 @@ import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { routes } from '../../../app.routes';
+import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-topstrip',
-  imports: [TablerIconsModule, MatButtonModule, MatMenuModule, MatIconModule, RouterModule],
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatMenuModule,
+    MatIconModule,
+    TablerIconsModule,
+    RouterModule
+  ],
   templateUrl: './topstrip.component.html',
   styleUrls: ['./topstrip.css'],
-  standalone: true,
 })
 export class AppTopstripComponent {
+  visible = false;
   constructor(
     private router: Router,
     private keycloak: KeycloakService

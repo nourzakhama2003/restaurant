@@ -12,11 +12,12 @@ import { ConfirmDialogComponent } from '../../confirm-dialog.component';
 import { MatCardModule } from '@angular/material/card';
 import { RestaurantService } from '../../services/restaurant.service';
 import { Restaurant } from '../../models/restaurant.model';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-menu-list',
   standalone: true,
-  imports: [CommonModule, MatListModule, MatIconModule, MatButtonModule, MatCardModule],
+  imports: [CommonModule, MatListModule, MatIconModule, MatButtonModule, MatCardModule, MatProgressSpinnerModule],
   templateUrl: './menu-list.component.html',
   styleUrls: ['./menu-list.component.css']
 })
@@ -24,6 +25,7 @@ export class MenuListComponent implements OnInit {
   @Input() restaurantId!: string;
   menuItems: MenuItem[] = [];
   restaurant?: Restaurant;
+  isLoading = false;
 
   constructor(
     private menuService: MenuService,
@@ -37,6 +39,7 @@ export class MenuListComponent implements OnInit {
       this.restaurantId = this.route.snapshot.paramMap.get('id') || '';
     }
     if (this.restaurantId) {
+      this.isLoading = true;
       this.loadMenu();
       this.restaurantService.getRestaurantById(this.restaurantId).subscribe(data => {
         this.restaurant = data;
@@ -45,8 +48,14 @@ export class MenuListComponent implements OnInit {
   }
 
   loadMenu() {
-    this.menuService.getMenuItemsByRestaurant(this.restaurantId).subscribe(data => {
-      this.menuItems = data;
+    this.menuService.getMenuItemsByRestaurant(this.restaurantId).subscribe({
+      next: (data) => {
+        this.menuItems = data;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.isLoading = false;
+      }
     });
   }
 
@@ -91,5 +100,16 @@ export class MenuListComponent implements OnInit {
 
   getItemImage(item: MenuItem): string {
     return item.imageBase64 || 'assets/images/plat.png';
+  }
+
+  getRestaurantName(restaurantId: string): string {
+    if (this.restaurant && this.restaurant.id === restaurantId) {
+      return this.restaurant.name;
+    }
+    return restaurantId;
+  }
+
+  openAddMenuItemDialog() {
+    this.addItem();
   }
 }

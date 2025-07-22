@@ -23,6 +23,11 @@ import { Subscription } from 'rxjs';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { FormsModule } from '@angular/forms';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @Component({
   selector: 'app-group-orders-list',
@@ -37,7 +42,12 @@ import { FormControl } from '@angular/forms';
     MatSelectModule,
     MatFormFieldModule,
     MatInputModule,
-    MatAutocompleteModule
+    MatAutocompleteModule,
+    MatProgressSpinnerModule,
+    FormsModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatProgressBarModule,
   ],
   templateUrl: './group-orders-list.component.html',
   styleUrls: ['./group-orders-list.component.css']
@@ -51,7 +61,12 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
   filteredRestaurants: Observable<Restaurant[]> = new Observable();
   orderCounts: { [commandeId: string]: number } = {};
   orderTotals: { [commandeId: string]: number } = {};
+  isLoading = false;
   countdowns: { [commandeId: string]: { display: string, color: string, subscription: Subscription | null } } = {};
+  selectedDate: Date | null = null;
+  currentUserId: string = '';
+  // Added for My Orders style filters
+  searchTerm: string = '';
 
   constructor(
     private commandeService: CommandeService,
@@ -65,6 +80,8 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
+    // Set currentUserId from localStorage or user service
+    this.currentUserId = localStorage.getItem('userId') || '';
     this.loadRestaurants();
     this.loadAllCommandes();
   }
@@ -95,8 +112,13 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
     );
   }
 
-  private _filterRestaurants(value: string): Restaurant[] {
-    const filterValue = value.toLowerCase();
+  private _filterRestaurants(value: string | Restaurant): Restaurant[] {
+    let filterValue = '';
+    if (typeof value === 'string') {
+      filterValue = value.toLowerCase();
+    } else if (value && typeof value === 'object' && 'name' in value) {
+      filterValue = (value.name || '').toLowerCase();
+    }
     return this.restaurants.filter(restaurant =>
       restaurant.name.toLowerCase().includes(filterValue) ||
       (restaurant.cuisineType && restaurant.cuisineType.toLowerCase().includes(filterValue))
@@ -109,16 +131,36 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
     this.filterByRestaurant();
   }
 
-  displayRestaurantFn = (restaurant: Restaurant): string => {
-    return restaurant ? `${restaurant.name} - ${restaurant.cuisineType || 'No cuisine type'}` : '';
+  displayRestaurantFn = (restaurant: any): string => {
+    console.log('displayWith:', restaurant);
+    if (!restaurant) return '';
+    if (typeof restaurant === 'string') return restaurant;
+    const name = restaurant.name || '';
+    const cuisine = restaurant.cuisineType || '';
+    if (name && cuisine) return `${name} - ${cuisine}`;
+    if (name) return name;
+    if (cuisine) return cuisine;
+    return '';
   }
 
   onSearchInput(): void {
-    // When user types but doesn't select, clear the filter
-    if (!this.restaurantSearchControl.value) {
+    const value = this.restaurantSearchControl.value;
+    if (!value) {
       this.selectedRestaurantId = '';
       this.filterByRestaurant();
+      return;
     }
+    // If value is a string and matches a restaurant, set the control to the object
+    if (typeof value === 'string') {
+      const match = this.restaurants.find(r => r.name.toLowerCase() === value.toLowerCase());
+      if (match) {
+        this.restaurantSearchControl.setValue(match as any); // allow Restaurant type
+        this.selectedRestaurantId = match?.id || '';
+        this.filterByRestaurant();
+        return;
+      }
+    }
+    // Otherwise, do not change selection
   }
 
   clearRestaurantFilter(): void {
@@ -127,12 +169,23 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
     this.filterByRestaurant();
   }
 
+  onDateChange(event: any): void {
+    this.selectedDate = event.value;
+    this.filterByRestaurant();
+  }
+
+  clearDateFilter(): void {
+    this.selectedDate = null;
+    this.filterByRestaurant();
+  }
+
   loadAllCommandes(): void {
     this.commandeService.getAllCommandes().subscribe({
       next: (commandes: Commande[]) => {
-        this.commandes = commandes.filter(c => !c.deleted);
-        this.loadOrderCounts();
-        this.filterByRestaurant();
+        this.commandes = commandes;
+        this.filteredCommandes = [...this.commandes];
+        this.setupCountdowns();
+        this.loadOrderCounts(); // <-- Ensure counts and totals are updated after loading commandes
       },
       error: (error: any) => {
         console.error('Error loading commandes:', error);
@@ -177,11 +230,20 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
   }
 
   filterByRestaurant(): void {
+    let filtered = this.commandes;
     if (this.selectedRestaurantId) {
-      this.filteredCommandes = this.commandes.filter(c => c.restaurantId === this.selectedRestaurantId);
-    } else {
-      this.filteredCommandes = [...this.commandes];
+      filtered = filtered.filter(c => c.restaurantId === this.selectedRestaurantId);
     }
+    if (this.selectedDate) {
+      const selected = new Date(this.selectedDate);
+      selected.setHours(0, 0, 0, 0);
+      filtered = filtered.filter(c => {
+        const created = new Date(c.createdAt);
+        created.setHours(0, 0, 0, 0);
+        return created.getTime() === selected.getTime();
+      });
+    }
+    this.filteredCommandes = [...filtered];
     this.setupCountdowns();
   }
 
@@ -286,5 +348,40 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
 
   getCountdownColor(commandeId: string): string {
     return this.countdowns[commandeId]?.color || 'time-normal';
+  }
+
+  getOrderProgress(createdAt: string | Date, orderDeadline: string | Date): number {
+    if (!createdAt || !orderDeadline) return 0;
+    const start = new Date(createdAt).getTime();
+    const end = new Date(orderDeadline).getTime();
+    const now = Date.now();
+    if (now >= end) return 100;
+    if (now <= start) return 0;
+    return Math.round(((now - start) / (end - start)) * 100);
+  }
+
+  editOrder(commandeId: string): void {
+    this.router.navigate(['/group-orders/edit', commandeId]);
+  }
+
+  applyFilters(): void {
+    this.filteredCommandes = this.commandes.filter(commande => {
+      // Filter by restaurant name
+      const restaurantName = this.getRestaurantName(commande.restaurantId) || '';
+      const matchesSearchTerm = this.searchTerm
+        ? restaurantName.toLowerCase().includes(this.searchTerm.toLowerCase())
+        : true;
+      // Filter by date (createdAt)
+      const matchesDate = this.selectedDate
+        ? new Date(commande.createdAt).toLocaleDateString() === new Date(this.selectedDate).toLocaleDateString()
+        : true;
+      return matchesSearchTerm && matchesDate;
+    });
+  }
+
+  clearFilters(): void {
+    this.searchTerm = '';
+    this.selectedDate = null;
+    this.applyFilters();
   }
 }

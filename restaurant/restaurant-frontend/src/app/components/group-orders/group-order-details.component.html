@@ -1,196 +1,195 @@
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-lg-12">
-            <mat-card *ngIf="!loading && commande">
-                <mat-card-header>
-                    <mat-card-title>
-                        <mat-icon>restaurant</mat-icon>
-                        Group Order Details
-                    </mat-card-title>
-                    <mat-card-subtitle>
-                        Created by {{commande.creatorName || 'Unknown'}} • {{commande.createdAt | date:'short'}}
-                    </mat-card-subtitle>
-                </mat-card-header>
-
-                <mat-card-content>
-                    <!-- Order Status Management -->
-                    <div class="mb-3" *ngIf="isCreator()">
-                        <mat-form-field appearance="outline">
-                            <mat-label>Status</mat-label>
-                            <mat-select [value]="commande.status" (selectionChange)="onStatusChange($event.value)">
-                                <mat-option *ngFor="let status of availableStatuses" [value]="status.value">
-                                    {{status.label}}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                    </div>
-
-                    <!-- Order Status (Read-only for non-creators) -->
-                    <div class="mb-3" *ngIf="!isCreator()">
-                        <mat-chip-set>
-                            <mat-chip [color]="getStatusColor(commande.status || '')" selected>
-                                {{(commande.status || '').replace('_', ' ')}}
-                            </mat-chip>
-                        </mat-chip-set>
-                    </div>
-
-                    <!-- Restaurant Info -->
-                    <div class="mb-4">
-                        <h3>Restaurant Information</h3>
-                        <p><strong>Restaurant:</strong> {{restaurant.name || 'Loading...'}}</p>
-                        <p *ngIf="restaurant?.address"><strong>Address:</strong> {{restaurant.address}}</p>
-                        <p *ngIf="restaurant?.phone"><strong>Phone:</strong> {{restaurant.phone}}</p>
-                        <p *ngIf="restaurant?.cuisineType"><strong>Cuisine:</strong> {{restaurant.cuisineType}}</p>
-                    </div>
-
-                    <mat-divider></mat-divider>
-
-                    <!-- Order Summary -->
-                    <div class="my-4">
-                        <h3>Order Summary</h3>
-                        <p><strong>Total Participants:</strong> {{orders.length || 0}}</p>
-                        <p><strong>Total Amount:</strong> ${{getTotalAmount() | number:'1.2-2'}}</p>
-                    </div>
-
-                    <mat-divider></mat-divider>
-
-                    <!-- Individual Orders -->
-                    <div class="my-4" *ngIf="orders && orders.length > 0">
-                        <h3>Individual Orders ({{orders.length}})</h3>
-                        <div class="row">
-                            <div class="col-md-6 mb-3" *ngFor="let order of orders">
-                                <mat-card class="order-card">
-                                    <mat-card-header>
-                                        <mat-card-title class="text-sm">{{order?.participantName || 'Unknown Participant'}}</mat-card-title>
-                                        <mat-card-subtitle>
-                                            {{order?.items?.length || 0}} items
-                                        </mat-card-subtitle>
-                                    </mat-card-header>
-                                    <mat-card-content>
-                                        <div *ngFor="let item of order?.items" class="item-row">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <span>{{item?.menuItemName || 'Unknown Item'}}</span>
-                                                <div>
-                                                    <span class="quantity">×{{item?.quantity || 0}}</span>
-                                                    <span class="price ms-2">${{(item?.unitPrice || 0) * (item?.quantity || 0) | number:'1.2-2'}}</span>
-                                                </div>
-                                            </div>
-                                            <div *ngIf="item?.notes" class="text-muted small">
-                                                Note: {{item.notes}}
-                                            </div>
-                                        </div>
-                                        <mat-divider class="my-2"></mat-divider>
-                                        <div class="d-flex justify-content-between">
-                                            <strong>Subtotal:</strong>
-                                            <strong>${{order?.totalAmount || 0 | number:'1.2-2'}}</strong>
-                                        </div>
-                                        <div *ngIf="order?.notes" class="mt-2">
-                                            <strong>Order Notes:</strong> {{order.notes}}
-                                        </div>
-                                    </mat-card-content>
-
-                                    <!-- Order Management Actions -->
-                                    <mat-card-actions *ngIf="canManageOrder(order)" align="end">
-                                        <button mat-button color="primary" (click)="editOrder(order)">
-                      <mat-icon>edit</mat-icon>
-                      Edit
-                    </button>
-                                        <button mat-button color="warn" (click)="deleteOrder(order)">
-                      <mat-icon>delete</mat-icon>
-                      Delete
-                    </button>
-                                    </mat-card-actions>
-                                </mat-card>
-                            </div>
+<div class="order-details-bg">
+    <div class="order-details-wrapper">
+        <div class="order-details-hero">
+            <div class="hero-bg-icon">
+                <mat-icon>restaurant_menu</mat-icon>
+            </div>
+            <div class="hero-content">
+                <div class="hero-title-row">
+                    <span class="hero-avatar">{{commande && commande.creatorName ? commande.creatorName[0] : '?'}}</span>
+                    <div>
+                        <h1 class="hero-title">{{getRestaurantName(commande?.restaurantId)}}</h1>
+                        <div class="hero-meta">
+                            <span class="status-chip" [ngClass]="getStatusColor(commande?.status || '')">
+                                <mat-icon class="status-icon">
+                                    {{getStatusColor(commande?.status || '') === 'primary' ? 'hourglass_empty' : getStatusColor(commande?.status || '') === 'accent' ? 'lock' : getStatusColor(commande?.status || '') === 'warn' ? 'cancel' : 'check_circle'}}
+                                </mat-icon>
+                                {{(commande?.status || '').replace('_', ' ')}}
+                            </span>
+                            <span class="created-at-label">
+                                <mat-icon class="created-at-icon">schedule</mat-icon>
+                                {{commande?.createdAt | date:'fullDate'}}
+                            </span>
                         </div>
                     </div>
-
-                    <!-- Empty State -->
-                    <div *ngIf="!orders || orders.length === 0" class="text-center py-4">
-                        <mat-icon class="large-icon text-muted">shopping_cart</mat-icon>
-                        <p class="text-muted">No orders yet</p>
-                        <p class="text-muted">Share the group order link to let others join!</p>
+                </div>
+                <div class="hero-timeline">
+                    <div class="timeline-step" [class.active]="commande?.status === 'created'">
+                        <mat-icon class="timeline-status-icon">hourglass_empty</mat-icon>
+                        <span>Created</span>
                     </div>
-
-                    <!-- Order Deadline and Countdown -->
-                    <div class="mt-4" *ngIf="commande.orderDeadline">
-                        <h3>Order Deadline</h3>
-                        <div class="deadline-clock-container">
-                            <div class="deadline-label-row">
-                                <div class="face">
-                                    <p class="v-index">II
-                                    </p>
-                                    <p class="h-index">II
-                                    </p>
-                                    <div class="hand">
-                                        <div class="hand">
-                                            <div class="hour"></div>
-                                            <div class="minute"></div>
-                                            <div class="second"></div>
+                    <div class="timeline-connector"></div>
+                    <div class="timeline-step" [class.active]="commande?.status === 'closed'">
+                        <mat-icon class="timeline-status-icon">lock</mat-icon>
+                        <span>Closed</span>
+                    </div>
+                    <div class="timeline-connector"></div>
+                    <div class="timeline-step confirmed" [class.active]="commande?.status === 'confirmed'">
+                        <mat-icon class="timeline-status-icon ">check_circle</mat-icon>
+                        <span>Confirmed</span>
+                    </div>
+                    <div class="timeline-connector"></div>
+                    <div class="timeline-step" [class.active]="commande?.status === 'cancelled'">
+                        <mat-icon class="timeline-status-icon">cancel</mat-icon>
+                        <span>Cancelled</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <mat-card class="glass-card details-float-card">
+            <mat-card-content>
+                <!-- Enhancement: Search/filter bar for orders -->
+                <div class="order-search-filter-section">
+                    <div class="order-search-row">
+                        <div class="order-form-row">
+                            <label for="orderSearch">Search Orders by Participant</label>
+                            <input id="orderSearch" class="Input" [(ngModel)]="orderSearchTerm" (input)="applyOrderFilters()" placeholder="Enter participant name..." />
+                        </div>
+                        <button mat-stroked-button (click)="clearOrderSearch()" class="clear-btn">
+                      <mat-icon>clear</mat-icon>
+                      Clear
+                    </button>
+                    </div>
+                </div>
+                <div class="details-section details-grid">
+                    <div class="details-block">
+                        <h3>
+                            <mat-icon>storefront</mat-icon> Restaurant</h3>
+                        <div class="restaurant-info-row">
+                            <span><b>{{restaurant.name || 'Loading...'}}</b></span>
+                            <span *ngIf="restaurant?.address"><mat-icon>location_on</mat-icon> {{restaurant.address}}</span>
+                            <span *ngIf="restaurant?.phone"><mat-icon>call</mat-icon> {{restaurant.phone}}</span>
+                            <span *ngIf="restaurant?.cuisineType"><mat-icon>local_dining</mat-icon> {{restaurant.cuisineType}}</span>
+                        </div>
+                    </div>
+                    <div class="details-block">
+                        <h3>
+                            <mat-icon>group</mat-icon> Participants</h3>
+                        <div class="participants-row">
+                            <ng-container *ngFor="let order of orders">
+                                <span class="participant-chip">
+                                    <mat-icon>person</mat-icon> {{order.participantName || 'Unknown'}}
+                                </span>
+                            </ng-container>
+                            <span *ngIf="!orders || orders.length === 0" class="text-muted">No participants yet</span>
+                        </div>
+                    </div>
+                    <div class="details-block">
+                        <h3>
+                            <mat-icon>attach_money</mat-icon> Total</h3>
+                        <div class="summary-row">
+                            <span class="tnd-badge p-3 bg-green-200 rounded-full"><b>{{getTotalAmount() | number:'1.2-2'}} DT</b></span>
+                        </div>
+                    </div>
+                    <div class="details-block">
+                        <h3>
+                            <mat-icon>schedule</mat-icon> Deadline</h3>
+                        <div class="deadline-row">
+                            <span class="pill-countdown" [ngClass]="countdownColor">{{countdownDisplay}}</span>
+                            <mat-progress-bar class="deadline-progress-bar" mode="determinate" [value]="getDeadlineProgress(commande?.createdAt, commande?.orderDeadline)"></mat-progress-bar>
+                            <span class="deadline-date">{{commande?.orderDeadline | date:'short'}}</span>
+                        </div>
+                    </div>
+                </div>
+                <mat-divider class="section-divider"></mat-divider>
+                <div class="details-section">
+                    <h3>
+                        <mat-icon>shopping_cart</mat-icon> Orders ({{filteredOrders.length}})</h3>
+                    <div *ngIf="filteredOrders && filteredOrders.length > 0" class="orders-list">
+                        <mat-card *ngFor="let order of filteredOrders" class="mini-order-card glass-card fade-in-card">
+                            <mat-card-header>
+                                <mat-card-title class="mini-order-title">
+                                    <span class="mini-order-avatar large-mini-avatar">{{order?.participantName ? order.participantName[0] : '?'}}</span> {{order?.participantName || 'Unknown Participant'}}
+                                </mat-card-title>
+                                <mat-card-subtitle>{{order?.items?.length || 0}} items</mat-card-subtitle>
+                            </mat-card-header>
+                            <mat-card-content>
+                                <div *ngFor="let item of order?.items" class="item-row">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>{{item?.menuItemName || 'Unknown Item'}}</span>
+                                        <div>
+                                            <span class="quantity">×{{item?.quantity || 0}}</span>
+                                            <span class="price ms-2">{{(item?.unitPrice || 0) * (item?.quantity || 0) | number:'1.2-2'}}</span>
                                         </div>
                                     </div>
+                                    <div *ngIf="item?.notes" class="text-muted small">
+                                        Note: {{item.notes}}
+                                    </div>
                                 </div>
-                                <span class="deadline-label">Time Remaining</span>
-                            </div>
-                            <div class="countdown-row">
-                                <span class="countdown-time" [ngClass]="countdownColor">{{countdownDisplay}}</span>
-                            </div>
-                            <div class="deadline-date-row">
-                                <mat-icon>event</mat-icon>
-                                <span class="deadline-date">Deadline: {{commande.orderDeadline | date:'short'}}</span>
-                            </div>
-                        </div>
+                                <mat-divider class="my-2"></mat-divider>
+                                <div class="d-flex justify-content-between">
+                                    <strong>Subtotal:</strong>
+                                    <span class="tnd-badge p-2 bg-green-200 rounded-full"><strong>{{order?.totalAmount || 0 | number:'1.2-2'}} DT</strong></span>
+                                </div>
+                                <div *ngIf="order?.notes" class="mt-2">
+                                    <strong>Order Notes:</strong> {{order.notes}}
+                                </div>
+                            </mat-card-content>
+                            <mat-card-actions *ngIf="canManageOrder(order)" align="end">
+                                <button mat-icon-button color="primary" (click)="editOrder(order)" matTooltip="Edit" aria-label="Edit order">
+                                  <mat-icon>edit</mat-icon>
+                                </button>
+                                <button mat-icon-button color="warn" (click)="deleteOrder(order)" matTooltip="Delete" aria-label="Delete order">
+                                  <mat-icon>delete</mat-icon>
+                                </button>
+                            </mat-card-actions>
+                        </mat-card>
                     </div>
-                </mat-card-content>
-
-                <mat-card-actions>
-                    <button mat-button (click)="goBack()">
-            <mat-icon>arrow_back</mat-icon>
-            Back to Group Orders
-          </button>
-
-                    <button mat-raised-button color="primary" *ngIf="commande?.status === 'OPEN_FOR_PARTICIPATION' && !isCreator()" (click)="participateInOrder()">
-            <mat-icon>add_shopping_cart</mat-icon>
-            Join This Order
-          </button>
-
-                    <!-- Creator-only buttons -->
-                    <div *ngIf="isCreator()">
-                        <button mat-raised-button color="accent" *ngIf="commande?.status === 'OPEN_FOR_PARTICIPATION'" (click)="onStatusChange('CLOSED_FOR_PARTICIPATION')">
-              <mat-icon>close</mat-icon>
-              Close for Participation
-            </button>
-
-                        <button mat-raised-button color="primary" *ngIf="commande?.status === 'CLOSED_FOR_PARTICIPATION'" (click)="onStatusChange('CONFIRMED')">
-              <mat-icon>check</mat-icon>
-              Confirm Order
-            </button>
-
-                        <button mat-raised-button color="warn" *ngIf="commande?.status !== 'CANCELLED'" (click)="onStatusChange('CANCELLED')">
-              <mat-icon>cancel</mat-icon>
-              Cancel Order
-            </button>
+                    <div *ngIf="!filteredOrders || filteredOrders.length === 0" class="empty-orders-state">
+                        <span class="icon large" aria-hidden="true">
+                          <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="24" cy="18" r="8" fill="#6a82fb"/>
+                            <ellipse cx="24" cy="36" rx="14" ry="8" fill="#e9f7fe"/>
+                            <rect x="20" y="28" width="8" height="8" rx="2" fill="#b2f7cc"/>
+                          </svg>
+                        </span>
+                        <p class="text-muted">No orders yet. Share the group order link to let others join!</p>
                     </div>
-                </mat-card-actions>
-            </mat-card>
-
-            <!-- Loading State -->
-            <div *ngIf="loading" class="text-center py-5">
-                <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
-                <p class="mt-3">Loading group order details...</p>
-            </div>
-
-            <!-- Error State -->
-            <mat-card *ngIf="!loading && !commande">
-                <mat-card-content class="text-center py-4">
-                    <mat-icon class="large-icon text-danger">error</mat-icon>
-                    <h3>Group Order Not Found</h3>
-                    <p>The requested group order could not be found.</p>
-                    <button mat-raised-button color="primary" (click)="goBack()">
-            Back to Group Orders
+                </div>
+            </mat-card-content>
+            <mat-card-actions>
+                <button mat-stroked-button color="accent" (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon> Back to Group Orders
+        </button>
+                <button mat-raised-button color="primary" *ngIf="commande?.status === 'OPEN_FOR_PARTICIPATION' && !isCreator()" (click)="participateInOrder()">
+          <mat-icon>add_shopping_cart</mat-icon> Join This Order
+        </button>
+                <ng-container *ngIf="isCreator()">
+                    <button mat-raised-button color="accent" *ngIf="commande?.status === 'OPEN_FOR_PARTICIPATION'" (click)="onStatusChange('CLOSED_FOR_PARTICIPATION')">
+            <mat-icon>close</mat-icon> Close for Participation
           </button>
-                </mat-card-content>
-            </mat-card>
+                    <button mat-raised-button color="primary" *ngIf="commande?.status === 'CLOSED_FOR_PARTICIPATION'" (click)="onStatusChange('CONFIRMED')">
+            <mat-icon>check</mat-icon> Confirm Order
+          </button>
+                    <button mat-raised-button color="warn" *ngIf="commande?.status !== 'CANCELLED'" (click)="onStatusChange('CANCELLED')">
+            <mat-icon>cancel</mat-icon> Cancel Order
+          </button>
+                </ng-container>
+            </mat-card-actions>
+        </mat-card>
+        <div *ngIf="loading" class="text-center py-5">
+            <mat-spinner class="mx-auto my-8 block"></mat-spinner>
+            <p class="mt-3">Loading group order details...</p>
         </div>
+        <mat-card *ngIf="!loading && !commande" class="glass-card">
+            <mat-card-content class="text-center py-4">
+                <mat-icon class="large-icon text-danger">error</mat-icon>
+                <h3>Group Order Not Found</h3>
+                <p>The requested group order could not be found.</p>
+                <button mat-raised-button color="primary" (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon> Back to Group Orders
+        </button>
+            </mat-card-content>
+        </mat-card>
     </div>
 </div>

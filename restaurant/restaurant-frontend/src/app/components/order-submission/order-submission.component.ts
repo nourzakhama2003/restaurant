@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -35,7 +35,8 @@ import { OrderItem, Order } from '../../models/group-order.model';
     MatIconModule,
     MatDividerModule,
     MatProgressSpinnerModule,
-    MatTooltipModule
+    MatTooltipModule,
+    FormsModule
   ],
   templateUrl: './order-submission.component.html',
   styleUrls: ['./order-submission.component.css']
@@ -47,6 +48,8 @@ export class OrderSubmissionComponent implements OnInit {
   isLoadingMenuItems = false;
   isEditMode = false;
   existingOrderId: string = '';
+  showMenuDropdown: boolean[] = [];
+  filteredMenuItems: MenuItem[][] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -137,7 +140,7 @@ export class OrderSubmissionComponent implements OnInit {
     this.orderItems.push(itemGroup);
   }
 
-    loadMenuItems(): void {
+  loadMenuItems(): void {
     if (!this.data.restaurantId) {
       console.error('Restaurant ID is missing from dialog data');
       this.snackBar.open('Error: Restaurant information is missing. Please try again.', 'Close', { duration: 3000 });
@@ -156,7 +159,7 @@ export class OrderSubmissionComponent implements OnInit {
         this.menuItems = menuItems.filter((item: MenuItem) => !item.deleted);
         console.log('Filtered available menu items:', this.menuItems);
         console.log('Number of available menu items:', this.menuItems.length);
-        
+
         if (this.menuItems.length === 0) {
           this.snackBar.open('No menu items available for this restaurant.', 'Close', { duration: 3000 });
         }
@@ -197,6 +200,31 @@ export class OrderSubmissionComponent implements OnInit {
       });
       this.calculateItemTotal(index);
     }
+  }
+
+  onMenuSearchInput(index: number): void {
+    const value = (document.querySelectorAll('.menu-search-input')[index] as HTMLInputElement)?.value || '';
+    this.orderItems.at(index).patchValue({ menuItemName: value });
+    const search = value.toLowerCase();
+    this.filteredMenuItems[index] = this.menuItems.filter(item => item.name.toLowerCase().includes(search));
+    this.showMenuDropdown[index] = true;
+  }
+
+  hideMenuDropdown(index: number): void {
+    setTimeout(() => { this.showMenuDropdown[index] = false; }, 200);
+  }
+
+  selectMenuItem(index: number, menuItem: MenuItem): void {
+    const itemGroup = this.orderItems.at(index);
+    itemGroup.patchValue({
+      menuItemId: menuItem.id,
+      menuItemName: menuItem.name, // This will update the input value
+      unitPrice: menuItem.price,
+      quantity: 1
+    });
+    this.filteredMenuItems[index] = [];
+    this.showMenuDropdown[index] = false;
+    this.calculateItemTotal(index);
   }
 
   calculateItemTotal(index: number): void {
@@ -280,5 +308,9 @@ export class OrderSubmissionComponent implements OnInit {
 
   onCancel(): void {
     this.dialogRef.close();
+  }
+
+  addItemToRestaurant(): void {
+    this.snackBar.open('Feature coming soon! Only admins can add menu items.', 'Close', { duration: 3000 });
   }
 }
