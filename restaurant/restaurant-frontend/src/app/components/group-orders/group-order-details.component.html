@@ -24,22 +24,22 @@
                     </div>
                 </div>
                 <div class="hero-timeline">
-                    <div class="timeline-step" [class.active]="commande?.status === 'created'">
+                    <div class="timeline-step" [class.active]="commande?.status === 'cree'">
                         <mat-icon class="timeline-status-icon">hourglass_empty</mat-icon>
                         <span>Créée</span>
                     </div>
                     <div class="timeline-connector"></div>
-                    <div class="timeline-step" [class.active]="commande?.status === 'closed'">
-                        <mat-icon class="timeline-status-icon">lock</mat-icon>
-                        <span>Fermée</span>
+                    <div class="timeline-step" [class.active]="commande?.status === 'attente'">
+                        <mat-icon class="timeline-status-icon">hourglass_top</mat-icon>
+                        <span>En attente</span>
                     </div>
                     <div class="timeline-connector"></div>
-                    <div class="timeline-step confirmed" [class.active]="commande?.status === 'confirmed'">
+                    <div class="timeline-step confirmed" [class.active]="commande?.status === 'confirmee'">
                         <mat-icon class="timeline-status-icon ">check_circle</mat-icon>
                         <span>Confirmée</span>
                     </div>
                     <div class="timeline-connector"></div>
-                    <div class="timeline-step" [class.active]="commande?.status === 'cancelled'">
+                    <div class="timeline-step" [class.active]="commande?.status === 'annulee'">
                         <mat-icon class="timeline-status-icon">cancel</mat-icon>
                         <span>Annulée</span>
                     </div>
@@ -51,14 +51,24 @@
                 <!-- Enhancement: Search/filter bar for orders -->
                 <div class="order-search-filter-section">
                     <div class="order-search-row">
-                        <div class="order-form-row">
-                            <label for="orderSearch">Rechercher des commandes par participant</label>
-                            <input id="orderSearch" class="Input" [(ngModel)]="orderSearchTerm" (input)="applyOrderFilters()" placeholder="Entrer le nom du participant..." />
+                        <div *ngIf="commande && isCreator(); else participantSearch">
+                            <label for="statusSelect">Changer le statut :</label>
+                            <select id="statusSelect" [(ngModel)]="commande.status" (change)="onStatusChangeDropdown($event)" [disabled]="statusUpdating">
+                                <option *ngFor="let status of statusOptions" [value]="status.value">{{ status.label }}</option>
+                            </select>
+                            <mat-spinner *ngIf="statusUpdating" diameter="24"></mat-spinner>
                         </div>
-                        <button mat-stroked-button (click)="clearOrderSearch()" class="clear-btn">
-                      <mat-icon>clear</mat-icon>
-                      Effacer
-                    </button>
+                        <ng-template #participantSearch>
+                            <!-- Existing participant search input -->
+                            <div class="order-form-row">
+                                <label for="orderSearch">Rechercher des commandes par participant</label>
+                                <input id="orderSearch" class="Input" [(ngModel)]="orderSearchTerm" (input)="applyOrderFilters()" placeholder="Entrer le nom du participant..." />
+                            </div>
+                            <button mat-stroked-button (click)="clearOrderSearch()" class="clear-btn">
+                                <mat-icon>clear</mat-icon>
+                                Effacer
+                            </button>
+                        </ng-template>
                     </div>
                 </div>
                 <div class="details-section details-grid">
@@ -95,9 +105,13 @@
                         <h3>
                             <mat-icon>schedule</mat-icon> Date limite</h3>
                         <div class="deadline-row">
-                            <span class="pill-countdown" [ngClass]="countdownColor">{{countdownDisplay}}</span>
+                            <span class="pill-countdown" [ngClass]="countdownColor">
+                                {{ countdownDisplay === 'Expired' ? 'Fermée pour participation' : countdownDisplay }}
+                            </span>
                             <mat-progress-bar class="deadline-progress-bar" mode="determinate" [value]="getDeadlineProgress(commande?.createdAt, commande?.orderDeadline)"></mat-progress-bar>
-                            <span class="deadline-date">{{commande?.orderDeadline | date:'short'}}</span>
+                            <span>
+  {{ commande?.orderDeadline | date:'short':'UTC' }} UTC
+</span>
                         </div>
                     </div>
                 </div>
@@ -161,17 +175,22 @@
                 <button mat-stroked-button color="accent" (click)="goBack()">
             <mat-icon>arrow_back</mat-icon> Retour aux commandes groupées
         </button>
-                <button mat-raised-button color="primary" *ngIf="commande?.status === 'OPEN_FOR_PARTICIPATION' && !isCreator()" (click)="participateInOrder()">
-          <mat-icon>add_shopping_cart</mat-icon> Rejoindre cette commande
-        </button>
+                <ng-container *ngIf="userAndOrdersLoaded && commande?.status === 'cree'">
+                    <button mat-raised-button color="primary" (click)="participateInOrder()" *ngIf="canJoin()">
+                        <mat-icon>add_shopping_cart</mat-icon> Participer
+                    </button>
+                    <button *ngIf="!canJoin() && myOrder" mat-raised-button color="primary" (click)="editOrder(myOrder)">
+                        <mat-icon>edit</mat-icon> Mettre à jour ma commande
+                    </button>
+                </ng-container>
                 <ng-container *ngIf="isCreator()">
-                    <button mat-raised-button color="accent" *ngIf="commande?.status === 'OPEN_FOR_PARTICIPATION'" (click)="onStatusChange('CLOSED_FOR_PARTICIPATION')">
+                    <button mat-raised-button color="accent" *ngIf="commande?.status === 'cree'" (click)="onStatusChange('attente')">
             <mat-icon>close</mat-icon> Fermer la participation
           </button>
-                    <button mat-raised-button color="primary" *ngIf="commande?.status === 'CLOSED_FOR_PARTICIPATION'" (click)="onStatusChange('CONFIRMED')">
+                    <button mat-raised-button color="primary" *ngIf="commande?.status === 'attente'" (click)="onStatusChange('confirmee')">
             <mat-icon>check</mat-icon> Confirmer la commande
           </button>
-                    <button mat-raised-button color="warn" *ngIf="commande?.status !== 'CANCELLED'" (click)="onStatusChange('CANCELLED')">
+                    <button mat-raised-button color="warn" *ngIf="commande?.status !== 'annulee'" (click)="onStatusChange('annulee')">
             <mat-icon>cancel</mat-icon> Annuler la commande
           </button>
                 </ng-container>

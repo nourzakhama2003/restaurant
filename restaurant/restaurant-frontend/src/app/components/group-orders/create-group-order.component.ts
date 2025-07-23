@@ -21,6 +21,9 @@ import { Restaurant } from '../../models/restaurant.model';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 
+// Add pad function at the top of the file
+function pad(n: number) { return n.toString().padStart(2, '0'); }
+
 @Component({
   selector: 'app-create-group-order',
   standalone: true,
@@ -83,14 +86,12 @@ export class CreateGroupOrderComponent implements OnInit {
 
   private setDefaultDateAndTime(): void {
     const now = new Date();
-    // Set default deadline to now + 10 minutes
+    // Set default deadline to now + 10 minutes (local time)
     const defaultDeadline = new Date(now.getTime() + 10 * 60 * 1000);
-    const todayDate = new Date(defaultDeadline.getFullYear(), defaultDeadline.getMonth(), defaultDeadline.getDate());
-    const timeString = defaultDeadline.toTimeString().substring(0, 5); // HH:MM format
-
+    // Set the form controls to the correct local date and time
     this.groupOrderForm.patchValue({
-      orderDeadlineDate: todayDate,
-      orderDeadlineTime: timeString
+      orderDeadlineDate: defaultDeadline,
+      orderDeadlineTime: defaultDeadline.toTimeString().substring(0, 5) // 'HH:mm' local time
     });
 
     // Add real-time validation listeners
@@ -264,41 +265,42 @@ export class CreateGroupOrderComponent implements OnInit {
 
   onSubmit(): void {
     if (this.groupOrderForm.valid) {
-      // Validate deadline before submitting
-      const validation = this.validateDeadline();
-      if (!validation.isValid) {
-        this.snackBar.open(validation.errorMessage || 'Invalid deadline', 'Close', { duration: 3000 });
+      // Combine date and time from the form as local time
+      const date: Date = this.groupOrderForm.value.orderDeadlineDate;
+      const time: string = this.groupOrderForm.value.orderDeadlineTime; // 'HH:mm'
+      const [hours, minutes] = time.split(':').map(Number);
+      const deadline = new Date(date);
+      deadline.setHours(hours, minutes, 0, 0);
+
+      // Validation: compare local deadline to local now
+      const now = new Date();
+      if (deadline.getTime() < now.getTime()) {
+        this.snackBar.open('Deadline is in the past. Please select a future time.', 'Close', { duration: 3000 });
         return;
       }
 
+      // Format as 'YYYY-MM-DDTHH:mm:00' (local time, no 'Z')
+      const orderDeadlineLocal = `${deadline.getFullYear()}-${pad(deadline.getMonth() + 1)}-${pad(deadline.getDate())}T${pad(deadline.getHours())}:${pad(deadline.getMinutes())}:00`;
+      this.groupOrderForm.patchValue({ orderDeadline: orderDeadlineLocal });
+
       this.isLoading = true;
 
-      // Combine date and time to create the full orderDeadline
-      const dateValue = this.groupOrderForm.value.orderDeadlineDate;
-      const timeValue = this.groupOrderForm.value.orderDeadlineTime;
-
-      const now = new Date();
-      const orderDeadline = new Date(dateValue);
-      const [hours, minutes] = timeValue.split(':');
-      orderDeadline.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-
       // Add 1 hour for Tunisia timezone compatibility
-      orderDeadline.setHours(orderDeadline.getHours() + 1);
+      deadline.setHours(deadline.getHours() + 1);
 
       // Always set deadline at least 2 minutes in the future
-      if (orderDeadline.getTime() < now.getTime() + 2 * 60 * 1000) {
+      if (deadline.getTime() < now.getTime() + 2 * 60 * 1000) {
         // If user selected a past or too-close time, auto-correct to now + 10 min
         const correctedDeadline = new Date(now.getTime() + 10 * 60 * 1000);
-        orderDeadline.setFullYear(correctedDeadline.getFullYear(), correctedDeadline.getMonth(), correctedDeadline.getDate());
-        orderDeadline.setHours(correctedDeadline.getHours(), correctedDeadline.getMinutes(), 0, 0);
+        deadline.setFullYear(correctedDeadline.getFullYear(), correctedDeadline.getMonth(), correctedDeadline.getDate());
+        deadline.setHours(correctedDeadline.getHours(), correctedDeadline.getMinutes(), 0, 0);
         // Add 1 hour for Tunisia timezone compatibility
-        orderDeadline.setHours(orderDeadline.getHours() + 1);
+        deadline.setHours(deadline.getHours() + 1);
         this.snackBar.open('Deadline was too close or in the past. Auto-corrected to 10 minutes from now.', 'Close', { duration: 4000 });
       }
 
       // Format deadline as local ISO string (yyyy-MM-ddTHH:mm)
-      const pad = (n: number) => n.toString().padStart(2, '0');
-      const orderDeadlineIso = `${orderDeadline.getFullYear()}-${pad(orderDeadline.getMonth() + 1)}-${pad(orderDeadline.getDate())}T${pad(orderDeadline.getHours())}:${pad(orderDeadline.getMinutes())}`;
+      const orderDeadlineIso = `${deadline.getFullYear()}-${pad(deadline.getMonth() + 1)}-${pad(deadline.getDate())}T${pad(deadline.getHours())}:${pad(deadline.getMinutes())}`;
 
       // Add 1 hour for Tunisia timezone compatibility to createdAt and updatedAt
       const nowTunisia = new Date(now.getTime());

@@ -11,9 +11,9 @@ interface Countdown {
     providedIn: 'root'
 })
 export class CountdownService implements OnDestroy {
-    private hours!:number;
-    private minutes!:number;
-    private seconds!:number;
+    private hours!: number;
+    private minutes!: number;
+    private seconds!: number;
     private countdowns: { [commandeId: string]: { subject: BehaviorSubject<Countdown>, timer: any } } = {};
 
     constructor(private commandeService: CommandeService) { }
@@ -46,26 +46,30 @@ export class CountdownService implements OnDestroy {
             }
             return;
         }
-        const deadline = new Date(commande.orderDeadline).getTime() - (60 * 60 * 1000); // UTC
+        // Subtract 1 hour from deadline for display purposes
+        const deadline = new Date(commande.orderDeadline).getTime() - (60 * 60 * 1000); // Adjust for local time
         const now = Date.now(); // UTC
-        const diff = deadline - now;
+        let diff = deadline - now;
+        // Debug log for time difference
+        console.log(`[COUNTDOWN DEBUG] deadline: ${new Date(deadline).toISOString()}, now: ${new Date(now).toISOString()}, diff (s): ${Math.floor(diff / 1000)}`);
+        // If diff is negative, show 00:00:00
+        if (diff < 0) diff = 0;
 
-        if (diff<=0) {
+        if (diff <= 0) {
             countdown.subject.next({ display: 'Expired', color: 'time-critical' });
             clearInterval(countdown.timer);
             countdown.timer = null;
 
-            // ✅ Force re-checking status inside the component
-            if (commande.status === 'created') {
-                this.commandeService.updateCommandeStatus(commande.id, 'validated').subscribe({
-                    next: () => {
-                        commande.status = 'closed';
-                        // ✅ Manually trigger another countdown emission (optional but safe)
-                        countdown.subject.next({ display: 'Expired', color: 'time-critical' });
-                    },
-                    error: (error: any) => console.error('Error updating status:', error)
-                });
-            }
+            // ✅ Do NOT auto-close via frontend PATCH. Only update UI.
+            // if (commande.status === 'cree') {
+            //     this.commandeService.updateCommandeStatus(commande.id, 'attente').subscribe({
+            //         next: () => {
+            //             commande.status = 'attente';
+            //             countdown.subject.next({ display: 'Expired', color: 'time-critical' });
+            //         },
+            //         error: (error: any) => console.error('Error updating status:', error)
+            //     });
+            // }
 
             return;
         }

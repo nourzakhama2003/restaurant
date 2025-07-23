@@ -49,6 +49,9 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
   loading = true;
   commandeId: string = '';
   currentUserId: string = '';
+  userLoaded = false;
+  ordersLoaded = false;
+  userAndOrdersLoaded = false;
   restaurant: Restaurant = {
     id: '',
     name: 'Unknown Restaurant',
@@ -62,6 +65,13 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
   private countdownSubscription: Subscription | null = null;
   orderSearchTerm: string = '';
   filteredOrders: Order[] = [];
+  orderStatusFilter: string = 'cree';
+  statusOptions: { value: string, label: string }[] = [
+    { value: 'cree', label: 'Créée' },
+    { value: 'attente', label: 'En attente' },
+    { value: 'confirmee', label: 'Confirmée' },
+    { value: 'annulee', label: 'Annulée' },
+  ];
 
   availableStatuses = [
     { value: 'created', label: 'Created' },
@@ -69,6 +79,9 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
     { value: 'confirmed', label: 'Confirmed' },
     { value: 'cancelled', label: 'Cancelled' }
   ];
+
+  statusUpdating = false;
+  private pollingInterval: any;
 
   constructor(
     private route: ActivatedRoute,
@@ -93,9 +106,15 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
       this.snackBar.open('Invalid group order ID', 'Close', { duration: 3000 });
     }
     this.filteredOrders = this.orders;
+    this.pollingInterval = setInterval(() => {
+      this.loadGroupOrderDetails();
+    }, 15000); // every 15 seconds
   }
 
   ngOnDestroy(): void {
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+    }
     if (this.countdownSubscription) {
       this.countdownSubscription.unsubscribe();
     }
@@ -106,10 +125,18 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
     this.userService.getCurrentUser().subscribe({
       next: (user: any) => {
         this.currentUserId = user.id;
+        this.userLoaded = true;
+        this.checkUserAndOrdersLoaded();
+        // If orders are already loaded, trigger change detection
+        if (this.orders.length > 0) {
+          this.cdr.detectChanges();
+        }
       },
       error: (error: any) => {
         console.error('Error loading current user:', error);
         this.currentUserId = 'default-user-id';
+        this.userLoaded = true;
+        this.checkUserAndOrdersLoaded();
         this.snackBar.open('Error loading user information', 'Close', { duration: 3000 });
       }
     });
@@ -203,19 +230,34 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
             this.commande.orders = this.orders;
           }
           this.loading = false;
-          this.cdr.detectChanges();
+          this.orderSearchTerm = '';
           this.applyOrderFilters();
+          this.ordersLoaded = true;
+          this.checkUserAndOrdersLoaded();
+          // If currentUserId is already set, trigger change detection
+          if (this.currentUserId) {
+            this.cdr.detectChanges();
+            // Debug log: check if currentUserId matches any participantId
+            console.log('CurrentUserId:', this.currentUserId);
+            console.log('Orders:', this.orders.map(o => ({ id: o.id, participantId: o.participantId, participantName: o.participantName })));
+          }
         },
         error: (error: any) => {
-          console.error('Error loading orders for commande:', error);
+          console.error('Error loading orders:', error);
           this.orders = [];
           this.loading = false;
+          this.ordersLoaded = true;
+          this.checkUserAndOrdersLoaded();
+          this.applyOrderFilters();
           this.snackBar.open('Error loading orders', 'Close', { duration: 3000 });
-          this.cdr.detectChanges();
         }
       });
-    } else {
-      this.loading = false;
+    }
+  }
+
+  checkUserAndOrdersLoaded(): void {
+    this.userAndOrdersLoaded = this.userLoaded && this.ordersLoaded;
+    if (this.userAndOrdersLoaded) {
       this.cdr.detectChanges();
     }
   }
@@ -229,11 +271,11 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
   }
 
   getStatusColor(status: string): string {
-    switch (status.toLowerCase()) {
-      case 'created': return 'primary';
-      case 'closed': return 'accent';
-      case 'confirmed': return 'primary';
-      case 'cancelled': return 'warn';
+    switch ((status || '').toLowerCase()) {
+      case 'cree': return 'primary';
+      case 'attente': return 'accent';
+      case 'confirmee': return 'primary';
+      case 'annulee': return 'warn';
       default: return 'primary';
     }
   }
@@ -243,7 +285,8 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
   }
 
   canManageOrder(order: Order): boolean {
-    return this.isCreator() || order.participantId === this.currentUserId;
+    // Only the creator of the group order or the creator of the order can manage
+    return this.currentUserId === this.commande?.creatorId || this.currentUserId === order.participantId;
   }
 
   onStatusChange(newStatus: string): void {
@@ -251,19 +294,30 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
       this.snackBar.open('Only the creator can change the status', 'Close', { duration: 3000 });
       return;
     }
+    this.statusUpdating = true;
     this.commandeService.updateCommandeStatus(this.commandeId, newStatus).subscribe({
       next: () => {
         if (this.commande) {
           this.commande.status = newStatus;
           this.snackBar.open(`Status updated to ${newStatus}`, 'Close', { duration: 3000 });
           this.cdr.detectChanges();
+          this.loadGroupOrderDetails(); // Reload details from backend
         }
+        this.statusUpdating = false;
       },
       error: (error: any) => {
         console.error('Error updating status:', error);
         this.snackBar.open('Error updating status', 'Close', { duration: 3000 });
+        this.statusUpdating = false;
       }
     });
+  }
+
+  public onStatusChangeDropdown(event: Event): void {
+    if (!this.commande) return;
+    const newStatus = (event.target as HTMLSelectElement).value;
+    console.log('Dropdown changed to:', newStatus, 'Current status:', this.commande.status);
+    this.onStatusChange(newStatus);
   }
 
   editOrder(order: Order): void {
@@ -369,5 +423,15 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
   setOrders(orders: Order[]): void {
     this.orders = orders;
     this.applyOrderFilters();
+  }
+
+  get myOrder(): Order | undefined {
+    return this.orders.find(order => order.participantId === this.currentUserId);
+  }
+
+  canJoin(): boolean {
+    const result = this.userAndOrdersLoaded && !this.orders.some(order => order.participantId === this.currentUserId);
+    console.log('canJoin:', result, 'userAndOrdersLoaded:', this.userAndOrdersLoaded, 'currentUserId:', this.currentUserId, 'orders:', this.orders);
+    return result;
   }
 }

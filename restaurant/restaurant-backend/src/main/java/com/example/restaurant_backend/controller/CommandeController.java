@@ -28,22 +28,10 @@ CommandeController {
     @PostMapping
     public ResponseEntity<Commande> createCommande(@RequestBody Commande commande) {
         try {
-            System.out.println("🔄 Creating commande with deadline: " + commande.getOrderDeadline());
-            
-            // Use enhanced validation method
-            Commande savedCommande = this.commandeService.saveCommandeWithValidation(commande);
-            
-            System.out.println("✅ Successfully created commande: " + savedCommande.getId() + 
-                             " with status: " + savedCommande.getStatus() + 
-                             " and deadline: " + savedCommande.getOrderDeadline());
-            
+            Commande savedCommande = this.commandeService.saveCommande(commande);
             return ResponseEntity.status(201).body(savedCommande);
-        } catch (IllegalArgumentException e) {
-            System.err.println("❌ Validation error creating commande: " + e.getMessage());
-            throw new GlobalException("Invalid commande data: " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("❌ Error creating commande: " + e.getMessage());
-            throw new GlobalException("Failed to create commande: " + e.getMessage());
+            throw new RuntimeException("Failed to create commande: " + e.getMessage());
         }
     }
 

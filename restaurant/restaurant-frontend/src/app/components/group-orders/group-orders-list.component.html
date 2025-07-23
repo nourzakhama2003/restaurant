@@ -20,22 +20,29 @@
             <div class="search-filter-section sticky-filter">
                 <div class="search-row">
                     <div class="form-row">
-                        <label for="groupOrdersSearch">Search by restaurant name</label>
+                        <label for="groupOrdersSearch">rechercher par restaurant name</label>
                         <input id="groupOrdersSearch" class="Input" [(ngModel)]="searchTerm" (input)="applyFilters()" placeholder="Enter restaurant name..." />
                     </div>
 
                     <div class="form-row">
-                        <label for="groupOrdersDateFilter">Filter by Date</label>
+                        <label for="groupOrdersDateFilter">Filtrer par Date</label>
                         <input id="groupOrdersDateFilter" class="Input" type="date" [(ngModel)]="selectedDate" (change)="applyFilters()" />
+                    </div>
+
+                    <div class="form-row">
+                        <label for="statusFilter">Filtrer par statut</label>
+                        <select id="statusFilter" class="Input" [(ngModel)]="statusFilter" (change)="onStatusFilterChange($event)">
+                            <option *ngFor="let status of statusOptions" [value]="status.value">{{ status.label }}</option>
+                        </select>
                     </div>
 
                     <button mat-stroked-button (click)="clearFilters()" class="clear-btn">
             <mat-icon>clear</mat-icon>
-            Clear Filters
+            renitialiser les Filtres
           </button>
                 </div>
 
-                <div class="filter-info" *ngIf="searchTerm || selectedDate">
+                <div class="filter-info" *ngIf="searchTerm || selectedDate || statusFilter !== 'cree'">
                     <mat-icon>filter_list</mat-icon>
                     <span>Showing {{ filteredCommandes.length }} of {{ commandes.length }} group orders</span>
                 </div>
@@ -76,15 +83,19 @@
                                     <div class="order-card-content">
                                         <div class="order-status-badge">
                                             <mat-chip [color]="getStatusColor(commande.status)" selected>
-                                                <mat-icon class="status-icon">{{getStatusColor(commande.status) === 'primary' ? 'hourglass_empty' : getStatusColor(commande.status) === 'accent' ? 'lock' : getStatusColor(commande.status) === 'warn' ? 'cancel' : 'check_circle'}}</mat-icon>
-                                                {{commande.status.replace('_', ' ')}}
+                                                <mat-icon class="status-icon">{{getStatusColor(commande.status) === 'primary' ? 'hourglass_empty' : getStatusColor(commande.status) === 'accent' ? 'hourglass_top' : getStatusColor(commande.status) === 'warn' ? 'cancel' : 'check_circle'}}</mat-icon>
+                                                {{ commande.status === 'cree' ? 'Créée' : commande.status === 'attente' ? 'En attente' : commande.status === 'confirmee' ? 'Confirmée' : commande.status === 'annulee' ? 'Annulée' : commande.status }}
                                             </mat-chip>
                                         </div>
                                         <div class="order-info-row">
                                             <span class="participant-badge-row p-3 bg-blue-100 rounded-full"><mat-icon>person</mat-icon> <span class="participant-badge">{{getParticipantCount(commande.id)}}</span> participants</span>
                                             <span class="order-deadline-row">
                         <mat-icon>schedule</mat-icon>
-                        <span class="countdown-time-list" [ngClass]="getCountdownColor(commande.id)">{{getCountdownDisplay(commande.id)}}</span>
+                        <span class="countdown-time-list" [ngClass]="getCountdownColor(commande.id)">
+  {{
+    getCountdownDisplay(commande.id) === 'Expired' ? 'Fermée ' : getCountdownDisplay(commande.id)
+  }}
+</span>
                                             </span>
                                         </div>
                                     </div>
@@ -92,10 +103,8 @@
                                         <button mat-icon-button (click)="viewDetails(commande.id)" matTooltip="View Details" aria-label="View Details">
                       <mat-icon>visibility</mat-icon>
                     </button>
-                                        <button *ngIf="commande.creatorId === currentUserId" mat-icon-button color="primary" (click)="editOrder(commande.id)" matTooltip="Edit" aria-label="Edit">
-                      <mat-icon>edit</mat-icon>
-                    </button>
-                                        <button *ngIf="commande.status === 'created' && commande.creatorId !== currentUserId" mat-icon-button color="accent" (click)="participateInOrder(commande.id)" matTooltip="Join" aria-label="Join">
+
+                                        <button *ngIf="commande.status === 'cree' && !hasJoined(commande.id)" mat-icon-button color="accent" (click)="participateInOrder(commande.id)" matTooltip="Join" aria-label="Join">
                       <mat-icon>person_add</mat-icon>
                     </button>
                                     </div>

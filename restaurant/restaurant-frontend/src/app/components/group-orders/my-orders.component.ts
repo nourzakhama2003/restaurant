@@ -47,6 +47,13 @@ export class MyOrdersComponent implements OnInit {
   searchTerm: string = '';
   selectedDate: Date | null = null;
   filteredOrders: Order[] = [];
+  statusFilter: string = 'cree';
+  statusOptions: { value: string, label: string }[] = [
+    { value: 'cree', label: 'Créée' },
+    { value: 'attente', label: 'En attente' },
+    { value: 'confirmee', label: 'Confirmée' },
+    { value: 'annulee', label: 'Annulée' },
+  ];
 
   constructor(
     private route: ActivatedRoute,
@@ -203,23 +210,22 @@ export class MyOrdersComponent implements OnInit {
 
   applyFilters(): void {
     this.filteredOrders = this.orders.filter(order => {
-      // Check restaurant name from commande details
       const commandeInfo = this.getCommandeInfo(order.commandeId);
       const restaurantName = commandeInfo?.restaurantName || '';
       const matchesSearchTerm = this.searchTerm ?
         restaurantName.toLowerCase().includes(this.searchTerm.toLowerCase()) : true;
-
-      // Check date (considering only the date part, not time)
       const matchesDate = this.selectedDate ?
         new Date(order.createdAt).toLocaleDateString() === new Date(this.selectedDate).toLocaleDateString() : true;
-
-      return matchesSearchTerm && matchesDate;
+      // By default, only show 'cree'. Dropdown allows other statuses.
+      const matchesStatus = commandeInfo?.status?.toLowerCase() === this.statusFilter;
+      return matchesSearchTerm && matchesDate && matchesStatus;
     });
   }
 
   clearFilters(): void {
     this.searchTerm = '';
     this.selectedDate = null;
+    this.statusFilter = 'cree';
     this.applyFilters();
   }
 }

@@ -24,6 +24,9 @@ public class GroupOrderService {
     @Autowired
     private RestaurantRepository restaurantRepository;
 
+    @Autowired
+    private CommandeService commandeService;
+
     // 1. Create a new group commande
     public Commande createGroupCommande(String restaurantId, String creatorId, String creatorName, 
                                         LocalDateTime orderDeadline) {
@@ -37,10 +40,11 @@ public class GroupOrderService {
         commande.setCreatorId(creatorId);
         commande.setCreatorName(creatorName);
         commande.setOrderDeadline(orderDeadline);
-        commande.setStatus(Commande.STATUS_CREATED); // Use constant instead of string literal
+        commande.setStatus(Commande.STATUS_CREE); // Use constant instead of string literal
         commande.setTotalPrice(0.0);
         commande.setCreatedAt(LocalDateTime.now());
         commande.setUpdatedAt(LocalDateTime.now());
+        commande.setManualOverride(true); // Always set manualOverride true for new group commandes in 'cree'
 
         return commandeRepository.save(commande);
     }
@@ -48,7 +52,7 @@ public class GroupOrderService {
     // 2. Get available group commandes for participation
     public List<Commande> getAvailableGroupCommandes(String restaurantId) {
         return commandeRepository.findByRestaurantIdAndStatusAndDeletedFalse(
-                restaurantId, Commande.STATUS_CREATED);
+                restaurantId, Commande.STATUS_CREE);
     }
 
     // 3. Participate in a group commande
@@ -103,10 +107,8 @@ public class GroupOrderService {
             throw new IllegalArgumentException("Only the creator can close the commande");
         }
 
-        commande.setStatus(Commande.STATUS_Validated);
-        commande.setUpdatedAt(LocalDateTime.now());
-
-        return commandeRepository.save(commande);
+        // Use CommandeService to update status and manualOverride
+        return commandeService.updateCommandeStatus(commandeId, Commande.STATUS_ATTENTE);
     }
 
     // 5. Get commande with all participants
@@ -122,12 +124,13 @@ public class GroupOrderService {
 
     // 6. Auto-close expired commandes
     public void checkAndAutoCloseExpiredCommandes() {
-        List<Commande> createdCommandes = commandeRepository.findByStatusAndDeletedFalse(Commande.STATUS_CREATED);
+        List<Commande> createdCommandes = commandeRepository.findByStatusAndDeletedFalse(Commande.STATUS_CREE);
         
         for (Commande commande : createdCommandes) {
             if (commande.shouldAutoClose()) {
-                commande.autoCloseIfExpired();
-                commandeRepository.save(commande);
+                // commande.autoCloseIfExpired(); // Method is now commented out
+                // If you want to handle expiration, add custom logic here
+                System.out.println("[INFO] Expired commande detected: " + commande.getId());
             }
         }
     }
@@ -147,25 +150,25 @@ public class GroupOrderService {
             throw new IllegalArgumentException("Invalid status transition from " + commande.getStatus() + " to " + newStatus);
         }
 
-        commande.setStatus(newStatus);
-        commande.setUpdatedAt(LocalDateTime.now());
-
-        return commandeRepository.save(commande);
+        // Use CommandeService to update status and manualOverride
+        return commandeService.updateCommandeStatus(commandeId, newStatus);
     }
 
     // Helper method for status transition validation
     private boolean isValidStatusTransition(String currentStatus, String newStatus) {
         switch (currentStatus) {
-            case Commande.STATUS_CREATED:
-                return Commande.STATUS_Validated.equals(newStatus) ||
-                       Commande.STATUS_CONFIRMED.equals(newStatus) || 
-                       Commande.STATUS_CANCELLED.equals(newStatus);
-            case Commande.STATUS_Validated:
-                return Commande.STATUS_CONFIRMED.equals(newStatus) || 
-                       Commande.STATUS_CANCELLED.equals(newStatus);
-            case Commande.STATUS_CONFIRMED:
-                return Commande.STATUS_CANCELLED.equals(newStatus);
-            case Commande.STATUS_CANCELLED:
+            case Commande.STATUS_CREE:
+                return Commande.STATUS_ATTENTE.equals(newStatus) ||
+                       Commande.STATUS_CONFIRMEE.equals(newStatus) || 
+                       Commande.STATUS_ANNULEE.equals(newStatus);
+            case Commande.STATUS_ATTENTE:
+                // Allow going back to 'cree' as well as forward
+                return Commande.STATUS_CREE.equals(newStatus) ||
+                       Commande.STATUS_CONFIRMEE.equals(newStatus) || 
+                       Commande.STATUS_ANNULEE.equals(newStatus);
+            case Commande.STATUS_CONFIRMEE:
+                return Commande.STATUS_ANNULEE.equals(newStatus);
+            case Commande.STATUS_ANNULEE:
                 return false; // Cannot transition from cancelled
             default:
                 return false;

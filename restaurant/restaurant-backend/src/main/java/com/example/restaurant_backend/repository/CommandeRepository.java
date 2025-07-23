@@ -2,6 +2,7 @@ package com.example.restaurant_backend.repository;
 
 import com.example.restaurant_backend.entity.Commande;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,4 +22,7 @@ public interface CommandeRepository extends MongoRepository<Commande, String> {
     List<Commande> findByCreatorIdAndDeletedFalse(String creatorId);
     List<Commande> findByStatusAndDeletedFalse(String status);
     List<Commande> findByRestaurantIdAndStatusAndDeletedFalse(String restaurantId, String status);
+
+    @Query("{ 'status': { $regex: ?0, $options: 'i' } }")
+    List<Commande> findByStatusIgnoreCase(String status);
 }

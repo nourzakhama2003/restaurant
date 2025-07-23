@@ -114,11 +114,9 @@ export class CommandeService {
     // Update commande status
     updateCommandeStatus(commandeId: string, newStatus: string): Observable<Commande> {
         const statusUrl = `${this.apiUrl}/${commandeId}/status`;
-        { status: newStatus };
-
-
-
-        return this.http.patch<Commande>(statusUrl, { status: newStatus });
+        const payload = { status: newStatus };
+        console.log('PATCH to:', statusUrl, 'with payload:', payload);
+        return this.http.patch<Commande>(statusUrl, payload);
     }
 
     // Auto-close expired commandes (triggers backend check)

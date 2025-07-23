@@ -10,10 +10,10 @@ import java.util.List;
 public class CommandeStatusService {
     
     private static final List<String> VALID_STATUSES = Arrays.asList(
-        Commande.STATUS_CREATED,
-        Commande.STATUS_Validated,
-        Commande.STATUS_CONFIRMED,
-        Commande.STATUS_CANCELLED
+        Commande.STATUS_CREE,
+        Commande.STATUS_ATTENTE,
+        Commande.STATUS_CONFIRMEE,
+        Commande.STATUS_ANNULEE
     );
     
     /**
@@ -32,27 +32,27 @@ public class CommandeStatusService {
         }
         
         switch (currentStatus) {
-            case Commande.STATUS_CREATED:
-                // From CREATED can go to CLOSED, CONFIRMED, or CANCELLED
+            case Commande.STATUS_CREE:
+                // From CREE can go to ATTENTE, CONFIRMEE, or ANNULEE
                 return Arrays.asList(
-                    Commande.STATUS_Validated,
-                    Commande.STATUS_CONFIRMED,
-                    Commande.STATUS_CANCELLED
+                    Commande.STATUS_ATTENTE,
+                    Commande.STATUS_CONFIRMEE,
+                    Commande.STATUS_ANNULEE
                 ).contains(newStatus);
                 
-            case Commande.STATUS_Validated:
-                // From CLOSED can go to CONFIRMED or CANCELLED
+            case Commande.STATUS_ATTENTE:
+                // From ATTENTE can go to CONFIRMEE or ANNULEE
                 return Arrays.asList(
-                    Commande.STATUS_CONFIRMED,
-                    Commande.STATUS_CANCELLED
+                    Commande.STATUS_CONFIRMEE,
+                    Commande.STATUS_ANNULEE
                 ).contains(newStatus);
                 
-            case Commande.STATUS_CONFIRMED:
-                // From CONFIRMED can only go to CANCELLED
-                return Commande.STATUS_CANCELLED.equals(newStatus);
+            case Commande.STATUS_CONFIRMEE:
+                // From CONFIRMEE can only go to ANNULEE
+                return Commande.STATUS_ANNULEE.equals(newStatus);
                 
-            case Commande.STATUS_CANCELLED:
-                // CANCELLED is final state
+            case Commande.STATUS_ANNULEE:
+                // ANNULEE is final state
                 return false;
                 
             default:
@@ -65,7 +65,7 @@ public class CommandeStatusService {
      */
     public Commande autoCloseIfExpired(Commande commande) {
         if (commande.shouldAutoClose()) {
-            commande.setStatus(Commande.STATUS_Validated);
+            commande.setStatus(Commande.STATUS_ATTENTE);
             commande.setUpdatedAt(LocalDateTime.now());
         }
         return commande;
@@ -89,14 +89,14 @@ public class CommandeStatusService {
      */
     public String getStatusMessage(String status) {
         switch (status) {
-            case Commande.STATUS_CREATED:
+            case Commande.STATUS_CREE:
                 return "Ouvert aux participations";
-            case Commande.STATUS_Validated:
-                return "FermÃ© aux participations";
-            case Commande.STATUS_CONFIRMED:
-                return "Commande confirmÃ©e";
-            case Commande.STATUS_CANCELLED:
-                return "Commande annulÃ©e";
+            case Commande.STATUS_ATTENTE:
+                return "En attente de paiement/confirmation";
+            case Commande.STATUS_CONFIRMEE:
+                return "Commande confirmée";
+            case Commande.STATUS_ANNULEE:
+                return "Commande annulée";
             default:
                 return "Statut inconnu";
         }

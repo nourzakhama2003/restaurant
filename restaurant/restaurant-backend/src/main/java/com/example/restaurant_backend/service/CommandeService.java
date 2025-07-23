@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import com.example.restaurant_backend.dto.CommandeWithRestaurantDto;
+import org.springframework.scheduling.annotation.Scheduled;
+import java.time.ZoneOffset;
 
 @Service
 public class CommandeService {
@@ -80,7 +82,13 @@ public class CommandeService {
     public List<Commande> getAllCommandes() {
         // Smart auto-check for expired commandes before returning
         smartExpirationCheck();
-        return this.commandeRepository.findAll();
+        List<Commande> commandes = this.commandeRepository.findAll();
+        // Attach orders to each commande
+        for (Commande commande : commandes) {
+            List<Order> orders = this.orderRepository.findByCommandeIdAndDeletedFalse(commande.getId());
+            commande.setOrders(orders);
+        }
+        return commandes;
     }
 
     // Read by ID
@@ -91,10 +99,12 @@ public class CommandeService {
         if (commande.isPresent()) {
             Commande cmd = commande.get();
             if (cmd.shouldAutoClose()) {
-                cmd.autoCloseIfExpired();
-                cmd = this.commandeRepository.save(cmd);
-                System.out.println("✅ Auto-closed expired commande on access: " + cmd.getId());
+                // cmd.autoCloseIfExpired(); // Method is now commented out
+                // If you want to handle expiration, add custom logic here
+                System.out.println("[INFO] Expired commande detected: " + cmd.getId());
             }
+            // Force expiration check for this commande
+            cmd = forceExpirationCheckForCommande(cmd.getId());
             return Optional.of(cmd);
         }
         
@@ -110,9 +120,9 @@ public class CommandeService {
             
             // Auto-check this specific commande for expiration
             if (cmd.shouldAutoClose()) {
-                cmd.autoCloseIfExpired();
-                cmd = this.commandeRepository.save(cmd);
-                System.out.println("✅ Auto-closed expired commande on access: " + cmd.getId());
+                // cmd.autoCloseIfExpired(); // Method is now commented out
+                // If you want to handle expiration, add custom logic here
+                System.out.println("[INFO] Expired commande detected: " + cmd.getId());
             }
             
             // Get restaurant information
@@ -139,9 +149,13 @@ public class CommandeService {
 
     // Read by Status
     public List<Commande> getCommandesByStatus(String status) {
-        // Smart auto-check for expired commandes before returning status-based results
         smartExpirationCheck();
-        return this.commandeRepository.findByStatus(status);
+        List<Commande> commandes = this.commandeRepository.findByStatusIgnoreCase(status);
+        for (Commande commande : commandes) {
+            List<Order> orders = this.orderRepository.findByCommandeIdAndDeletedFalse(commande.getId());
+            commande.setOrders(orders);
+        }
+        return commandes;
     }
 
     // Read by Creator ID
@@ -249,32 +263,47 @@ public class CommandeService {
         }
     }
     
+    // Centralized method to update status and manualOverride, and save
+    private Commande setStatusAndOverride(Commande commande, String newStatus, Boolean manualOverride) {
+        commande.setStatus(newStatus);
+        commande.setUpdatedAt(java.time.LocalDateTime.now());
+        if (manualOverride != null) {
+            commande.setManualOverride(manualOverride);
+        }
+        return this.commandeRepository.save(commande);
+    }
+
     // Update commande status
     public Commande updateCommandeStatus(String commandeId, String newStatus) {
         try {
             Optional<Commande> optionalCommande = this.commandeRepository.findById(commandeId);
-            
             if (optionalCommande.isPresent()) {
                 Commande commande = optionalCommande.get();
-                
-                // Validate status values
                 if (!isValidStatus(newStatus)) {
                     throw new IllegalArgumentException("Invalid status: " + newStatus);
                 }
-                
-                // Update status and timestamp
-                commande.setStatus(newStatus);
-                commande.setUpdatedAt(java.time.LocalDateTime.now());
-                
-                Commande savedCommande = this.commandeRepository.save(commande);
-                System.out.println("✅ Service: Successfully updated commande " + commandeId + " status to: " + newStatus);
-                
-                return savedCommande;
+                if (Commande.STATUS_CREE.equals(newStatus)) {
+                    commande.setStatus(newStatus);
+                    commande.setUpdatedAt(java.time.LocalDateTime.now());
+                    commande.setManualOverride(true);
+                    Commande savedCommande = this.commandeRepository.save(commande);
+                    System.out.println("✅ Service: Successfully updated commande " + commandeId + " status to: " + newStatus + ", manualOverride=" + savedCommande.isManualOverride());
+                    // Print stack trace for debugging
+                    new Exception("[DEBUG] Status changed to '" + newStatus + "' for commande " + commandeId).printStackTrace();
+                    return savedCommande;
+                } else {
+                    commande.setStatus(newStatus);
+                    commande.setUpdatedAt(java.time.LocalDateTime.now());
+                    commande.setManualOverride(false);
+                    Commande savedCommande = this.commandeRepository.save(commande);
+                    System.out.println("✅ Service: Successfully updated commande " + commandeId + " status to: " + newStatus + ", manualOverride=" + savedCommande.isManualOverride());
+                    // Print stack trace for debugging
+                    new Exception("[DEBUG] Status changed to '" + newStatus + "' for commande " + commandeId).printStackTrace();
+                    return savedCommande;
+                }
             }
-            
             System.err.println("❌ Service: Commande not found: " + commandeId);
             return null;
-            
         } catch (Exception e) {
             System.err.println("❌ Service: Error updating commande status: " + e.getMessage());
             e.printStackTrace();
@@ -286,27 +315,31 @@ public class CommandeService {
     public void checkAndAutoCloseExpiredCommandes() {
         try {
             long startTime = System.currentTimeMillis();
-            
-            List<Commande> createdCommandes = this.commandeRepository.findByStatusAndDeletedFalse(Commande.STATUS_CREATED);
-            
+            List<Commande> createdCommandes = this.commandeRepository.findByStatusAndDeletedFalse(Commande.STATUS_CREE);
             int closedCount = 0;
             int checkedCount = 0;
-            
+            System.out.println("[AUTO-CLOSE] Checking " + createdCommandes.size() + " commandes with status 'cree'");
             for (Commande commande : createdCommandes) {
+                // Reload the latest version from the database
+                Optional<Commande> latestOpt = this.commandeRepository.findById(commande.getId());
+                if (latestOpt.isEmpty()) continue;
+                Commande latestCommande = latestOpt.get();
                 checkedCount++;
-                if (commande.shouldAutoClose()) {
-                    commande.autoCloseIfExpired();
-                    this.commandeRepository.save(commande);
+                System.out.println("[AUTO-CLOSE] Checking commande " + latestCommande.getId() + ": status=" + latestCommande.getStatus() + ", deadline=" + latestCommande.getOrderDeadline() + ", deadline-1h=" + (latestCommande.getOrderDeadline() != null ? latestCommande.getOrderDeadline().minusHours(1) : null) + ", now=" + java.time.LocalDateTime.now(ZoneOffset.UTC) + ", manualOverride=" + latestCommande.isManualOverride());
+                // Only auto-close if manualOverride is false
+                if (!latestCommande.isManualOverride() && latestCommande.shouldAutoClose()) {
+                    latestCommande.setStatus(Commande.STATUS_ATTENTE);
+                    latestCommande.setUpdatedAt(java.time.LocalDateTime.now());
+                    latestCommande.setManualOverride(false);
+                    this.commandeRepository.save(latestCommande);
                     closedCount++;
-                    System.out.println("✅ Auto-closed expired commande: " + commande.getId() + 
-                                     " (deadline was: " + commande.getOrderDeadline() + ")");
+                    System.out.println("✅ Auto-closed expired commande: " + latestCommande.getId() + 
+                                     " (deadline was: " + latestCommande.getOrderDeadline() + ")");
                 }
             }
-            
             long duration = System.currentTimeMillis() - startTime;
             System.out.println("✅ Service: Auto-close check completed in " + duration + "ms. " +
                              "Checked " + checkedCount + " commandes, closed " + closedCount + " expired ones");
-            
         } catch (Exception e) {
             System.err.println("❌ Service: Error checking expired commandes: " + e.getMessage());
             e.printStackTrace();
@@ -326,7 +359,7 @@ public class CommandeService {
                 
                 if (commande.shouldAutoClose()) {
                     String oldStatus = commande.getStatus();
-                    commande.autoCloseIfExpired();
+                    // commande.autoCloseIfExpired(); // Method is now commented out
                     commande = this.commandeRepository.save(commande);
                     
                     System.out.println("✅ Single commande auto-closed: " + commandeId + 
@@ -347,13 +380,27 @@ public class CommandeService {
         }
     }
     
+    // Force expiration check for a specific commande by ID
+    public Commande forceExpirationCheckForCommande(String commandeId) {
+        Optional<Commande> optionalCommande = this.commandeRepository.findById(commandeId);
+        if (optionalCommande.isPresent()) {
+            Commande commande = optionalCommande.get();
+            if (commande.shouldAutoClose()) {
+                commande = updateCommandeStatus(commandeId, Commande.STATUS_ATTENTE);
+                System.out.println("✅ Forced auto-close for commande (via updateCommandeStatus): " + commandeId);
+            }
+            return commande;
+        }
+        return null;
+    }
+    
     // Validate status
     private boolean isValidStatus(String status) {
         return status != null && (
-            status.equals(Commande.STATUS_CREATED) ||
-            status.equals(Commande.STATUS_Validated) ||
-            status.equals(Commande.STATUS_CONFIRMED) ||
-            status.equals(Commande.STATUS_CANCELLED)
+            status.equals(Commande.STATUS_CREE) ||
+            status.equals(Commande.STATUS_ATTENTE) ||
+            status.equals(Commande.STATUS_CONFIRMEE) ||
+            status.equals(Commande.STATUS_ANNULEE)
         );
     }
     
@@ -398,7 +445,7 @@ public class CommandeService {
         
         // Set default status if not provided
         if (commande.getStatus() == null || commande.getStatus().trim().isEmpty()) {
-            commande.setStatus(Commande.STATUS_CREATED);
+            commande.setStatus(Commande.STATUS_CREE);
         }
         
         // Set timestamps
@@ -410,5 +457,11 @@ public class CommandeService {
         
         // Save with validation
         return saveCommande(commande);
+    }
+
+    @Scheduled(fixedRate = 60000) // every 60 seconds
+    public void scheduledAutoClose() {
+        System.out.println("[SCHEDULED] Running auto-close job at " + java.time.LocalDateTime.now());
+        checkAndAutoCloseExpiredCommandes();
     }
 }

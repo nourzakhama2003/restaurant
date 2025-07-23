@@ -28,6 +28,7 @@ import { FormsModule } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-group-orders-list',
@@ -67,11 +68,21 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
   currentUserId: string = '';
   // Added for My Orders style filters
   searchTerm: string = '';
+  statusFilter: string = 'cree';
+  statusOptions: { value: string, label: string }[] = [
+    { value: 'cree', label: 'Créée' },
+    { value: 'attente', label: 'En attente' },
+    { value: 'confirmee', label: 'Confirmée' },
+    { value: 'annulee', label: 'Annulée' },
+  ];
+  // Remove userOrders map and related logic
+  joinedCommandes: Set<string> = new Set();
 
   constructor(
     private commandeService: CommandeService,
     private restaurantService: RestaurantService,
     private orderService: OrderService,
+    private userService: UserService,
     private router: Router,
     private cdr: ChangeDetectorRef,
     private countdownService: CountdownService,
@@ -80,10 +91,16 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    // Set currentUserId from localStorage or user service
-    this.currentUserId = localStorage.getItem('userId') || '';
-    this.loadRestaurants();
-    this.loadAllCommandes();
+    this.userService.getCurrentUser().subscribe(user => {
+      if (user) {
+        this.currentUserId = user.id;
+        this.statusFilter = 'cree';
+        this.loadRestaurants();
+        this.loadAllCommandes();
+      } else {
+        this.snackBar.open('Unable to load user information', 'Close', { duration: 3000 });
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -179,13 +196,30 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
     this.filterByRestaurant();
   }
 
+  onStatusFilterChange(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    this.statusFilter = value;
+    this.loadAllCommandes();
+  }
+
   loadAllCommandes(): void {
-    this.commandeService.getAllCommandes().subscribe({
+    this.commandeService.getCommandesByStatus(this.statusFilter).subscribe({
       next: (commandes: Commande[]) => {
         this.commandes = commandes;
-        this.filteredCommandes = [...this.commandes];
-        this.setupCountdowns();
-        this.loadOrderCounts(); // <-- Ensure counts and totals are updated after loading commandes
+        const orderPromises = commandes.map((commande, idx) =>
+          this.orderService.getOrdersByCommandeId(commande.id).toPromise().then(orders => {
+            this.commandes[idx].orders = (orders || []).filter(order => !order.deleted);
+          }).catch(error => {
+            console.error('Error loading orders for commande', commande.id, error);
+            this.commandes[idx].orders = [];
+          })
+        );
+        Promise.all(orderPromises).then(() => {
+          this.filteredCommandes = [...this.commandes];
+          this.setupCountdowns();
+          this.loadOrderCounts();
+          this.cdr.detectChanges();
+        });
       },
       error: (error: any) => {
         console.error('Error loading commandes:', error);
@@ -253,11 +287,11 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
   }
 
   getStatusColor(status: string): string {
-    switch (status.toLowerCase()) {
-      case 'created': return 'primary';
-      case 'closed': return 'accent';
-      case 'confirmed': return 'primary';
-      case 'cancelled': return 'warn';
+    switch ((status || '').toLowerCase()) {
+      case 'cree': return 'primary';
+      case 'attente': return 'accent';
+      case 'confirmee': return 'primary';
+      case 'annulee': return 'warn';
       default: return 'primary';
     }
   }
@@ -279,34 +313,34 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
   }
 
   participateInOrder(commandeId: string): void {
-    // Find the commande to get restaurantId
     const commande = this.commandes.find(c => c.id === commandeId);
     if (!commande) {
       this.snackBar.open('Group order not found', 'Close', { duration: 3000 });
       return;
     }
-
-    // Check if participation is still open
+    if (!this.currentUserId) {
+      this.snackBar.open('User not loaded', 'Close', { duration: 3000 });
+      return;
+    }
     if (!this.canParticipate(commande)) {
       this.snackBar.open('Participation time has expired for this group order.', 'Close', { duration: 3000 });
       return;
     }
-
     const dialogRef = this.dialog.open(OrderSubmissionComponent, {
       width: '1000px',
       maxWidth: '95vw',
       data: {
         commandeId: commandeId,
-        restaurantId: commande.restaurantId
+        restaurantId: commande.restaurantId,
+        participantId: this.currentUserId // Pass the backend user id
       }
     });
-
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        // Order was submitted successfully
-        this.snackBar.open('Order submitted successfully!', 'Close', { duration: 3000 });
-        // Refresh the commandes to show updated orders
+        this.joinedCommandes.add(commandeId);
         this.loadAllCommandes();
+        this.cdr.detectChanges();
+        this.snackBar.open('Order submitted successfully!', 'Close', { duration: 3000 });
       }
     });
   }
@@ -319,7 +353,7 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
   }
 
   canParticipate(commande: Commande): boolean {
-    return commande.status === 'created' && !this.isParticipationExpired(commande);
+    return commande.status === 'cree' && !this.isParticipationExpired(commande);
   }
 
   setupCountdowns(): void {
@@ -365,23 +399,39 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
   }
 
   applyFilters(): void {
-    this.filteredCommandes = this.commandes.filter(commande => {
-      // Filter by restaurant name
-      const restaurantName = this.getRestaurantName(commande.restaurantId) || '';
-      const matchesSearchTerm = this.searchTerm
-        ? restaurantName.toLowerCase().includes(this.searchTerm.toLowerCase())
-        : true;
-      // Filter by date (createdAt)
-      const matchesDate = this.selectedDate
-        ? new Date(commande.createdAt).toLocaleDateString() === new Date(this.selectedDate).toLocaleDateString()
-        : true;
-      return matchesSearchTerm && matchesDate;
+    // Debug log for all commandes
+    this.commandes.forEach(commande => {
+      console.log('Commande:', commande.id, 'Status:', commande.status);
     });
+    this.filteredCommandes = this.commandes.filter(commande => {
+      const matchesStatus = (commande.status || '').trim().toLowerCase() === this.statusFilter;
+      return matchesStatus;
+    });
+    this.cdr.detectChanges(); // Force UI update
   }
 
   clearFilters(): void {
     this.searchTerm = '';
     this.selectedDate = null;
+    this.statusFilter = 'cree';
     this.applyFilters();
+  }
+
+  // Remove userOrders map and related logic
+
+  getCommandeOrders(commandeId: string): any[] {
+    // This assumes you have a way to access all orders for each commande
+    // If not, you may need to fetch them or store them in a map when loading commandes
+    // For now, let's assume orderCounts or orderTotals is not enough, so you need to fetch
+    // We'll use a placeholder for demonstration
+    // You should replace this with the actual orders array for the commande
+    return (this.commandes.find(c => c.id === commandeId)?.orders || []);
+  }
+
+  hasJoined(commandeId: string): boolean {
+    if (this.joinedCommandes.has(commandeId)) return true;
+    const commande = this.commandes.find(c => c.id === commandeId);
+    if (!commande || !commande.orders) return false;
+    return commande.orders.some(order => order.participantId === this.currentUserId);
   }
 }

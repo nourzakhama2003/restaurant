@@ -26,13 +26,20 @@
                         <input id="myOrdersDateFilter" class="Input" type="date" [(ngModel)]="selectedDate" (change)="applyFilters()" />
                     </div>
 
+                    <div class="form-row">
+                        <label for="statusFilter">Filtrer par statut</label>
+                        <select id="statusFilter" class="Input" [(ngModel)]="statusFilter" (change)="applyFilters()">
+                            <option *ngFor="let status of statusOptions" [value]="status.value">{{ status.label }}</option>
+                        </select>
+                    </div>
+
                     <button mat-stroked-button (click)="clearFilters()" class="clear-btn">
             <mat-icon>clear</mat-icon>
             Réinitialiser les filtres
           </button>
                 </div>
 
-                <div class="filter-info" *ngIf="searchTerm || selectedDate">
+                <div class="filter-info" *ngIf="searchTerm || selectedDate || statusFilter !== 'created'">
                     <mat-icon>filter_list</mat-icon>
                     <span>Affichage de {{ filteredOrders.length }} sur {{ orders.length }} commandes</span>
                 </div>
