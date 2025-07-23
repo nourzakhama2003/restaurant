@@ -2,53 +2,51 @@
     {{ menuItem ? 'Modifier le plat' : 'Ajouter un plat' }}
 </h2>
 
-<form [formGroup]="form" (ngSubmit)="submit()" class="menu-form">
-
-    <mat-form-field appearance="fill">
-        <mat-label>Nom du plat</mat-label>
-        <input class="Input" formControlName="name" />
-        <mat-error *ngIf="form.get('name')?.hasError('required')">
-            Le nom est obligatoire
-        </mat-error>
-    </mat-form-field>
-
-    <mat-form-field appearance="fill">
-        <mat-label>Description</mat-label>
-        <textarea class="Input" formControlName="description" rows="3" placeholder="Description du plat..."></textarea>
-    </mat-form-field>
-
-    <div class="upload-container">
-        <!-- Hidden file input -->
-        <input id="itemImageUpload" type="file" accept="image/*" (change)="onImageSelected($event)" class="hidden-input">
-
-        <!-- Visible SVG trigger -->
-        <label for="itemImageUpload" class="upload-label">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="upload-icon">
-                <path d="M12 13v8"/>
-                <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/>
-                <path d="m8 17 4-4 4 4"/>
-            </svg>
-            <span class="upload-text">Upload Image</span>
-        </label>
-    </div>
-    <!-- Image preview -->
-    <div *ngIf="imageBase64" class="image-preview">
-        <img [src]="imageBase64" alt="Item Image Preview" style="max-width: 200px; max-height: 200px;">
+<div class="menu-item-dialog-content">
+    <div style="color: red; font-size: 12px; margin-bottom: 8px;">
+        Categories loaded: {{ categories.length }}
     </div>
 
-    <mat-form-field appearance="fill">
-        <mat-label>Prix (DT)</mat-label>
-        <input class="Input" type="number" formControlName="price" />
-        <mat-error *ngIf="form.get('price')?.hasError('required')">
-            Le prix est obligatoire
-        </mat-error>
-        <mat-error *ngIf="form.get('price')?.hasError('min')">
-            Le prix doit être positif
-        </mat-error>
-    </mat-form-field>
-
-    <mat-dialog-actions align="end" class="form-actions">
-        <button mat-stroked-button type="button" (click)="dialogRef.close()">Annuler</button>
-        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">Enregistrer</button>
-    </mat-dialog-actions>
-</form>
+    <form [formGroup]="form" (ngSubmit)="submit()" class="menu-form menu-item-form-popup">
+        <div class="input-group">
+            <input class="Input" formControlName="name" required placeholder="Nom du plat..." />
+        </div>
+        <div class="input-row-responsive">
+            <div class="category-filter-container icon-inside flex-grow">
+                <div class="select-wrapper">
+                    <select class="custom-select with-svg-icon" formControlName="categoryId" required>
+                    <option value="">Sélectionner une catégorie</option>
+                    <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+                </select>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="select-svg-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M6 10h12M9 14h6M10 18h4"/></svg>
+                </div>
+            </div>
+        </div>
+        <div class="input-group">
+            <textarea class="Input" formControlName="description" rows="3" placeholder="Description du plat..."></textarea>
+        </div>
+        <div class="input-group">
+            <div class="upload-container">
+                <input id="itemImageUpload" type="file" accept="image/*" (change)="onImageSelected($event)" class="hidden-input">
+                <label for="itemImageUpload" class="upload-label">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="upload-icon">
+                    <path d="M12 13v8"/>
+                    <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/>
+                    <path d="m8 17 4-4 4 4"/>
+                </svg>
+                <span class="upload-text">Upload Image</span>
+            </label>
+            </div>
+        </div>
+        <div *ngIf="imageBase64" class="image-preview input-group">
+            <img [src]="imageBase64" alt="Item Image Preview" style="max-width: 200px; max-height: 200px;">
+        </div>
+        <div class="input-group">
+            <input class="Input" type="number" formControlName="price" placeholder="Prix du plat..." />
+        </div>
+        <div class="form-actions" style="display: flex; justify-content: flex-end; gap: 16px; margin-top: 32px; padding-top: 24px; border-top: 1px solid #f3f4f6;">
+            <button mat-stroked-button type="button" (click)="dialogRef.close()">Annuler</button>
+            <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">Enregistrer</button>
+        </div>
+    </form>
+</div>

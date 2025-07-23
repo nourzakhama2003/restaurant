@@ -2,22 +2,30 @@
 
 <mat-spinner *ngIf="isLoading" class="size-8 md:size-10 mx-auto my-8 block"></mat-spinner>
 
+<!-- Category Filter Dropdown -->
+<div class="mb-4">
+    <select class="custom-select" [(ngModel)]="selectedCategoryId">
+        <option value="">Toutes les catégories</option>
+        <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+    </select>
+</div>
+
 <mat-dialog-content>
     <button mat-raised-button color="primary" class="add-button" (click)="openAddPlatForm()">
     <mat-icon>add</mat-icon> Ajouter un plat
   </button>
 
-    <div *ngFor="let plat of plats; let i = index" class="menu-item">
+    <div *ngFor="let plat of filteredPlats; let i = index" class="menu-item">
         <div class="details">
             <i>{{ plat.name }}</i>
             <div class="price">{{ plat.price }} DT</div>
         </div>
 
         <div class="actions">
-            <button mat-icon-button (click)="openEditPlatForm(i)">
+            <button mat-icon-button (click)="openEditPlatForm(i)" matTooltip="Modifier" aria-label="Modifier le plat">
         <mat-icon>edit</mat-icon>
       </button>
-            <button mat-icon-button color="warn" (click)="deletePlat(i)">
+            <button mat-icon-button color="warn" (click)="deletePlat(i)" matTooltip="Supprimer" aria-label="Supprimer le plat">
         <mat-icon>delete</mat-icon>
       </button>
         </div>

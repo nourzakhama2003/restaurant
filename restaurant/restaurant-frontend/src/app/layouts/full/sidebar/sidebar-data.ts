@@ -2,10 +2,10 @@ import { NavItem } from './nav-item/nav-item';
 
 export const navItems: NavItem[] = [
   {
-    navCap: 'Home',
+    navCap: 'Accueil',
   },
   {
-    displayName: 'Dashboard',
+    displayName: 'Tableau de bord',
     iconName: 'layout-grid-add',
     route: '/dashboard',
   },
@@ -18,22 +18,27 @@ export const navItems: NavItem[] = [
     chipContent: 'PRO',
   },
   {
-    displayName: 'commandes',
+    displayName: 'Commandes groupées',
     iconName: 'notebook-pen', // matches the SVG in the top strip
     route: '/group-orders',
     chip: true,
     chipClass: 'bg-light-success text-success',
-    chipContent: 'NEW',
+    chipContent: 'NOUVEAU',
   },
   {
-    displayName: 'my orders',
+    displayName: 'Mes commandes',
     iconName: 'list-check', // matches the SVG in the top strip
     route: '/group-orders/my-orders',
   },
   {
-    displayName: 'All Menu Items',
+    displayName: 'Tous les plats',
     iconName: 'list-details',
     route: '/all-menu-items',
+  },
+  {
+    displayName: 'Catégories',
+    iconName: 'category',
+    route: '/categories',
   },
 ];
 

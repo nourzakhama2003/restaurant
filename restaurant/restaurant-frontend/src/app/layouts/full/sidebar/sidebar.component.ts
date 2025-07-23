@@ -13,11 +13,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { navItems } from './sidebar-data';
 import { AppNavItemComponent } from './nav-item/nav-item.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [BrandingComponent, TablerIconsModule, MatCardModule,
+  imports: [CommonModule, BrandingComponent, TablerIconsModule, MatCardModule,
     MatIconModule,
     MatButtonModule,
     AppNavItemComponent

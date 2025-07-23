@@ -14,16 +14,16 @@ import { MatIconModule } from '@angular/material/icon';
     MatIconModule
   ],
   template: `
-    <h2 mat-dialog-title class="dialog-title text-blue-500">Confirm Deletion</h2>
+    <h2 mat-dialog-title class="dialog-title text-blue-500">Confirmer la suppression</h2>
     <mat-dialog-content class="dialog-content">
       <p class="dialog-message">{{ data.message }}</p>
     </mat-dialog-content>
     <mat-dialog-actions class="dialog-actions">
-      <button mat-raised-button class="cancel-button" (click)="onCancel()" aria-label="Cancel deletion">
-        <mat-icon>cancel</mat-icon> Cancel
+      <button mat-raised-button class="cancel-button" (click)="onCancel()" aria-label="Annuler la suppression">
+        <mat-icon>cancel</mat-icon> Annuler
       </button>
-      <button mat-raised-button class="delete-button" (click)="onConfirm()" aria-label="Confirm deletion">
-        <mat-icon>delete</mat-icon> Delete
+      <button mat-raised-button class="delete-button" (click)="onConfirm()" aria-label="Confirmer la suppression">
+        <mat-icon>delete</mat-icon> Supprimer
       </button>
     </mat-dialog-actions>
   `,

@@ -6,12 +6,11 @@
                 <img src="{{ productcard.imgSrc }}" alt="imgSrc" class="w-100" mat-card-image />
             </a>
             <div class="p-24 p-t-12 position-relative">
-                <button mat-mini-fab class="icon-30 cart-btn bg-primary text-white d-block" matTooltip="Add to Cart">
+                <button mat-mini-fab class="icon-30 cart-btn bg-primary text-white d-block" matTooltip="Ajouter au panier">
                     <i-tabler name="basket" class="icon-16"></i-tabler>
                 </button>
-                <mat-card-title class="f-s-16 m-b-4">{{
-                    productcard.title
-                    }}</mat-card-title>
+                <mat-card-title class="f-s-16 m-b-4">{{ productcard.title }}
+                </mat-card-title>
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center">
                         <h6 class="f-s-16 f-w-600">${{ productcard.price }}</h6>

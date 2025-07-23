@@ -21,9 +21,49 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-nav-item',
   standalone: true,
-  imports: [TranslateModule, TablerIconsModule, CommonModule,MatCardModule,MatIconModule,MatButtonModule,MatListModule],
+  imports: [TranslateModule, TablerIconsModule, CommonModule, MatCardModule, MatIconModule, MatButtonModule, MatListModule],
   templateUrl: './nav-item.component.html',
-  styleUrls: [],
+  styles: [`
+    .menu-list-item {
+      padding: 14px 26px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      margin-left: 0;
+      transition: color 0.2s;
+    }
+    .menu-list-item:last-child {
+      margin-bottom: 20px;
+    }
+    .nav-caption {
+      font-size: 13px;
+      color: #9ca3af;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 18px 0 4px 0;
+      padding-left: 26px;
+    }
+    .menu-list-item:hover {
+      cursor: pointer;
+      color: #4f46e5;
+    }
+    .menu-list-item.activeMenu,
+    .menu-list-item.activeMenu:focus,
+    .menu-list-item.activeMenu:hover {
+      color: #4f46e5 !important;
+      font-weight: bold;
+      cursor: pointer;
+      background: none;
+      border-left: none;
+      box-shadow: none;
+    }
+    .menu-list-item.activeMenu .routeIcon {
+      color: #4f46e5 !important;
+    }
+    .menu-list-item.activeMenu .hide-menu {
+      color: #4f46e5 !important;
+    }
+  `],
 })
 export class AppNavItemComponent implements OnChanges {
   @Output() notify: EventEmitter<boolean> = new EventEmitter<boolean>();
@@ -35,7 +75,7 @@ export class AppNavItemComponent implements OnChanges {
   @HostBinding('attr.aria-expanded') ariaExpanded = this.expanded;
   @Input() depth: any;
 
-  constructor(public navService: NavService, public router: Router) {}
+  constructor(public navService: NavService, public router: Router) { }
 
   ngOnChanges() {
     const url = this.navService.currentUrl();

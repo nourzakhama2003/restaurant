@@ -1,38 +1,38 @@
 <div class="order-submission-form">
     <div class="form-header">
-        <h2>{{ isEditMode ? 'Edit Your Order' : 'Submit Your Order' }}</h2>
-        <p class="subtitle">Add your items to join this group order</p>
+        <h2>{{ isEditMode ? 'Modifier votre commande' : 'Soumettre votre commande' }}</h2>
+        <p class="subtitle">Ajoutez vos articles pour rejoindre cette commande groupée</p>
     </div>
 
     <form [formGroup]="orderForm" class="order-form">
         <!-- User Name (Hidden but auto-filled) -->
         <div class="user-info">
-            <p><strong>Ordering as:</strong> {{ orderForm.get('participantName')?.value }}</p>
+            <p><strong>Commande au nom de :</strong> {{ orderForm.get('participantName')?.value }}</p>
         </div>
 
         <!-- Menu Items Section -->
         <div class="menu-section">
             <div class="section-header">
-                <h3>Select Menu Items</h3>
+                <h3>Sélectionner les plats</h3>
                 <button type="button" (click)="addMenuItem()" class="add-btn">
                     <span class="icon">＋</span>
-                    Add Item
+                    Ajouter un plat
                 </button>
             </div>
 
             <!-- Loading state -->
             <div *ngIf="isLoadingMenuItems" class="loading-state">
                 <span class="spinner"></span>
-                <p>Loading menu items...</p>
+                <p>Chargement des plats...</p>
             </div>
 
             <!-- No menu items available -->
             <div *ngIf="!isLoadingMenuItems && menuItems.length === 0" class="no-menu-items">
                 <span class="icon large">🍽️</span>
-                <p>No menu items available for this restaurant.</p>
-                <p class="text-muted">Please contact the restaurant administrator.</p>
+                <p>Aucun plat disponible pour ce restaurant.</p>
+                <p class="text-muted">Veuillez contacter l'administrateur du restaurant.</p>
                 <button class="add-item-btn" type="button" (click)="addItemToRestaurant()">
-                    <span class="icon">＋</span> Add Item to Restaurant
+                    <span class="icon">＋</span> Ajouter un plat au restaurant
                 </button>
             </div>
 
@@ -42,7 +42,7 @@
                     <div class="item-content">
                         <div class="item-select">
                             <div class="menu-search-wrapper">
-                                <input type="text" class="menu-search-input" placeholder="Search menu item..." [value]="orderItems.at(i).value.menuItemName" (input)="onMenuSearchInput(i)" (focus)="showMenuDropdown[i] = true" (blur)="hideMenuDropdown(i)" autocomplete="off" style="height: 44px; max-height: 44px;"
+                                <input type="text" class="menu-search-input" placeholder="Rechercher un plat..." [value]="orderItems.at(i).value.menuItemName" (input)="onMenuSearchInput(i)" (focus)="showMenuDropdown[i] = true" (blur)="hideMenuDropdown(i)" autocomplete="off" style="height: 44px; max-height: 44px;"
                                 />
                                 <div class="menu-dropdown" *ngIf="showMenuDropdown[i] && filteredMenuItems[i]?.length">
                                     <div class="menu-dropdown-item" *ngFor="let menuItem of filteredMenuItems[i]" (mousedown)="selectMenuItem(i, menuItem)">
@@ -51,16 +51,16 @@
                                 </div>
                             </div>
                             <div *ngIf="item.get('menuItemId')?.hasError('required') && item.touched" class="menu-error">
-                                Please select a menu item
+                                Veuillez sélectionner un plat
                             </div>
                         </div>
 
                         <!-- Custom styled quantity input -->
                         <div class="item-quantity custom-input-group">
-                            <label for="quantity-{{i}}" class="custom-label">Qty</label>
+                            <label for="quantity-{{i}}" class="custom-label">Qté</label>
                             <input id="quantity-{{i}}" class="Input custom-input" type="number" formControlName="quantity" min="1" (input)="calculateItemTotal(i)" [class.input-error]="item.get('quantity')?.invalid && item.touched">
                             <div class="input-error-message" *ngIf="item.get('quantity')?.hasError('required') && item.touched">
-                                Required
+                                Requis
                             </div>
                             <div class="input-error-message" *ngIf="item.get('quantity')?.hasError('min') && item.touched">
                                 Min 1
@@ -70,7 +70,7 @@
                         <!-- Custom styled notes input -->
                         <div class="item-notes custom-input-group">
                             <label for="notes-{{i}}" class="custom-label">Notes</label>
-                            <input id="notes-{{i}}" class="Input custom-input" formControlName="notes" placeholder="e.g., no onions">
+                            <input id="notes-{{i}}" class="Input custom-input" formControlName="notes" placeholder="ex : sans oignons">
                         </div>
 
                         <div class="item-subtotal">
@@ -78,7 +78,7 @@
                         </div>
 
                         <div class="item-actions">
-                            <button type="button" (click)="removeMenuItem(i)" [disabled]="orderItems.length === 1" class="icon-btn" title="Remove item">
+                            <button type="button" (click)="removeMenuItem(i)" [disabled]="orderItems.length === 1" class="icon-btn" title="Supprimer le plat">
                                 <span class="icon">🗑️</span>
                             </button>
                         </div>
@@ -87,27 +87,27 @@
             </div>
 
             <div *ngIf="orderItems.length === 0" class="alert alert-info" role="alert">
-                No items added yet. <a href="#" class="alert-link" (click)="$event.preventDefault(); addMenuItem();">Click here to add your first item.</a>
+                Aucun plat ajouté pour l'instant. <a href="#" class="alert-link" (click)="$event.preventDefault(); addMenuItem();">Cliquez ici pour ajouter votre premier plat.</a>
                 <span class="icon large">🛒</span>
             </div>
         </div>
 
         <!-- Order Notes -->
         <div class="notes-section custom-input-group">
-            <h3>Additional Notes</h3>
-            <label for="order-notes" class="custom-label">Order Notes (Optional)</label>
-            <textarea id="order-notes" class="Input custom-input full-width" formControlName="notes" placeholder="Any special instructions or requests..."></textarea>
+            <h3>Notes supplémentaires</h3>
+            <label for="order-notes" class="custom-label">Notes de commande (optionnel)</label>
+            <textarea id="order-notes" class="Input custom-input full-width" formControlName="notes" placeholder="Instructions ou demandes spéciales..."></textarea>
         </div>
 
         <!-- Order Summary -->
         <div class="summary-section">
             <div class="summary-content">
                 <div class="summary-row">
-                    <span>Total Items:</span>
+                    <span>Nombre total de plats :</span>
                     <span>{{ getTotalQuantity() }}</span>
                 </div>
                 <div class="summary-row total">
-                    <span><strong>Total Amount:</strong></span>
+                    <span><strong>Montant total :</strong></span>
                     <span class="total-amount"><strong>${{ getTotalAmount() }}</strong></span>
                 </div>
             </div>
@@ -116,11 +116,11 @@
         <!-- Form Actions -->
         <div class="form-actions">
             <button type="button" (click)="onCancel()" class="cancel-btn">
-                Cancel
+                Annuler
             </button>
             <button type="button" (click)="onSubmit()" [disabled]="orderForm.invalid || isLoading || orderItems.length === 0" class="submit-btn">
                 <span class="icon">{{ isLoading ? '⏳' : '➡️' }}</span>
-                {{ isLoading ? (isEditMode ? 'Updating...' : 'Submitting...') : (isEditMode ? 'Update Order' : 'Submit Order') }}
+                {{ isLoading ? (isEditMode ? 'Mise à jour...' : 'Soumission...') : (isEditMode ? 'Mettre à jour la commande' : 'Soumettre la commande') }}
             </button>
         </div>
     </form>

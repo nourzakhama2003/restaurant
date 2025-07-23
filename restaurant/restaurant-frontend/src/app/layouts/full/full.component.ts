@@ -29,7 +29,7 @@ const TABLET_VIEW = 'screen and (min-width: 769px) and (max-width: 1024px)';
   standalone: true,
   imports: [
     RouterModule,
-    AppNavItemComponent,
+    // AppNavItemComponent removed
     //MaterialModule,
     CommonModule,
     SidebarComponent,
@@ -87,7 +87,7 @@ export class FullComponent implements OnInit, OnDestroy {
       });
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
   ngOnDestroy(): void {
     this.layoutChangesSubscription.unsubscribe();

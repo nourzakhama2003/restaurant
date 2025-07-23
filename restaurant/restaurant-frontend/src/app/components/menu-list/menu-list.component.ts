@@ -13,11 +13,25 @@ import { MatCardModule } from '@angular/material/card';
 import { RestaurantService } from '../../services/restaurant.service';
 import { Restaurant } from '../../models/restaurant.model';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Category } from '../../models/category.model';
+import { MatSelectModule } from '@angular/material/select';
+import { MatOptionModule } from '@angular/material/core';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-menu-list',
   standalone: true,
-  imports: [CommonModule, MatListModule, MatIconModule, MatButtonModule, MatCardModule, MatProgressSpinnerModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatListModule,
+    MatIconModule,
+    MatButtonModule,
+    MatCardModule,
+    MatProgressSpinnerModule,
+    MatSelectModule,
+    MatOptionModule,
+  ],
   templateUrl: './menu-list.component.html',
   styleUrls: ['./menu-list.component.css']
 })
@@ -26,6 +40,8 @@ export class MenuListComponent implements OnInit {
   menuItems: MenuItem[] = [];
   restaurant?: Restaurant;
   isLoading = false;
+  categories: Category[] = [];
+  selectedCategoryId: string = '';
 
   constructor(
     private menuService: MenuService,
@@ -43,6 +59,11 @@ export class MenuListComponent implements OnInit {
       this.loadMenu();
       this.restaurantService.getRestaurantById(this.restaurantId).subscribe(data => {
         this.restaurant = data;
+      });
+      // Fetch categories
+      this.menuService.getAllCategories().subscribe({
+        next: (cats) => this.categories = cats,
+        error: (err) => console.error('Erreur lors du chargement des catégories:', err)
       });
     }
   }
@@ -107,6 +128,16 @@ export class MenuListComponent implements OnInit {
       return this.restaurant.name;
     }
     return restaurantId;
+  }
+
+  get filteredMenuItems(): MenuItem[] {
+    if (!this.selectedCategoryId) return this.menuItems;
+    return this.menuItems.filter(item => item.categoryId === this.selectedCategoryId);
+  }
+
+  getCategoryName(categoryId: string): string {
+    const cat = this.categories.find(c => c.id === categoryId);
+    return cat ? cat.name : '';
   }
 
   openAddMenuItemDialog() {

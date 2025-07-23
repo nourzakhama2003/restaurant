@@ -54,6 +54,10 @@ export const routes: Routes = [
         path: 'all-menu-items',
         component: AllMenuItemsComponent
       },
+      {
+        path: 'categories',
+        loadComponent: () => import('./components/category-management/category-management.component').then(m => m.CategoryManagementComponent),
+      },
     ],
   },
 ];

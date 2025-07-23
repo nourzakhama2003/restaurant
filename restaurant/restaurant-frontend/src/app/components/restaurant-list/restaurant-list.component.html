@@ -1,9 +1,9 @@
 <mat-card class="restaurant-card w-full mt-0">
-    <div class="header-container flex ">
+    <div class="header-container md:w-[500px] flex ">
         <div class="flex md:justify-center md:w-full sm:w-[280px] gap-3 md:gap-[30%]">
             <div class="group relative">
                 <svg class="icon absolute top-5 left-1" aria-hidden="true" viewBox="0 0 24 24"><g><path d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z"></path></g></svg>
-                <input [(ngModel)]="searchText" placeholder="Search restaurant" type="search" class="input">
+                <input [(ngModel)]="searchText" placeholder="Rechercher " type="search" class="input">
             </div>
             <button mat-raised-button color="primary" class="min-w-[200px]" (click)="openDialog()">
                 Ajouter
@@ -28,7 +28,7 @@
                     <!-- Content -->
                     <div class="p-3 md:p-5 ">
                         <h3 class="text-lg md:text-xl font-bold text-gray-800 truncate ">{{ restaurant.name }}</h3>
-                        <p class="text-xs md:text-sm text-gray-600 mb-2 md:mb-3 truncate ">{{ restaurant.description || 'No description available' }}</p>
+                        <p class="text-xs md:text-sm text-gray-600 mb-2 md:mb-3 truncate ">{{ restaurant.description || 'Aucune description disponible' }}</p>
 
                         <!-- Details -->
                         <div class="space-y-1 md:space-y-2 text-gray-600 text-xs md:text-sm ">
@@ -48,7 +48,7 @@
 
                         <!-- Actions -->
                         <div class="flex justify-between mt-3 md:mt-4 ">
-                            <button mat-icon-button color="primary " class="hover:bg-purple-50 menu-link rounded-full " [routerLink]="[ '/restaurants', restaurant.id, 'menu'] " matTooltip="View Menu ">
+                            <button mat-icon-button color="primary " class="hover:bg-purple-50 menu-link rounded-full " [routerLink]="[ '/restaurants', restaurant.id, 'menu'] " matTooltip="Voir le menu ">
   <mat-icon class="inset-y-1 right-2.5 ">restaurant_menu</mat-icon>
 </button>
                             <button mat-icon-button color="accent " class="rounded-full hover:bg-purple-50 " (click)="openDialog(restaurant) " matTooltip="Modifier ">
@@ -56,7 +56,7 @@
               </button>
                             <button mat-icon-button color="warn " class="rounded-full hover:bg-purple-50 " *ngIf="restaurant.id " (click)="deleteRestaurant(restaurant.id) " matTooltip="Supprimer ">
                 <mat-icon class="inset-y-1 right-2.5 hover:text-red-600 ">delete</mat-icon>
-                <span class="sr-only ">Delete restaurant</span>
+                <span class="sr-only ">Supprimer le restaurant</span>
               </button>
 
 
@@ -71,10 +71,10 @@
                 <div *ngIf="!isLoading && filteredRestaurants().length === 0" class="alert alert-info restaurant-empty" role="alert">
                     <div class="empty-flex-row">
                         <span class="icon large" aria-hidden="true">
-            <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="home"></mat-icon>
+            <mat-icon aria-hidden="false" aria-label="Icône d'accueil exemple" fontIcon="home"></mat-icon>
           </span>
                         <span class="empty-flex-text">
-            No restaurants found. <a href="#" class="alert-link" (click)="$event.preventDefault(); openDialog();">Click here to add a new restaurant.</a>
+            Aucun restaurant trouvé. <a href="#" class="alert-link" (click)="$event.preventDefault(); openDialog();">Cliquez ici pour ajouter un nouveau restaurant.</a>
           </span>
                     </div>
                 </div>

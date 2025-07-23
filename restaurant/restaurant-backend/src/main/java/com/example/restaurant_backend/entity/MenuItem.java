@@ -18,6 +18,8 @@ public class MenuItem {
     private String description;
     private double price;
     private String restaurantId;
+    private String categoryId; // Reference to Category
+    private String categoryName; // Optional: for easier access/display
     private boolean deleted = false;
     private String imageBase64; // Optional base64 image for the menu item
 

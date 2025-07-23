@@ -11,6 +11,7 @@ import { Restaurant } from '../../models/restaurant.model';
 import { MenuItemFormComponent } from '../menu-item-form/menu-item-form.component';
 import { ConfirmDialogComponent } from '../../confirm-dialog.component';
 import { HlmSpinnerComponent } from '@spartan-ng/helm/spinner';
+import { Category } from '../../models/category.model';
 
 @Component({
     selector: 'app-all-menu-items',
@@ -24,6 +25,8 @@ export class AllMenuItemsComponent implements OnInit, AfterViewInit {
     restaurants: Restaurant[] = [];
     searchText: string = '';
     isLoading = false;
+    categories: Category[] = [];
+    selectedCategoryId: string = '';
     @ViewChildren('menuCard', { read: ElementRef }) cards!: QueryList<ElementRef>;
 
     constructor(
@@ -37,6 +40,10 @@ export class AllMenuItemsComponent implements OnInit, AfterViewInit {
         this.loadAllItems();
         this.restaurantService.getAllRestaurants().subscribe(data => {
             this.restaurants = data;
+        });
+        this.menuService.getAllCategories().subscribe({
+            next: (cats) => this.categories = cats,
+            error: (err) => console.error('Erreur lors du chargement des catégories:', err)
         });
     }
 
@@ -130,9 +137,10 @@ export class AllMenuItemsComponent implements OnInit, AfterViewInit {
     get filteredMenuItems(): MenuItem[] {
         const text = this.searchText.toLowerCase();
         return this.menuItems.filter(item =>
-            (item.name && item.name.toLowerCase().includes(text)) ||
-            (item.description && item.description.toLowerCase().includes(text)) ||
-            this.getRestaurantName(item.restaurantId).toLowerCase().includes(text)
+            (!this.selectedCategoryId || item.categoryId === this.selectedCategoryId) &&
+            ((item.name && item.name.toLowerCase().includes(text)) ||
+                (item.description && item.description.toLowerCase().includes(text)) ||
+                this.getRestaurantName(item.restaurantId).toLowerCase().includes(text))
         );
     }
 } 

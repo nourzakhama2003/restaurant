@@ -6,18 +6,21 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { FormsModule } from '@angular/forms';
 
 import { Restaurant } from '../../models/restaurant.model';
 import { MenuItem } from '../../models/menu-item.model';
 import { MenuItemFormComponent } from '../menu-item-form/menu-item-form.component';
 import { ConfirmDialogComponent } from '../../confirm-dialog.component';
 import { MenuService } from '../../services/menu.service';
+import { Category } from '../../models/category.model';
 
 @Component({
   selector: 'app-menu-dialog',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MatDialogModule,
     MatButtonModule,
     MatIconModule,
@@ -31,6 +34,8 @@ import { MenuService } from '../../services/menu.service';
 export class MenuDialogComponent {
   plats: MenuItem[];
   isLoading = false;
+  categories: Category[] = [];
+  selectedCategoryId: string = '';
 
   constructor(
     private dialog: MatDialog,
@@ -41,6 +46,10 @@ export class MenuDialogComponent {
     this.plats = restaurant.menus || [];
     // Load fresh menu items from the backend to ensure we have the latest data
     this.loadMenuItems();
+    this.menuService.getAllCategories().subscribe({
+      next: (cats) => this.categories = cats,
+      error: (err) => console.error('Erreur lors du chargement des catégories:', err)
+    });
   }
 
   private loadMenuItems() {
@@ -145,6 +154,11 @@ export class MenuDialogComponent {
     });
   }
 
+  get filteredPlats(): MenuItem[] {
+    return this.selectedCategoryId
+      ? this.plats.filter(plat => plat.categoryId === this.selectedCategoryId)
+      : this.plats;
+  }
 
 
   cancel() {
