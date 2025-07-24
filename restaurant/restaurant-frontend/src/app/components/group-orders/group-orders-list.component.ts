@@ -399,14 +399,22 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
   }
 
   applyFilters(): void {
-    // Debug log for all commandes
-    this.commandes.forEach(commande => {
-      console.log('Commande:', commande.id, 'Status:', commande.status);
-    });
+    // Filter by restaurant name (searchTerm), date, and status, like 'Mes commandes'
     this.filteredCommandes = this.commandes.filter(commande => {
+      // Get restaurant name
+      const restaurant = this.restaurants.find(r => r.id === commande.restaurantId);
+      const restaurantName = restaurant ? restaurant.name : '';
+      // Filter by restaurant name
+      const matchesSearchTerm = this.searchTerm ?
+        restaurantName.toLowerCase().includes(this.searchTerm.toLowerCase()) : true;
+      // Filter by date
+      const matchesDate = this.selectedDate ?
+        new Date(commande.createdAt).toLocaleDateString() === new Date(this.selectedDate).toLocaleDateString() : true;
+      // Filter by status
       const matchesStatus = (commande.status || '').trim().toLowerCase() === this.statusFilter;
-      return matchesStatus;
+      return matchesSearchTerm && matchesDate && matchesStatus;
     });
+    this.setupCountdowns();
     this.cdr.detectChanges(); // Force UI update
   }
 

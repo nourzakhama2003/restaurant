@@ -1,0 +1,193 @@
+WebSocket Guide for Beginners
+============================
+
+This guide explains, step by step, how WebSocket works in your app, with diagrams, code, and comments.
+
+------------------------------------------------------------
+1. What is a WebSocket?
+------------------------------------------------------------
+- WebSocket is a protocol for real-time, two-way communication between client (browser) and server.
+- Unlike HTTP, the connection stays open, so both sides can send messages at any time.
+
+------------------------------------------------------------
+2. Key Concepts
+------------------------------------------------------------
+- Client: The code in your app that connects to the server.
+- Token: Used for authentication (proves who you are).
+- Endpoint: The URL you connect to (e.g., ws://localhost:8081/ws).
+- Interceptor: Backend code that checks the token before allowing the connection.
+- Topic: A channel (like a chat room or class) where messages are sent and received.
+- Subscription: Listening to a topic to get real-time updates.
+
+------------------------------------------------------------
+3. How It Works (Flow Diagram)
+------------------------------------------------------------
+
++-------------------+        1. Connect (with token)        +-------------------+
+|   Client (Angular)| ------------------------------------> |   Backend (Spring) |
+|                   |                                      |                   |
+| 2. Subscribe to   |                                      |                   |
+|    topic          |                                      |                   |
+|                   | <------------------------------------ | 3. Accept if      |
+|                   |                                      |    token valid    |
+|                   | <------------------------------------ | 4. Send messages  |
+|                   |      5. Receive real-time updates    |    to topic       |
++-------------------+                                      +-------------------+
+
+------------------------------------------------------------
+4. Frontend: Connecting and Subscribing
+------------------------------------------------------------
+
+// TypeScript (Angular Service)
+
+import { Injectable } from '@angular/core';
+import { Client, IMessage } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
+import { Observable, Subject } from 'rxjs';
+import { AppKeycloakService } from './keycloak.service';
+
+@Injectable({ providedIn: 'root' })
+export class WebSocketService {
+    private client!: Client;
+    private subject = new Subject<any>();
+    private subscription: any;
+
+    constructor(private keycloakService: AppKeycloakService) { }
+
+    async connect(commandeId: string): Promise<Observable<any>> {
+        // 1. Get the authentication token
+        const token = await this.keycloakService.getToken();
+        // 2. Create the WebSocket client, sending the token as a query parameter
+        this.client = new Client({
+            webSocketFactory: () => new SockJS(`http://localhost:8081/ws?access_token=${token}`),
+            reconnectDelay: 5000,
+        });
+        // 3. When connected, subscribe to the topic
+        this.client.onConnect = () => {
+            this.subscription = this.client.subscribe(`/topic/group-orders/${commandeId}`, (message: IMessage) => {
+                this.subject.next(JSON.parse(message.body));
+            });
+        };
+        this.client.activate();
+        return this.subject.asObservable();
+    }
+
+    disconnect() {
+        if (this.subscription) this.subscription.unsubscribe();
+        if (this.client && this.client.active) this.client.deactivate();
+    }
+}
+
+// Comments:
+// - The token is sent in the URL so the backend can authenticate you.
+// - You subscribe to a topic to get updates for a specific group order.
+// - When the backend sends a message to that topic, you get it instantly.
+
+------------------------------------------------------------
+5. Backend: Configuring the Endpoint and Authentication
+------------------------------------------------------------
+
+// Java (Spring Boot)
+
+@Configuration
+@EnableWebSocketMessageBroker
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+    @Override
+    public void configureMessageBroker(MessageBrokerRegistry config) {
+        config.enableSimpleBroker("/topic"); // Enables topics for pub/sub
+        config.setApplicationDestinationPrefixes("/app"); // Prefix for client-to-server messages
+    }
+
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint("/ws")
+            .setAllowedOriginPatterns("*")
+            .addInterceptors(new WebSocketAuthInterceptor()) // Attach the auth interceptor
+            .withSockJS();
+    }
+}
+
+// The Interceptor checks the token before allowing the connection:
+
+public class WebSocketAuthInterceptor implements HandshakeInterceptor {
+    @Override
+    public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
+                                   WebSocketHandler wsHandler, Map<String, Object> attributes) {
+        // Extract token from query string
+        String query = request.getURI().getQuery();
+        if (query != null && query.contains("access_token=")) {
+            String token = query.split("access_token=")[1].split("&")[0];
+            attributes.put("access_token", token);
+            // Here you would validate the token (e.g., with Keycloak)
+            return true; // Allow handshake if valid
+        }
+        return false; // Reject if no token
+    }
+    @Override
+    public void afterHandshake(...) { /* No-op */ }
+}
+
+// Comments:
+// - The endpoint /ws is where clients connect.
+// - The interceptor extracts the token and (optionally) validates it.
+// - If valid, the connection is established; otherwise, it's rejected.
+
+------------------------------------------------------------
+6. Backend: Sending Messages to a Topic
+------------------------------------------------------------
+
+// Java (Spring Boot)
+
+@Autowired
+private SimpMessagingTemplate messagingTemplate;
+
+public void notifyGroupOrderUpdate(String commandeId, Object update) {
+    messagingTemplate.convertAndSend("/topic/group-orders/" + commandeId, update);
+}
+
+// Comments:
+// - This sends a message to all clients subscribed to the topic for that group order.
+// - The message can be any object (it will be serialized as JSON).
+
+------------------------------------------------------------
+7. Why Use Topics and Subscriptions?
+------------------------------------------------------------
+- Topics let you receive only the messages you care about (e.g., updates for a specific order).
+- Subscriptions are efficient: you get real-time updates without polling the server.
+- This pattern is used for chat, notifications, collaborative editing, and more.
+
+------------------------------------------------------------
+8. Summary Table
+------------------------------------------------------------
+| Step         | What Happens?                                   | Where?                |
+|--------------|-------------------------------------------------|-----------------------|
+| 1. Connect   | Client opens WebSocket with token               | Frontend (Angular)    |
+| 2. Auth      | Backend checks token via interceptor            | Backend (Spring)      |
+| 3. Subscribe | Client subscribes to topic                      | Frontend (Angular)    |
+| 4. Message   | Backend sends message to topic                  | Backend (Spring)      |
+| 5. Receive   | Client receives real-time update                | Frontend (Angular)    |
+
+------------------------------------------------------------
+9. Mermaid Diagram (for Visual Learners)
+------------------------------------------------------------
+
+```mermaid
+graph TD;
+  A[Client: Connect with token] -->|Handshake| B[Backend: WebSocketConfig]
+  B -->|Passes to| C[WebSocketAuthInterceptor]
+  C -->|If valid| D[Connection Established]
+  D --> E[Client: Subscribe to Topic]
+  F[Backend: Send message to Topic] --> G[All Subscribed Clients]
+  E --> G
+```
+
+------------------------------------------------------------
+10. Tips for Beginners
+------------------------------------------------------------
+- Always close the connection when done (call disconnect()).
+- Handle errors and reconnections gracefully.
+- Use topics to scope updates (e.g., one topic per group order).
+- Test with multiple browser tabs to see real-time updates in action.
+
+------------------------------------------------------------
+If you have questions, read this file and the actual websocket.service.ts in your app for real code examples! 

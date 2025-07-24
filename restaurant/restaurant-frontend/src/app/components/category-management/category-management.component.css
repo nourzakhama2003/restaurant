@@ -147,17 +147,80 @@ button {
 
 .category-form-card {
     background: #fff;
-    border-radius: 14px;
-    box-shadow: 0 2px 12px rgba(76, 81, 255, 0.07);
-    padding: 32px 24px;
-    margin-top: 32px;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(76, 81, 255, 0.10);
+    padding: 40px 32px 32px 32px;
+    margin-top: 40px;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
 }
 
 .form-row {
-    margin-bottom: 18px;
+    margin-bottom: 3px;
     display: flex;
     align-items: center;
     gap: 1rem;
+}
+
+.form-row-inline {
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
+}
+
+.align-image-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
+}
+
+.flex-1 {
+    flex: 1 1 0%;
+}
+
+.upload-image-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 90px;
+    max-width: 110px;
+}
+
+.small-upload {
+    width: 100%;
+    max-width: 90px;
+    margin: 0 auto;
+    padding: 0;
+}
+
+.small-upload-label {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.small-image-preview {
+    margin-top: 6px;
+    display: flex;
+    justify-content: center;
+}
+
+.small-image-preview img {
+    max-width: 80px !important;
+    max-height: 80px !important;
+    border-radius: 50%;
+    margin: 0 auto;
+    box-shadow: 0 1px 4px rgba(76, 81, 255, 0.08);
 }
 
 .image-preview img {
@@ -230,6 +293,21 @@ button {
     font-weight: 700;
 }
 
+.form-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #4f46e5;
+    text-align: center;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+}
+
+.form-divider {
+    border: none;
+    border-top: 2px solid #e0e7ef;
+    margin: 0 0 24px 0;
+}
+
 @media (max-width: 700px) {
     .categories-page {
         padding: 12px 2vw;
@@ -243,5 +321,12 @@ button {
     }
     .category-form-card {
         padding: 18px 8px;
+        max-width: 98vw;
+    }
+    .form-title {
+        font-size: 1.1rem;
+    }
+    .form-divider {
+        margin-bottom: 14px;
     }
 }

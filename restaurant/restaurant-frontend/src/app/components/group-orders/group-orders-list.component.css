@@ -743,4 +743,24 @@
         height: 20px;
         font-size: 0.8em;
     }
+    .search-filter-section .search-row {
+        flex-direction: column;
+        gap: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    .form-row {
+        margin-bottom: 0 !important;
+        gap: 0 !important;
+        padding: 0 !important;
+    }
+    .search-filter-section label {
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+    }
+    .Input {
+        margin-bottom: 0 !important;
+        padding-top: 6px !important;
+        padding-bottom: 6px !important;
+    }
 }
