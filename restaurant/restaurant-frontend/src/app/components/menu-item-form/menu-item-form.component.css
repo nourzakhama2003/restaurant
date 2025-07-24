@@ -329,12 +329,22 @@ button[mat-flat-button]:disabled {
 }
 
 .menu-item-dialog-content {
+    max-height: 80vh;
+    overflow-y: auto;
+    padding-bottom: 16px;
     padding: 40px 32px 32px 32px;
     background: #fff;
     border-radius: 18px;
     box-shadow: 0 8px 32px rgba(106, 130, 251, 0.18), 0 1.5px 8px rgba(44, 62, 80, 0.04);
     max-width: 540px;
     margin: 0 auto;
+}
+
+@media (max-width: 600px) {
+    .menu-item-dialog-content {
+        max-height: 90vh;
+        padding-bottom: 32px;
+    }
 }
 
 .menu-item-form-popup {

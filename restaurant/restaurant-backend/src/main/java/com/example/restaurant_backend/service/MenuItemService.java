@@ -67,6 +67,8 @@ public class MenuItemService {
             existing.setPrice(item.getPrice());
             existing.setRestaurantId(item.getRestaurantId());
             existing.setCategoryId(item.getCategoryId());
+            // Update imageBase64 if provided (allow clearing image as well)
+            existing.setImageBase64(item.getImageBase64());
             // Validate and set category name
             if (item.getCategoryId() != null) {
                 Category category = categoryRepository.findById(item.getCategoryId()).orElse(null);

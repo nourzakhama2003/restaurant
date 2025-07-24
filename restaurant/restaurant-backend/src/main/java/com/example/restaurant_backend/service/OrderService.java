@@ -5,6 +5,7 @@ import com.example.restaurant_backend.entity.Commande;
 import com.example.restaurant_backend.repository.OrderRepository;
 import com.example.restaurant_backend.repository.CommandeRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,10 +15,12 @@ import java.time.LocalDateTime;
 public class OrderService {
     private OrderRepository orderRepository;
     private CommandeRepository commandeRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public OrderService(OrderRepository orderRepository, CommandeRepository commandeRepository) {
+    public OrderService(OrderRepository orderRepository, CommandeRepository commandeRepository, SimpMessagingTemplate messagingTemplate) {
         this.orderRepository = orderRepository;
         this.commandeRepository = commandeRepository;
+        this.messagingTemplate = messagingTemplate;
     }
 
     // Create
@@ -116,12 +119,23 @@ public class OrderService {
         if (this.orderRepository.existsById(id)) {
             order.setId(id);
             Order updatedOrder = this.orderRepository.save(order);
-            
-            // Update commande's orders list after order update
+            // After updating, check if all orders in the commande are paid
             if (order.getCommandeId() != null) {
-                updateCommandeOrdersList(order.getCommandeId());
+                List<Order> orders = this.orderRepository.findByCommandeId(order.getCommandeId());
+                boolean allPaid = orders.stream().allMatch(o -> o.isPaye());
+                Optional<Commande> commandeOpt = this.commandeRepository.findById(order.getCommandeId());
+                if (commandeOpt.isPresent()) {
+                    Commande commande = commandeOpt.get();
+                    if (allPaid && Commande.STATUS_ATTENTE.equals(commande.getStatus())) {
+                        commande.setStatus(Commande.STATUS_CONFIRMEE);
+                        commande.setUpdatedAt(java.time.LocalDateTime.now());
+                        this.commandeRepository.save(commande);
+                    }
+                    // Broadcast the updated commande to WebSocket subscribers
+                    System.out.println("[WEBSOCKET BROADCAST] Sending update to /topic/group-orders/" + commande.getId() + ": " + commande);
+                    messagingTemplate.convertAndSend("/topic/group-orders/" + commande.getId(), commande);
+                }
             }
-            
             return updatedOrder;
         }
         return null;

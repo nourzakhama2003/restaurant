@@ -19,11 +19,9 @@ export function initializeKeycloak(keycloak: KeycloakService): () => Promise<boo
       enableBearerInterceptor: true,
       bearerPrefix: 'Bearer'
     }).then(authenticated => {
-      console.log(`🔐 Keycloak initialization completed. Authenticated: ${authenticated}`);
       // Always return true to allow the app to start, regardless of authentication status
       return true;
     }).catch(error => {
-      console.error('🚨 Keycloak initialization failed:', error);
       // Don't block the app, just log the error
       return true;
     });

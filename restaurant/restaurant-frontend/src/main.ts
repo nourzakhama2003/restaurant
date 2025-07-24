@@ -1,3 +1,6 @@
+// Polyfill for 'global' in browser
+(window as any).global = window;
+
 import { bootstrapApplication } from '@angular/platform-browser';
 import { AppComponent } from './app/app.component';
 import { provideRouter } from '@angular/router';
@@ -10,6 +13,10 @@ import { IconLogout, IconUser, IconHome } from 'angular-tabler-icons/icons';
 import { AuthInterceptor } from './app/auth.interceptor';
 import { KeycloakService, KeycloakAngularModule } from 'keycloak-angular';
 import { initializeKeycloak } from './app/keycloak-init';
+import { registerLocaleData } from '@angular/common';
+import localeFr from '@angular/common/locales/fr';
+
+registerLocaleData(localeFr, 'fr');
 
 bootstrapApplication(AppComponent, {
   providers: [

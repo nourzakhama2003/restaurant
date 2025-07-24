@@ -10,6 +10,7 @@
                     <div>
                         <h1 class="hero-title">{{getRestaurantName(commande?.restaurantId)}}</h1>
                         <div class="hero-meta">
+                            <span class="creator-badge">Par {{commande?.creatorName}}</span>
                             <span class="status-chip" [ngClass]="getStatusColor(commande?.status || '')">
                                 <mat-icon class="status-icon">
                                     {{getStatusColor(commande?.status || '') === 'primary' ? 'hourglass_empty' : getStatusColor(commande?.status || '') === 'accent' ? 'lock' : getStatusColor(commande?.status || '') === 'warn' ? 'cancel' : 'check_circle'}}
@@ -18,8 +19,9 @@
                             </span>
                             <span class="created-at-label">
                                 <mat-icon class="created-at-icon">schedule</mat-icon>
-                                {{commande?.createdAt | date:'fullDate'}}
+                                Créée le : {{ commande?.createdAt | date:'dd/MM/yyyy HH:mm':'':'fr' }}
                             </span>
+
                         </div>
                     </div>
                 </div>
@@ -110,7 +112,7 @@
                             </span>
                             <mat-progress-bar class="deadline-progress-bar" mode="determinate" [value]="getDeadlineProgress(commande?.createdAt, commande?.orderDeadline)"></mat-progress-bar>
                             <span>
-  {{ commande?.orderDeadline | date:'short':'UTC' }} UTC
+  {{ commande?.orderDeadline | date:'dd/MM/yyyy HH:mm':'':'fr' }}
 </span>
                         </div>
                     </div>
@@ -147,6 +149,16 @@
                                 </div>
                                 <div *ngIf="order?.notes" class="mt-2">
                                     <strong>Notes de commande :</strong> {{order.notes}}
+                                </div>
+                                <!-- Payment status and toggle -->
+                                <div class="mt-2 flex items-center gap-3">
+                                    <span class="order-payment-status" [ngClass]="order.paye ? 'paye' : 'non-paye'">
+                                        {{ order.paye ? 'Payé' : 'Non payé' }}
+                                    </span>
+                                    <ng-container *ngIf="isCreator()">
+                                        <input type="checkbox" [checked]="order.paye" (change)="toggleOrderPaid(order, $any($event.target).checked)" />
+                                        <span class="ml-2">Payé</span>
+                                    </ng-container>
                                 </div>
                             </mat-card-content>
                             <mat-card-actions *ngIf="canManageOrder(order)" align="end">

@@ -16,6 +16,7 @@ export interface Order {
     notes?: string;
     createdAt: Date;
     deleted?: boolean;
+    paye?: boolean;
 }
 
 export interface ParticipateRequest {

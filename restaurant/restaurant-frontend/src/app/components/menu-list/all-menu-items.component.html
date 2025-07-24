@@ -10,7 +10,6 @@
     <div class="category-filter-container icon-inside">
         <div class="select-wrapper">
             <select class="custom-select with-svg-icon" [(ngModel)]="selectedCategoryId">
-                
                 <option value="">Toutes les catégories</option>
                 <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
             </select>
@@ -18,21 +17,21 @@
         </div>
     </div>
     <hlm-spinner *ngIf="isLoading " class="size-8 md:size-10 mx-auto my-8 block "></hlm-spinner>
-    <div class="menu-card-grid pro-card-grid ">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mt-2 md:mt-4 md:gap-20 md:m-20">
         <ng-container *ngIf="filteredMenuItems.length> 0; else noMenuItems">
-            <div *ngFor="let item of filteredMenuItems; let i = index" #menuCard class="menu-anim-card pro-menu-card" [ngStyle]="{'animation-delay': (i * 80) + 'ms'}">
-                <div class="pro-card-img-wrap">
+            <div *ngFor="let item of filteredMenuItems; let i = index" #menuCard class="w-full rounded-xl overflow-hidden shadow-md bg-white hover:shadow-xl transition-shadow border border-gray-200 relative mt-3 md:mt-5 flex flex-col justify-between" [ngStyle]="{'animation-delay': (i * 80) + 'ms'}">
+                <div class="pro-card-img-wrap mx-auto mt-6 mb-4">
                     <img [src]="getItemImage(item)" [alt]="item.name" class="pro-card-img" />
                 </div>
-                <span class="pro-badge pro-price">${{ item.price | number:'1.2-2' }}</span>
-                <div class="pro-card-content">
-                    <h3 class="pro-card-title" title="{{ item.name }}">{{ item.name }}</h3>
-                    <p class="pro-card-desc" title="{{ item.description }}">{{ item.description }}</p>
-                    <div class="pro-card-badges">
+                <div class="flex flex-col items-center px-4 pb-2">
+                    <span class="pro-badge pro-price mb-2">${{ item.price | number:'1.2-2' }}</span>
+                    <h3 class="pro-card-title text-center mb-1" title="{{ item.name }}">{{ item.name }}</h3>
+                    <p class="pro-card-desc text-center mb-2" title="{{ item.description }}">{{ item.description }}</p>
+                    <div class="pro-card-badges mb-2">
                         <span class="pro-badge pro-restaurant">{{ getRestaurantName(item.restaurantId) }}</span>
                     </div>
                 </div>
-                <div class="pro-card-actions">
+                <div class="pro-card-actions flex justify-center gap-3 mt-3 md:mt-4 border-t border-gray-100 pt-3 pb-4">
                     <button mat-icon-button color="accent" (click)=" editItem(item) " matTooltip="Modifier " aria-label="Modifier le plat ">
                         <mat-icon>edit</mat-icon>
                     </button>

@@ -71,12 +71,11 @@
                                             </span>
                                         </div>
                                         <div class="order-meta">
-                                            <span class="order-creator-avatar">{{commande.creatorName ? commande.creatorName[0] : '?'}}</span> By {{commande.creatorName}}
-                                            <span class="order-created-at">
-                        <mat-icon class="created-at-icon">schedule</mat-icon>
-                        <span class="created-at-label">Created at:</span>
-                                            <span class="created-at-date">{{formatDate(commande.createdAt)}}</span>
-                                            </span>
+                                            <span class="order-creator-avatar">{{commande.creatorName ? commande.creatorName[0] : '?'}}</span>
+                                            <span class="creator-badge">Par {{commande.creatorName}}</span>
+                                            <span class="created-at-label">
+  {{commande.createdAt | date:'dd/MM/yyyy HH:mm':'':'fr'}}
+</span>
                                         </div>
                                     </div>
                                     <mat-progress-bar class="order-progress-bar" mode="determinate" [value]="getOrderProgress(commande.createdAt, commande.orderDeadline)"></mat-progress-bar>

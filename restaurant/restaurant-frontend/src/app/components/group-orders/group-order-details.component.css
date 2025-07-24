@@ -503,6 +503,29 @@ button[mat-button]:hover {
     display: inline-block;
 }
 
+.order-payment-status {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 16px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    margin-left: 0.5rem;
+    min-width: 80px;
+    text-align: center;
+}
+
+.paye {
+    background-color: #e6f9ec;
+    color: #1a7f37;
+    border: 1px solid #b6e7c9;
+}
+
+.non-paye {
+    background-color: #fff0f0;
+    color: #c62828;
+    border: 1px solid #f7bdbd;
+}
+
 
 /* Fade-in animation for mini-order cards */
 

@@ -14,21 +14,24 @@ import java.util.Optional;
 import com.example.restaurant_backend.dto.CommandeWithRestaurantDto;
 import org.springframework.scheduling.annotation.Scheduled;
 import java.time.ZoneOffset;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 @Service
 public class CommandeService {
     private CommandeRepository commandeRepository;
     private OrderRepository orderRepository;
     private RestaurantService restaurantService;
+    private final SimpMessagingTemplate messagingTemplate;
     
     // Cache for expiration check to avoid too frequent database calls
     private LocalDateTime lastExpirationCheck = LocalDateTime.now().minusMinutes(5);
     private static final int EXPIRATION_CHECK_INTERVAL_MINUTES = 1; // Check every minute
 
-    public CommandeService(CommandeRepository commandeRepository, OrderRepository orderRepository, RestaurantService restaurantService) {
+    public CommandeService(CommandeRepository commandeRepository, OrderRepository orderRepository, RestaurantService restaurantService, SimpMessagingTemplate messagingTemplate) {
         this.commandeRepository = commandeRepository;
         this.orderRepository = orderRepository;
         this.restaurantService = restaurantService;
+        this.messagingTemplate = messagingTemplate;
     }
     
     /**
@@ -72,10 +75,12 @@ public class CommandeService {
             
             // Update the commande with the saved orders
             savedCommande.setOrders(savedOrders);
-            return this.commandeRepository.save(savedCommande);
+            Commande finalSavedCommande = this.commandeRepository.save(savedCommande);
+            messagingTemplate.convertAndSend("/topic/group-orders/" + finalSavedCommande.getId(), finalSavedCommande);
+            return finalSavedCommande;
         }
         
-        return savedCommande;
+        return this.commandeRepository.save(commande);
     }
 
     // Read all
@@ -169,7 +174,9 @@ public class CommandeService {
     public Commande updateCommande(String id, Commande commande) {
         if (this.commandeRepository.existsById(id)) {
             commande.setId(id);
-            return this.commandeRepository.save(commande);
+            Commande updatedCommande = this.commandeRepository.save(commande);
+            messagingTemplate.convertAndSend("/topic/group-orders/" + id, updatedCommande);
+            return updatedCommande;
         }
         return null;
     }
@@ -290,6 +297,7 @@ public class CommandeService {
                     System.out.println("✅ Service: Successfully updated commande " + commandeId + " status to: " + newStatus + ", manualOverride=" + savedCommande.isManualOverride());
                     // Print stack trace for debugging
                     new Exception("[DEBUG] Status changed to '" + newStatus + "' for commande " + commandeId).printStackTrace();
+                    messagingTemplate.convertAndSend("/topic/group-orders/" + commandeId, savedCommande);
                     return savedCommande;
                 } else {
                     commande.setStatus(newStatus);
@@ -299,6 +307,7 @@ public class CommandeService {
                     System.out.println("✅ Service: Successfully updated commande " + commandeId + " status to: " + newStatus + ", manualOverride=" + savedCommande.isManualOverride());
                     // Print stack trace for debugging
                     new Exception("[DEBUG] Status changed to '" + newStatus + "' for commande " + commandeId).printStackTrace();
+                    messagingTemplate.convertAndSend("/topic/group-orders/" + commandeId, savedCommande);
                     return savedCommande;
                 }
             }
@@ -456,7 +465,9 @@ public class CommandeService {
         commande.setUpdatedAt(now);
         
         // Save with validation
-        return saveCommande(commande);
+        Commande savedCommande = saveCommande(commande);
+        messagingTemplate.convertAndSend("/topic/group-orders/" + savedCommande.getId(), savedCommande);
+        return savedCommande;
     }
 
     @Scheduled(fixedRate = 60000) // every 60 seconds

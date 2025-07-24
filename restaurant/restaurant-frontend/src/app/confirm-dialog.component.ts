@@ -4,6 +4,13 @@ import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/materia
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
+export interface ConfirmDialogData {
+  message: string;
+  title?: string;
+  confirmLabel?: string;
+  confirmIcon?: string;
+}
+
 @Component({
   selector: 'app-confirm-dialog',
   standalone: true,
@@ -14,16 +21,16 @@ import { MatIconModule } from '@angular/material/icon';
     MatIconModule
   ],
   template: `
-    <h2 mat-dialog-title class="dialog-title text-blue-500">Confirmer la suppression</h2>
+    <h2 mat-dialog-title class="dialog-title text-blue-500">{{ data.title || 'Confirmer la suppression' }}</h2>
     <mat-dialog-content class="dialog-content">
       <p class="dialog-message">{{ data.message }}</p>
     </mat-dialog-content>
     <mat-dialog-actions class="dialog-actions">
-      <button mat-raised-button class="cancel-button" (click)="onCancel()" aria-label="Annuler la suppression">
+      <button mat-raised-button class="cancel-button" (click)="onCancel()" aria-label="Annuler">
         <mat-icon>cancel</mat-icon> Annuler
       </button>
-      <button mat-raised-button class="delete-button" (click)="onConfirm()" aria-label="Confirmer la suppression">
-        <mat-icon>delete</mat-icon> Supprimer
+      <button mat-raised-button class="delete-button" (click)="onConfirm()" [attr.aria-label]="data.confirmLabel || 'Confirmer la suppression'">
+        <mat-icon>{{ data.confirmIcon || 'delete' }}</mat-icon> {{ data.confirmLabel || 'Supprimer' }}
       </button>
     </mat-dialog-actions>
   `,
@@ -69,25 +76,25 @@ import { MatIconModule } from '@angular/material/icon';
       vertical-align: middle;
     }
     .cancel-button {
-      background-color: #22c55e !important;
-      color: white !important;
-    }
-    .cancel-button:hover {
-      background-color: #16a34a !important;
-    }
-    .delete-button {
       background-color: #ef4444 !important;
       color: white !important;
     }
-    .delete-button:hover {
+    .cancel-button:hover {
       background-color: #dc2626 !important;
+    }
+    .delete-button {
+      background-color: #22c55e !important;
+      color: white !important;
+    }
+    .delete-button:hover {
+      background-color: #16a34a !important;
     }
   `]
 })
 export class ConfirmDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<ConfirmDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { message: string }
+    @Inject(MAT_DIALOG_DATA) public data: ConfirmDialogData
   ) { }
 
   onCancel(): void {

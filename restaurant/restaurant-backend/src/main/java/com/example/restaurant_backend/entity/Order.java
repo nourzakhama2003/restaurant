@@ -26,4 +26,5 @@ public class Order {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean deleted = false;
+    private boolean paye = false;
 }

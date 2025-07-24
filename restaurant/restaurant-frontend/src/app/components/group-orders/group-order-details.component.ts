@@ -23,6 +23,10 @@ import { CountdownService } from '../../services/counttdown.service';
 import { Subscription } from 'rxjs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { FormsModule } from '@angular/forms';
+import { WebSocketService } from '../../services/websocket.service';
+
+// Polyfill for 'global' in browser
+
 
 @Component({
   selector: 'app-group-order-details',
@@ -82,6 +86,7 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
 
   statusUpdating = false;
   private pollingInterval: any;
+  private wsSubscription: any;
 
   constructor(
     private route: ActivatedRoute,
@@ -93,28 +98,38 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private restaurantService: RestaurantService,
     private cdr: ChangeDetectorRef,
-    private countdownService: CountdownService
+    private countdownService: CountdownService,
+    private webSocketService: WebSocketService
   ) { }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.commandeId = this.route.snapshot.paramMap.get('id') || '';
     this.loadCurrentUser();
     if (this.commandeId) {
       this.loadGroupOrderDetails();
+      // Subscribe to WebSocket updates (now async)
+      const wsObservable = await this.webSocketService.connect(this.commandeId);
+      this.wsSubscription = wsObservable.subscribe(() => {
+        // console.log('WebSocket message received, refreshing group order details');
+        this.loadGroupOrderDetails();
+        this.cdr.detectChanges();
+      });
     } else {
       this.loading = false;
       this.snackBar.open('Invalid group order ID', 'Close', { duration: 3000 });
     }
     this.filteredOrders = this.orders;
-    this.pollingInterval = setInterval(() => {
-      this.loadGroupOrderDetails();
-    }, 15000); // every 15 seconds
+    // Remove pollingInterval logic
+    // this.pollingInterval = setInterval(() => {
+    //   this.loadGroupOrderDetails();
+    // }, 60000);
   }
 
   ngOnDestroy(): void {
-    if (this.pollingInterval) {
-      clearInterval(this.pollingInterval);
+    if (this.wsSubscription) {
+      this.wsSubscription.unsubscribe();
     }
+    this.webSocketService.disconnect();
     if (this.countdownSubscription) {
       this.countdownSubscription.unsubscribe();
     }
@@ -177,20 +192,11 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.commandeService.getCommandeById(this.commandeId).subscribe({
       next: (commande: Commande) => {
-        this.commande = commande || {
-          id: this.commandeId,
-          restaurantId: '',
-          creatorId: '',
-          creatorName: '',
-          status: 'created',
-          totalPrice: 0,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          orderDeadline: new Date(),
-          participationDurationMinutes: 0,
-          allowParticipation: false,
-          orders: []
-        };
+        // Parse date fields to JS Date objects for correct display
+        if (commande.createdAt) commande.createdAt = new Date(commande.createdAt);
+        if (commande.updatedAt) commande.updatedAt = new Date(commande.updatedAt);
+        if (commande.orderDeadline) commande.orderDeadline = new Date(commande.orderDeadline);
+        this.commande = commande;
         this.loadRestaurantDetails();
         this.loadOrdersForCommande();
         if (this.commande) {
@@ -238,8 +244,8 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
           if (this.currentUserId) {
             this.cdr.detectChanges();
             // Debug log: check if currentUserId matches any participantId
-            console.log('CurrentUserId:', this.currentUserId);
-            console.log('Orders:', this.orders.map(o => ({ id: o.id, participantId: o.participantId, participantName: o.participantName })));
+            // console.log('CurrentUserId:', this.currentUserId);
+            // console.log('Orders:', this.orders.map(o => ({ id: o.id, participantId: o.participantId, participantName: o.participantName })));
           }
         },
         error: (error: any) => {
@@ -316,7 +322,7 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
   public onStatusChangeDropdown(event: Event): void {
     if (!this.commande) return;
     const newStatus = (event.target as HTMLSelectElement).value;
-    console.log('Dropdown changed to:', newStatus, 'Current status:', this.commande.status);
+    // console.log('Dropdown changed to:', newStatus, 'Current status:', this.commande.status);
     this.onStatusChange(newStatus);
   }
 
@@ -430,8 +436,53 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
   }
 
   canJoin(): boolean {
-    const result = this.userAndOrdersLoaded && !this.orders.some(order => order.participantId === this.currentUserId);
-    console.log('canJoin:', result, 'userAndOrdersLoaded:', this.userAndOrdersLoaded, 'currentUserId:', this.currentUserId, 'orders:', this.orders);
-    return result;
+    // User can join if:
+    // - orders and user are loaded
+    // - user has not already joined
+    // - commande status is 'cree' or 'attente'
+    return this.userAndOrdersLoaded
+      && !this.orders.some(order => order.participantId === this.currentUserId)
+      && (this.commande?.status === 'cree' || this.commande?.status === 'attente');
+  }
+
+  toggleOrderPaid(order: Order, paid: boolean) {
+    if (this.isCreator()) {
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        width: '400px',
+        data: {
+          title: 'Confirmer le paiement',
+          message: 'Êtes-vous sûr de vouloir changer le statut de paiement de cette commande ?',
+          confirmLabel: 'Confirmer',
+          confirmIcon: 'check_circle'
+        }
+      });
+      dialogRef.afterClosed().subscribe((result: boolean) => {
+        if (result) {
+          const updatedOrder = { ...order, paye: paid };
+          this.orderService.updateOrder(order.id, updatedOrder).subscribe({
+            next: (res: any) => {
+              order.paye = paid;
+              this.snackBar.open('Statut de paiement mis à jour', 'Fermer', { duration: 2000 });
+              this.loadGroupOrderDetails();
+            },
+            error: () => {
+              this.snackBar.open('Erreur lors de la mise à jour du paiement', 'Fermer', { duration: 2000 });
+            }
+          });
+        }
+      });
+    } else {
+      const updatedOrder = { ...order, paye: paid };
+      this.orderService.updateOrder(order.id, updatedOrder).subscribe({
+        next: (res: any) => {
+          order.paye = paid;
+          this.snackBar.open('Statut de paiement mis à jour', 'Fermer', { duration: 2000 });
+          this.loadGroupOrderDetails();
+        },
+        error: () => {
+          this.snackBar.open('Erreur lors de la mise à jour du paiement', 'Fermer', { duration: 2000 });
+        }
+      });
+    }
   }
 }

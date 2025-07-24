@@ -28,6 +28,7 @@ public class securityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/ws/**").permitAll() // Allow WebSocket handshake
                         .requestMatchers("/api/**").permitAll()  // Temporarily allow all API endpoints
                         .anyRequest().authenticated()
                 )
