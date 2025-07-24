@@ -53,7 +53,7 @@
                     <div class="order-search-row">
                         <div *ngIf="commande && isCreator(); else participantSearch">
                             <label for="statusSelect">Changer le statut :</label>
-                            <select id="statusSelect" [(ngModel)]="commande.status" (change)="onStatusChangeDropdown($event)" [disabled]="statusUpdating">
+                            <select id="statusSelect" [(ngModel)]="commande.status" (change)="onStatusChangeDropdown($event)" [disabled]="statusUpdating" class="">
                                 <option *ngFor="let status of statusOptions" [value]="status.value">{{ status.label }}</option>
                             </select>
                             <mat-spinner *ngIf="statusUpdating" diameter="24"></mat-spinner>

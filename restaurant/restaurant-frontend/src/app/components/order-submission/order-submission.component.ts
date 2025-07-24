@@ -51,6 +51,24 @@ export class OrderSubmissionComponent implements OnInit {
   showMenuDropdown: boolean[] = [];
   filteredMenuItems: MenuItem[][] = [];
 
+  selectedCategory: string = '';
+
+  get availableCategories(): string[] {
+    // Only show categories that have at least one menu item in this restaurant
+    const categories = this.menuItems
+      .filter(item => !item.deleted)
+      .map(item => item.categoryName || 'Autre');
+    // Only include categories that have at least one item
+    return Array.from(new Set(categories.filter(cat =>
+      this.menuItems.some(item => (item.categoryName || 'Autre') === cat && !item.deleted)
+    )));
+  }
+
+  get filteredMenuItemsByCategory(): MenuItem[] {
+    if (!this.selectedCategory) return this.menuItems.filter(item => !item.deleted);
+    return this.menuItems.filter(item => (item.categoryName || 'Autre') === this.selectedCategory && !item.deleted);
+  }
+
   constructor(
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<OrderSubmissionComponent>,
@@ -206,7 +224,17 @@ export class OrderSubmissionComponent implements OnInit {
     const value = (document.querySelectorAll('.menu-search-input')[index] as HTMLInputElement)?.value || '';
     this.orderItems.at(index).patchValue({ menuItemName: value });
     const search = value.toLowerCase();
-    this.filteredMenuItems[index] = this.menuItems.filter(item => item.name.toLowerCase().includes(search));
+    // Always filter by selected category and search term
+    this.filteredMenuItems[index] = this.menuItems
+      .filter(item => (!this.selectedCategory || (item.categoryName || 'Autre') === this.selectedCategory) && !item.deleted)
+      .filter(item => item.name.toLowerCase().includes(search));
+    this.showMenuDropdown[index] = true;
+  }
+
+  onMenuDropdownFocus(index: number): void {
+    // Show all items in the selected category when input is focused
+    this.filteredMenuItems[index] = this.menuItems
+      .filter(item => (!this.selectedCategory || (item.categoryName || 'Autre') === this.selectedCategory) && !item.deleted);
     this.showMenuDropdown[index] = true;
   }
 
@@ -312,5 +340,10 @@ export class OrderSubmissionComponent implements OnInit {
 
   addItemToRestaurant(): void {
     this.snackBar.open('Feature coming soon! Only admins can add menu items.', 'Close', { duration: 3000 });
+  }
+
+  onCategoryChange(category: string): void {
+    this.selectedCategory = category;
+    // Optionally, reset menu item selections if needed
   }
 }

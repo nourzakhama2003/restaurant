@@ -1,125 +1,139 @@
-<div class="order-submission-form">
-    <div class="form-header">
-        <h2>{{ isEditMode ? 'Modifier votre commande' : 'Soumettre votre commande' }}</h2>
-        <p class="subtitle">Ajoutez vos articles pour rejoindre cette commande groupée</p>
+<div class="order-submission-form bg-white p-6 rounded-xl shadow-lg max-w-3xl mx-auto max-h-[90vh] overflow-y-auto">
+    <div class="form-header text-center mb-6">
+        <h2 class="text-2xl font-semibold text-gray-900">{{ isEditMode ? 'Modifier votre commande' : 'Soumettre votre commande' }}</h2>
+        <p class="text-gray-600 mt-1 text-sm">Ajoutez vos articles pour rejoindre cette commande groupée</p>
     </div>
 
-    <form [formGroup]="orderForm" class="order-form">
+    <form [formGroup]="orderForm" class="order-form flex flex-col gap-6">
         <!-- User Name (Hidden but auto-filled) -->
-        <div class="user-info">
-            <p><strong>Commande au nom de :</strong> {{ orderForm.get('participantName')?.value }}</p>
+        <div class="user-info bg-blue-50 p-4 rounded-lg border-l-4 border-blue-600">
+            <p class="text-gray-800 text-sm"><strong>Commande au nom de :</strong> {{ orderForm.get('participantName')?.value }}</p>
+        </div>
+
+        <!-- Category Dropdown -->
+        <div class="category-dropdown-wrapper">
+            <label for="category-select" class="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
+            <select id="category-select" class="category-select w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 bg-white text-gray-800" [value]="selectedCategory" (change)="onCategoryChange($any($event.target).value)">
+                <option value="">Toutes les catégories</option>
+                <option *ngFor="let cat of availableCategories" [value]="cat">{{ cat }}</option>
+            </select>
         </div>
 
         <!-- Menu Items Section -->
-        <div class="menu-section">
-            <div class="section-header">
-                <h3>Sélectionner les plats</h3>
-                <button type="button" (click)="addMenuItem()" class="add-btn">
-                    <span class="icon">＋</span>
+        <div class="menu-section bg-gray-50 p-6 rounded-lg border border-gray-200">
+            <div class="section-header flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Sélectionner les plats</h3>
+                <button type="button" (click)="addMenuItem()" class="add-btn flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                    <span class="text-base">＋</span>
                     Ajouter un plat
                 </button>
             </div>
 
             <!-- Loading state -->
-            <div *ngIf="isLoadingMenuItems" class="loading-state">
-                <span class="spinner"></span>
-                <p>Chargement des plats...</p>
+            <div *ngIf="isLoadingMenuItems" class="loading-state text-center py-10">
+                <div class="spinner w-10 h-10 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto"></div>
+                <p class="text-gray-600 mt-3 text-sm">Chargement des plats...</p>
             </div>
 
             <!-- No menu items available -->
-            <div *ngIf="!isLoadingMenuItems && menuItems.length === 0" class="no-menu-items">
-                <span class="icon large">🍽️</span>
-                <p>Aucun plat disponible pour ce restaurant.</p>
-                <p class="text-muted">Veuillez contacter l'administrateur du restaurant.</p>
-                <button class="add-item-btn" type="button" (click)="addItemToRestaurant()">
-                    <span class="icon">＋</span> Ajouter un plat au restaurant
+            <div *ngIf="!isLoadingMenuItems && menuItems.length === 0" class="no-menu-items text-center py-10">
+                <span class="text-4xl">🍽️</span>
+                <p class="text-gray-700 mt-3 text-base">Aucun plat disponible pour ce restaurant.</p>
+                <p class="text-gray-500 text-sm">Veuillez contacter l'administrateur du restaurant.</p>
+                <button class="add-item-btn mt-4 px-5 py-2 bg-gradient-to-r from-blue-600 to-pink-600 text-white rounded-lg hover:from-pink-600 hover:to-blue-600 transition" type="button" (click)="addItemToRestaurant()">
+                    <span class="text-base">＋</span> Ajouter un plat au restaurant
                 </button>
             </div>
 
             <!-- Menu items -->
-            <div formArrayName="items" *ngIf="!isLoadingMenuItems && menuItems.length > 0" class="items-container">
-                <div *ngFor="let item of orderItems.controls; let i = index" [formGroupName]="i" class="item-row">
-                    <div class="item-content">
+            <div formArrayName="items" *ngIf="!isLoadingMenuItems && menuItems.length > 0" class="items-container flex flex-col gap-4">
+                <div *ngFor="let item of orderItems.controls; let i = index" [formGroupName]="i" class="item-row bg-white p-5 rounded-lg border border-gray-200 hover:shadow-md transition">
+                    <div class="item-content grid grid-cols-1 md:grid-cols-[2fr_1fr_2fr_1fr_auto] gap-4 items-end">
                         <div class="item-select">
-                            <div class="menu-search-wrapper">
-                                <input type="text" class="menu-search-input" placeholder="Rechercher un plat..." [value]="orderItems.at(i).value.menuItemName" (input)="onMenuSearchInput(i)" (focus)="showMenuDropdown[i] = true" (blur)="hideMenuDropdown(i)" autocomplete="off" style="height: 44px; max-height: 44px;"
-                                />
-                                <div class="menu-dropdown" *ngIf="showMenuDropdown[i] && filteredMenuItems[i]?.length">
-                                    <div class="menu-dropdown-item" *ngFor="let menuItem of filteredMenuItems[i]" (mousedown)="selectMenuItem(i, menuItem)">
-                                        {{ menuItem.name }} - ${{ menuItem.price.toFixed(2) }}
-                                    </div>
+                            <div class="menu-dropdown-wrapper">
+                                <label for="menu-item-select-{{i}}" class="block text-sm font-medium text-gray-700 mb-1">Plat</label>
+                                <mat-form-field appearance="outline" class="w-full">
+                                    <mat-label>Plat</mat-label>
+                                    <mat-select formControlName="menuItemId" (selectionChange)="onMenuItemSelect(i, $event.value)">
+                                        <mat-option value="" disabled>Sélectionner un plat...</mat-option>
+                                        <mat-option *ngFor="let menuItem of filteredMenuItemsByCategory" [value]="menuItem.id">
+                                            <span class="dropdown-item-img-wrapper">
+                                                <img *ngIf="menuItem.imageBase64" [src]="menuItem.imageBase64" alt="{{menuItem.name}}" class="dropdown-item-img w-5 h-5 object-cover rounded mr-2" />
+                                            </span> {{ menuItem.name }} - ${{ menuItem.price.toFixed(2) }}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                                <div *ngIf="item.get('menuItemId')?.hasError('required') && item.touched" class="text-red-600 text-xs mt-1">
+                                    Veuillez sélectionner un plat
                                 </div>
-                            </div>
-                            <div *ngIf="item.get('menuItemId')?.hasError('required') && item.touched" class="menu-error">
-                                Veuillez sélectionner un plat
                             </div>
                         </div>
 
-                        <!-- Custom styled quantity input -->
-                        <div class="item-quantity custom-input-group">
-                            <label for="quantity-{{i}}" class="custom-label">Qté</label>
-                            <input id="quantity-{{i}}" class="Input custom-input" type="number" formControlName="quantity" min="1" (input)="calculateItemTotal(i)" [class.input-error]="item.get('quantity')?.invalid && item.touched">
-                            <div class="input-error-message" *ngIf="item.get('quantity')?.hasError('required') && item.touched">
+                        <!-- Quantity input -->
+                        <div class="item-quantity">
+                            <label for="quantity-{{i}}" class="block text-sm font-medium text-gray-700 mb-1">Qté</label>
+                            <input id="quantity-{{i}}" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600" type="number" formControlName="quantity" min="1" (input)="calculateItemTotal(i)" [class.border-red-600]="item.get('quantity')?.invalid && item.touched">
+                            <div class="text-red-600 text-xs mt-1" *ngIf="item.get('quantity')?.hasError('required') && item.touched">
                                 Requis
                             </div>
-                            <div class="input-error-message" *ngIf="item.get('quantity')?.hasError('min') && item.touched">
+                            <div class="text-red-600 text-xs mt-1" *ngIf="item.get('quantity')?.hasError('min') && item.touched">
                                 Min 1
                             </div>
                         </div>
 
-                        <!-- Custom styled notes input -->
-                        <div class="item-notes custom-input-group">
-                            <label for="notes-{{i}}" class="custom-label">Notes</label>
-                            <input id="notes-{{i}}" class="Input custom-input" formControlName="notes" placeholder="ex : sans oignons">
+                        <!-- Notes input -->
+                        <div class="item-notes">
+                            <label for="notes-{{i}}" class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                            <input id="notes-{{i}}" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600" formControlName="notes" placeholder="ex : sans oignons">
                         </div>
 
-                        <div class="item-subtotal">
-                            <span class="subtotal-amount">${{ getItemSubtotal(i).toFixed(2) }}</span>
+                        <div class="item-subtotal text-center p-3 bg-green-50 rounded-lg">
+                            <span class="subtotal-amount font-medium text-green-700">${{ getItemSubtotal(i).toFixed(2) }}</span>
                         </div>
 
-                        <div class="item-actions">
-                            <button type="button" (click)="removeMenuItem(i)" [disabled]="orderItems.length === 1" class="icon-btn" title="Supprimer le plat">
-                                <span class="icon">🗑️</span>
+                        <div class="item-actions self-center">
+                            <button type="button" (click)="removeMenuItem(i)" [disabled]="orderItems.length === 1" class="icon-btn p-2 rounded-full hover:bg-red-50 transition" title="Supprimer le plat">
+                                <span class="text-red-600">🗑️</span>
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div *ngIf="orderItems.length === 0" class="alert alert-info" role="alert">
-                Aucun plat ajouté pour l'instant. <a href="#" class="alert-link" (click)="$event.preventDefault(); addMenuItem();">Cliquez ici pour ajouter votre premier plat.</a>
-                <span class="icon large">🛒</span>
+            <div *ngIf="orderItems.length === 0" class="alert alert-info bg-blue-50 p-4 rounded-lg text-blue-800 text-sm">
+                Aucun plat ajouté pour l'instant. <a href="#" class="alert-link text-blue-900 underline hover:text-blue-700" (click)="$event.preventDefault(); addMenuItem();">Cliquez ici pour ajouter votre premier plat.</a>
+                <span class="block text-2xl mt-2">🛒</span>
             </div>
         </div>
 
         <!-- Order Notes -->
-        <div class="notes-section custom-input-group">
-            <h3>Notes supplémentaires</h3>
-            <label for="order-notes" class="custom-label">Notes de commande (optionnel)</label>
-            <textarea id="order-notes" class="Input custom-input full-width" formControlName="notes" placeholder="Instructions ou demandes spéciales..."></textarea>
+        <div class="notes-section bg-white p-5 rounded-lg border border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">Notes supplémentaires</h3>
+            <label for="order-notes" class="block text-sm font-medium text-gray-700 mb-1">Notes de commande (optionnel)</label>
+            <textarea id="order-notes" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600" formControlName="notes" placeholder="Instructions ou demandes spéciales..."></textarea>
         </div>
 
         <!-- Order Summary -->
-        <div class="summary-section">
-            <div class="summary-content">
-                <div class="summary-row">
+        <div class="summary-section bg-gray-50 p-5 rounded-lg border border-gray-200">
+            <div class="summary-content flex flex-col gap-3">
+                <div class="summary-row flex justify-between text-gray-700 text-sm">
                     <span>Nombre total de plats :</span>
                     <span>{{ getTotalQuantity() }}</span>
                 </div>
-                <div class="summary-row total">
-                    <span><strong>Montant total :</strong></span>
-                    <span class="total-amount"><strong>${{ getTotalAmount() }}</strong></span>
+                <div class="summary-row flex justify-between text-base font-semibold text-gray-900 border-t pt-3">
+                    <span>Montant total :</span>
+                    <span class="total-amount text-green-700">${{ getTotalAmount() }}</span>
                 </div>
             </div>
         </div>
 
         <!-- Form Actions -->
-        <div class="form-actions">
-            <button type="button" (click)="onCancel()" class="cancel-btn">
+        <div class="form-actions sticky bottom-0 bg-white pt-4 pb-2 flex justify-end gap-3 border-t border-gray-200">
+            <button type="button" (click)="onCancel()" class="cancel-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium">
                 Annuler
             </button>
-            <button type="button" (click)="onSubmit()" [disabled]="orderForm.invalid || isLoading || orderItems.length === 0" class="submit-btn">
-                <span class="icon">{{ isLoading ? '⏳' : '➡️' }}</span>
+            <button type="button" (click)="onSubmit()" [disabled]="orderForm.invalid || isLoading || orderItems.length === 0" class="submit-btn flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed text-sm font-medium">
+                <span class="text-base">{{ isLoading ? '⏳' : '➡️' }}</span>
                 {{ isLoading ? (isEditMode ? 'Mise à jour...' : 'Soumission...') : (isEditMode ? 'Mettre à jour la commande' : 'Soumettre la commande') }}
             </button>
         </div>

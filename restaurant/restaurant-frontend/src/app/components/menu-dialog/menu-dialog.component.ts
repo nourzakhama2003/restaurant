@@ -56,15 +56,15 @@ export class MenuDialogComponent {
     this.isLoading = true;
     const restaurantId = this.restaurant.id || '';
     if (restaurantId) {
-      console.log('Loading menu items for restaurant:', restaurantId);
+  
       this.menuService.getMenuItemsByRestaurant(restaurantId).subscribe({
         next: (menuItems) => {
-          console.log('Loaded menu items:', menuItems);
+   
           this.plats = menuItems;
           this.isLoading = false;
         },
         error: (err) => {
-          console.error('Error loading menu items:', err);
+
           // Fallback to restaurant.menu if API call fails
           this.plats = this.restaurant.menus || [];
           this.isLoading = false;
@@ -100,7 +100,7 @@ export class MenuDialogComponent {
 
   openEditPlatForm(index: number) {
     const dialogRef = this.dialog.open(MenuItemFormComponent, {
-      width: '600px',
+      width: '700px',
       data: { restaurantId: this.restaurant.id || '', menuItem: this.plats[index] }
     });
 
