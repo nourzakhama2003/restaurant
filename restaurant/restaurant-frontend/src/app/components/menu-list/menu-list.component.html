@@ -1,101 +1,155 @@
-<!-- Minimal Uiverse Card Demo for Testing -->
-
-
-<!-- menu-list.component.html -->
-<ng-container *ngIf="restaurant">
-    <div class="restaurant-hero-glass animate-fade-in">
-        <div class="restaurant-hero-img-wrapper">
-            <img *ngIf="restaurant.profileImageBase64" [src]="restaurant.profileImageBase64" [alt]="restaurant.name + ' Image'" class="restaurant-hero-img" />
+<div class="menu-container">
+    <!-- Restaurant Hero Section -->
+    <div class="restaurant-hero" *ngIf="restaurant">
+        <div class="hero-background">
+            <img [src]="getRestaurantImage(restaurant)" [alt]="restaurant.name" class="hero-image" />
+            <div class="hero-overlay"></div>
         </div>
-        <div class="restaurant-hero-details">
-            <h2 class="restaurant-hero-title">{{ restaurant.name }}</h2>
-            <div class="restaurant-hero-meta">
-                <span *ngIf="restaurant.address" class="meta-item"><mat-icon>location_on</mat-icon> {{ restaurant.address }}</span>
-                <span *ngIf="restaurant.cuisineType" class="meta-item"><mat-icon>restaurant</mat-icon> {{ restaurant.cuisineType }}</span>
-                <span *ngIf="restaurant.phone" class="meta-item"><mat-icon>phone</mat-icon> {{ restaurant.phone }}</span>
+        <div class="hero-content">
+            <div class="hero-info">
+                <h1 class="restaurant-name">{{ restaurant.name }}</h1>
+                <p class="restaurant-description" *ngIf="restaurant.description">
+                    {{ restaurant.description }}
+                </p>
+                <div class="restaurant-meta">
+                    <div class="meta-item" *ngIf="restaurant.cuisineType">
+                        <mat-icon>restaurant</mat-icon>
+                        <span>{{ restaurant.cuisineType }}</span>
+                    </div>
+                    <div class="meta-item" *ngIf="restaurant.address">
+                        <mat-icon>location_on</mat-icon>
+                        <span>{{ restaurant.address }}</span>
+                    </div>
+                    <div class="meta-item" *ngIf="restaurant.phone">
+                        <mat-icon>phone</mat-icon>
+                        <span>{{ restaurant.phone }}</span>
+                    </div>
+                </div>
             </div>
-            <p *ngIf="restaurant.description" class="restaurant-hero-desc">{{ restaurant.description }}</p>
+            <div class="hero-actions">
+                <button class="back-btn" routerLink="/restaurant">
+          <mat-icon>arrow_back</mat-icon>
+          <span>Retour aux restaurants</span>
+        </button>
+            </div>
         </div>
     </div>
-</ng-container>
 
-<mat-spinner *ngIf="isLoading" class="size-8 md:size-10 mx-auto my-8 block"></mat-spinner>
-
-<div class="menu-list-header-row">
-    <div class="category-filter-container icon-inside">
-        <div class="select-wrapper">
-            <select class="custom-select with-svg-icon" [(ngModel)]="selectedCategoryId">
-                <option value="">Toutes les catégories</option>
-                <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
-            </select>
-            <svg xmlns="http://www.w3.org/2000/svg" class="select-svg-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M6 10h12M9 14h6M10 18h4"/></svg>
-        </div>
+    <!-- Loading State -->
+    <div class="loading-container" *ngIf="isLoading">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p>Chargement du menu...</p>
     </div>
-    <button mat-raised-button color="primary" (click)="addItem()" class="add-menu-btn">
-        <span class="text-lg font-semibold">+</span> Ajouter un plat
-    </button>
-</div>
 
-<ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 m-5">
-    <ng-container *ngIf="filteredMenuItems.length > 0; else noMenuItems">
-        <li *ngFor="let item of filteredMenuItems" class="w-full">
-            <div class="card-wrapper">
-                <div class="card">
-                    <div class="content">
-                        <div class="front">
-                            <div class="img">
-                                <div class="circle"></div>
-                                <div class="circle" id="right"></div>
-                                <div class="circle" id="bottom"></div>
-                                <img [src]="getItemImage(item)" [alt]="item.name + ' Image'" class="front-img" />
-                            </div>
-                            <div class="front-content">
-                                <div class="hover-hint">
-                                    <mat-icon class="hover-icon">pan_tool</mat-icon>
-                                    <span>Survolez-moi</span>
-                                </div>
-                                <div class="front-title">{{ item.name }}</div>
-                                <div class="front-category" *ngIf="item.categoryId">
-                                    <mat-icon fontIcon="category" class="mr-1"></mat-icon>
-                                    {{ getCategoryName(item.categoryId) }}
-                                </div>
+    <!-- Menu Content -->
+    <div class="menu-content" *ngIf="!isLoading">
+        <!-- Header Section -->
+        <div class="menu-header">
+            <div class="header-left">
+                <div class="header-icon">
+                    <mat-icon>restaurant_menu</mat-icon>
+                </div>
+                <div class="header-text">
+                    <h2>Menu du Restaurant</h2>
+                    <p>Découvrez nos délicieux plats</p>
+                </div>
+            </div>
+            <button class="add-btn" (click)="addItem()">
+        <mat-icon>add</mat-icon>
+        <span>Nouveau Plat</span>
+      </button>
+        </div>
+
+        <!-- Search and Filter Section -->
+        <div class="search-filter-section">
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <mat-icon class="search-icon">search</mat-icon>
+                    <input type="text" class="search-input" placeholder="Rechercher un plat..." [(ngModel)]="searchText" />
+                    <button *ngIf="searchText" class="clear-btn" (click)="clearSearch()">
+            <mat-icon>close</mat-icon>
+          </button>
+                </div>
+            </div>
+
+            <div class="filter-container">
+                <div class="category-filter">
+                    <label class="filter-label">
+            <mat-icon>category</mat-icon>
+            Catégorie
+          </label>
+                    <mat-form-field appearance="outline" class="category-select">
+                        <mat-select [(ngModel)]="selectedCategoryId">
+                            <mat-option value="">Toutes les catégories</mat-option>
+                            <mat-option *ngFor="let cat of categories" [value]="cat.id">
+                                {{ cat.name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+
+                <div class="filter-info" *ngIf="searchText || selectedCategoryId">
+                    <mat-icon>filter_list</mat-icon>
+                    <span>{{ filteredMenuItems.length }} plat(s) trouvé(s)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Items Grid -->
+        <div class="menu-items-section">
+            <!-- Empty State -->
+            <div class="empty-state" *ngIf="filteredMenuItems.length === 0">
+                <div class="empty-icon">
+                    <mat-icon>restaurant_menu</mat-icon>
+                </div>
+                <h3>Aucun plat trouvé</h3>
+                <p *ngIf="searchText">Aucun plat ne correspond à votre recherche.</p>
+                <p *ngIf="selectedCategoryId && !searchText">Aucun plat dans cette catégorie.</p>
+                <p *ngIf="!searchText && !selectedCategoryId">Ce restaurant n'a pas encore de plats dans son menu.</p>
+                <button class="create-first-btn" (click)="addItem()" *ngIf="!searchText">
+          <mat-icon>add</mat-icon>
+          Ajouter le premier plat
+        </button>
+            </div>
+
+            <!-- Menu Items Grid -->
+            <div class="menu-grid" *ngIf="filteredMenuItems.length > 0">
+                <div class="menu-card" *ngFor="let item of filteredMenuItems; let i = index" [@fadeInUp] [style.animation-delay]="(i * 100) + 'ms'">
+                    <!-- Card Image -->
+                    <div class="card-image">
+                        <img [src]="getItemImage(item)" [alt]="item.name" />
+                        <div class="image-overlay">
+                            <div class="price-badge">
+                                <span>{{ item.price | number:'1.2-2' }} TND</span>
                             </div>
                         </div>
-                        <div class="back">
-                            <div class="back-content">
-                                <div class="pro-badge pro-price">${{ item.price | number:'1.2-2' }}</div>
-                                <div class="pro-badge pro-restaurant">{{ getRestaurantName(item.restaurantId) }}</div>
-                                <div class="pro-badge pro-category" *ngIf="item.categoryId">
-                                    <mat-icon fontIcon="category" class="mr-1"></mat-icon>
-                                    {{ getCategoryName(item.categoryId) }}
-                                </div>
-                                <div class="back-desc">{{ item.description }}</div>
-                                <div class="card-actions">
-                                    <button mat-icon-button color="accent" (click)="editItem(item)" matTooltip="Modifier" aria-label="Modifier le plat">
-                                    <mat-icon>edit</mat-icon>
-                                  </button>
-                                    <button mat-icon-button color="warn" (click)="delete(item.id)" matTooltip="Supprimer" aria-label="Supprimer le plat">
-                                    <mat-icon>delete</mat-icon>
-                                  </button>
-                                </div>
+                    </div>
+
+                    <!-- Card Content -->
+                    <div class="card-content">
+                        <div class="card-header">
+                            <h3 class="item-name">{{ item.name }}</h3>
+                            <div class="item-category" *ngIf="item.categoryId">
+                                <mat-icon>category</mat-icon>
+                                <span>{{ getCategoryName(item.categoryId) }}</span>
                             </div>
+                        </div>
+
+                        <p class="item-description" *ngIf="item.description">
+                            {{ item.description }}
+                        </p>
+
+                        <div class="card-actions">
+                            <button class="action-btn edit-btn" (click)="editItem(item)" matTooltip="Modifier le plat">
+                <mat-icon>edit</mat-icon>
+              </button>
+                            <button class="action-btn delete-btn" (click)="delete(item.id)" matTooltip="Supprimer le plat">
+                <mat-icon>delete</mat-icon>
+              </button>
                         </div>
                     </div>
                 </div>
             </div>
-        </li>
-    </ng-container>
-    <ng-template #noMenuItems>
-        <div *ngIf="!isLoading && filteredMenuItems.length === 0" class="alert alert-info restaurant-empty" role="alert">
-            <div class="empty-flex-row">
-                <span class="icon large" aria-hidden="true">
-        <mat-icon aria-hidden="false" aria-label="Ajouter un plat" fontIcon="restaurant_menu"></mat-icon>
-      </span>
-                <span class="empty-flex-text">
-        Aucun plat trouvé. <a href="#" class="alert-link" (click)="$event.preventDefault(); openAddMenuItemDialog();">Cliquez ici pour ajouter un nouveau plat.</a>
-      </span>
-            </div>
         </div>
-        <!-- Removed old empty state block. Use only the new alert above. -->
-    </ng-template>
-</ul>
+    </div>
+</div>

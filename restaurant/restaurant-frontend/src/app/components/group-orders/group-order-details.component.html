@@ -1,226 +1,402 @@
-<div class="order-details-bg">
-    <div class="order-details-wrapper">
-        <div class="order-details-hero">
-            <div class="hero-bg-icon">
-                <mat-icon>restaurant_menu</mat-icon>
-            </div>
-            <div class="hero-content">
-                <div class="hero-title-row">
-                    <span class="hero-avatar">{{commande && commande.creatorName ? commande.creatorName[0] : '?'}}</span>
-                    <div>
-                        <h1 class="hero-title">{{getRestaurantName(commande?.restaurantId)}}</h1>
-                        <div class="hero-meta">
-                            <span class="creator-badge">Par {{commande?.creatorName}}</span>
-                            <span class="status-chip" [ngClass]="getStatusColor(commande?.status || '')">
-                                <mat-icon class="status-icon">
-                                    {{getStatusColor(commande?.status || '') === 'primary' ? 'hourglass_empty' : getStatusColor(commande?.status || '') === 'accent' ? 'lock' : getStatusColor(commande?.status || '') === 'warn' ? 'cancel' : 'check_circle'}}
-                                </mat-icon>
-                                {{(commande?.status || '').replace('_', ' ')}}
-                            </span>
-                            <span class="created-at-label">
-                                <mat-icon class="created-at-icon">schedule</mat-icon>
-                                Créée le : {{ commande?.createdAt | date:'dd/MM/yyyy HH:mm':'':'fr' }}
-                            </span>
+<div class="details-container">
+    <!-- Debug Information -->
 
-                        </div>
+
+    <!-- Hero Section -->
+    <div class="hero-section" *ngIf="commande">
+        <div class="hero-background">
+            <div class="hero-pattern"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-header">
+                <div class="hero-avatar">
+                    <span>{{commande.creatorName ? commande.creatorName[0] : '?'}}</span>
+                </div>
+                <div class="hero-info">
+                    <h1 class="hero-title">{{getRestaurantName(commande.restaurantId)}}</h1>
+                    <div class="hero-meta">
+                        <span class="creator-badge">
+                            <mat-icon>person</mat-icon>
+                            Créée par {{commande.creatorName}}
+                        </span>
+                        <span class="status-badge" [ngClass]="'status-' + commande.status">
+                            <mat-icon>{{getStatusIcon(commande.status)}}</mat-icon>
+                            {{getStatusLabel(commande.status)}}
+                        </span>
+                        <span class="date-badge">
+                            <mat-icon>schedule</mat-icon>
+                            {{commande.createdAt | date:'dd/MM/yyyy HH:mm':'':'fr'}}
+                        </span>
                     </div>
                 </div>
-                <div class="hero-timeline">
-                    <div class="timeline-step" [class.active]="commande?.status === 'cree'">
-                        <mat-icon class="timeline-status-icon">hourglass_empty</mat-icon>
-                        <span>Créée</span>
+            </div>
+
+            <!-- Progress Timeline -->
+            <div class="progress-timeline">
+                <div class="timeline-step" [class.active]="commande.status === 'cree'">
+                    <div class="step-icon">
+                        <mat-icon>hourglass_empty</mat-icon>
                     </div>
-                    <div class="timeline-connector"></div>
-                    <div class="timeline-step" [class.active]="commande?.status === 'attente'">
-                        <mat-icon class="timeline-status-icon">hourglass_top</mat-icon>
-                        <span>En attente</span>
+                    <span class="step-label">Créée</span>
+                </div>
+                <div class="timeline-connector" [class.active]="commande.status !== 'cree'"></div>
+                <div class="timeline-step" [class.active]="commande.status === 'attente'">
+                    <div class="step-icon">
+                        <mat-icon>hourglass_top</mat-icon>
                     </div>
-                    <div class="timeline-connector"></div>
-                    <div class="timeline-step confirmed" [class.active]="commande?.status === 'confirmee'">
-                        <mat-icon class="timeline-status-icon ">check_circle</mat-icon>
-                        <span>Confirmée</span>
+                    <span class="step-label">En attente</span>
+                </div>
+                <div class="timeline-connector" [class.active]="commande.status === 'confirmee'"></div>
+                <div class="timeline-step" [class.active]="commande.status === 'confirmee'">
+                    <div class="step-icon">
+                        <mat-icon>check_circle</mat-icon>
                     </div>
-                    <div class="timeline-connector"></div>
-                    <div class="timeline-step" [class.active]="commande?.status === 'annulee'">
-                        <mat-icon class="timeline-status-icon">cancel</mat-icon>
-                        <span>Annulée</span>
+                    <span class="step-label">Confirmée</span>
+                </div>
+                <div class="timeline-connector" [class.active]="commande.status === 'annulee'"></div>
+                <div class="timeline-step" [class.active]="commande.status === 'annulee'">
+                    <div class="step-icon">
+                        <mat-icon>cancel</mat-icon>
+                    </div>
+                    <span class="step-label">Annulée</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" *ngIf="commande">
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <mat-icon>restaurant</mat-icon>
+                </div>
+                <div class="stat-content">
+                    <h3>Restaurant</h3>
+                    <p class="stat-value">{{restaurant.name || 'Chargement...'}}</p>
+                    <div class="stat-details" *ngIf="restaurant.address || restaurant.phone">
+                        <span *ngIf="restaurant.address">
+                            <mat-icon>location_on</mat-icon>
+                            {{restaurant.address}}
+                        </span>
+                        <span *ngIf="restaurant.phone">
+                            <mat-icon>call</mat-icon>
+                            {{restaurant.phone}}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <mat-icon>group</mat-icon>
+                </div>
+                <div class="stat-content">
+                    <h3>Participants</h3>
+                    <p class="stat-value">{{orders.length}}</p>
+                    <div class="participants-list">
+                        <span class="participant-tag" *ngFor="let order of orders.slice(0, 3)">
+                            {{order.participantName || 'Inconnu'}}
+                        </span>
+                        <span class="more-participants" *ngIf="orders.length > 3">
+                            +{{orders.length - 3}} autres
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <mat-icon>attach_money</mat-icon>
+                </div>
+                <div class="stat-content">
+                    <h3>Total</h3>
+                    <p class="stat-value total-amount">{{ getTotalAmount() > 0 ? (getTotalAmount() | number:'1.2-2') : '0.00' }} DT</p>
+                    <p class="stat-subtitle">{{filteredOrders.length}} commande{{filteredOrders.length > 1 ? 's' : ''}}</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <mat-icon>schedule</mat-icon>
+                </div>
+                <div class="stat-content">
+                    <h3>Date limite</h3>
+                    <p class="stat-value countdown" [ngClass]="countdownColor">
+                        {{countdownDisplay === 'Expired' ? 'Fermée' : countdownDisplay}}
+                    </p>
+                    <div class="deadline-progress">
+                        <mat-progress-bar mode="determinate" [value]="getDeadlineProgress(commande.createdAt, commande.orderDeadline)" [ngClass]="countdownColor">
+                        </mat-progress-bar>
+                        <span class="deadline-date">
+                            {{commande.orderDeadline | date:'dd/MM/yyyy HH:mm':'':'fr'}}
+                        </span>
                     </div>
                 </div>
             </div>
         </div>
-        <mat-card class="glass-card details-float-card">
-            <mat-card-content>
-                <!-- Enhancement: Search/filter bar for orders -->
-                <div class="order-search-filter-section">
-                    <div class="order-search-row">
-                        <div *ngIf="commande && isCreator(); else participantSearch">
-                            <label for="statusSelect">Changer le statut :</label>
-                            <select id="statusSelect" [(ngModel)]="commande.status" (change)="onStatusChangeDropdown($event)" [disabled]="statusUpdating" class="">
-                                <option *ngFor="let status of statusOptions" [value]="status.value">{{ status.label }}</option>
-                            </select>
-                            <mat-spinner *ngIf="statusUpdating" diameter="24"></mat-spinner>
-                        </div>
-                        <ng-template #participantSearch>
-                            <!-- Existing participant search input -->
-                            <div class="order-form-row">
-                                <label for="orderSearch">Rechercher des commandes par participant</label>
-                                <input id="orderSearch" class="Input" [(ngModel)]="orderSearchTerm" (input)="applyOrderFilters()" placeholder="Entrer le nom du participant..." />
-                            </div>
-                            <button mat-stroked-button (click)="clearOrderSearch()" class="clear-btn">
-                                <mat-icon>clear</mat-icon>
-                                Effacer
-                            </button>
-                        </ng-template>
-                    </div>
+
+        <!-- Actions Section -->
+        <div class="actions-section">
+            <!-- Status Management for Creators -->
+            <div class="status-management" *ngIf="isCreator()">
+                <div class="status-selector">
+                    <label for="statusSelect">Changer le statut :</label>
+                    <select id="statusSelect" [(ngModel)]="commande.status" (change)="onStatusChangeDropdown($event)" [disabled]="statusUpdating" class="status-dropdown">
+                        <option *ngFor="let status of statusOptions" [value]="status.value">{{ status.label }}</option>
+                    </select>
+                    <mat-spinner *ngIf="statusUpdating" diameter="20"></mat-spinner>
                 </div>
-                <div class="details-section details-grid">
-                    <div class="details-block">
-                        <h3>
-                            <mat-icon>storefront</mat-icon> Restaurant</h3>
-                        <div class="restaurant-info-row">
-                            <span><b>{{restaurant.name || 'Chargement...'}}</b></span>
-                            <span *ngIf="restaurant?.address"><mat-icon>location_on</mat-icon> {{restaurant.address}}</span>
-                            <span *ngIf="restaurant?.phone"><mat-icon>call</mat-icon> {{restaurant.phone}}</span>
-                            <span *ngIf="restaurant?.cuisineType"><mat-icon>local_dining</mat-icon> {{restaurant.cuisineType}}</span>
-                        </div>
-                    </div>
-                    <div class="details-block">
-                        <h3>
-                            <mat-icon>group</mat-icon> Participants</h3>
-                        <div class="participants-row">
-                            <ng-container *ngFor="let order of orders">
-                                <span class="participant-chip">
-                                    <mat-icon>person</mat-icon> {{order.participantName || 'Inconnu'}}
-                                </span>
-                            </ng-container>
-                            <span *ngIf="!orders || orders.length === 0" class="text-muted">Aucun participant pour l'instant</span>
-                        </div>
-                    </div>
-                    <div class="details-block">
-                        <h3>
-                            <mat-icon>attach_money</mat-icon> Total</h3>
-                        <div class="summary-row">
-                            <span class="tnd-badge p-3 bg-green-200 rounded-full"><b>{{getTotalAmount() | number:'1.2-2'}} DT</b></span>
-                        </div>
-                    </div>
-                    <div class="details-block">
-                        <h3>
-                            <mat-icon>schedule</mat-icon> Date limite</h3>
-                        <div class="deadline-row">
-                            <span class="pill-countdown" [ngClass]="countdownColor">
-                                {{ countdownDisplay === 'Expired' ? 'Fermée pour participation' : countdownDisplay }}
-                            </span>
-                            <mat-progress-bar class="deadline-progress-bar" mode="determinate" [value]="getDeadlineProgress(commande?.createdAt, commande?.orderDeadline)"></mat-progress-bar>
-                            <span>
-  {{ commande?.orderDeadline | date:'dd/MM/yyyy HH:mm':'':'fr' }}
-</span>
-                        </div>
-                    </div>
-                </div>
-                <mat-divider class="section-divider"></mat-divider>
-                <div class="details-section">
-                    <h3>
-                        <mat-icon>shopping_cart</mat-icon> Commandes ({{filteredOrders.length}})</h3>
-                    <div *ngIf="filteredOrders && filteredOrders.length > 0" class="orders-list">
-                        <mat-card *ngFor="let order of filteredOrders" class="mini-order-card glass-card fade-in-card">
-                            <mat-card-header>
-                                <mat-card-title class="mini-order-title">
-                                    <span class="mini-order-avatar large-mini-avatar">{{order?.participantName ? order.participantName[0] : '?'}}</span> {{order?.participantName || 'Participant inconnu'}}
-                                </mat-card-title>
-                                <mat-card-subtitle>{{order?.items?.length || 0}} plats</mat-card-subtitle>
-                            </mat-card-header>
-                            <mat-card-content>
-                                <div *ngFor="let item of order?.items" class="item-row">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span>{{item?.menuItemName || 'Plat inconnu'}}</span>
-                                        <div>
-                                            <span class="quantity">×{{item?.quantity || 0}}</span>
-                                            <span class="price ms-2">{{(item?.unitPrice || 0) * (item?.quantity || 0) | number:'1.2-2'}}</span>
-                                        </div>
-                                    </div>
-                                    <div *ngIf="item?.notes" class="text-muted small">
-                                        Note : {{item.notes}}
-                                    </div>
-                                </div>
-                                <mat-divider class="my-2"></mat-divider>
-                                <div class="d-flex justify-content-between">
-                                    <strong>Sous-total :</strong>
-                                    <span class="tnd-badge p-2 bg-green-200 rounded-full"><strong>{{order?.totalAmount || 0 | number:'1.2-2'}} DT</strong></span>
-                                </div>
-                                <div *ngIf="order?.notes" class="mt-2">
-                                    <strong>Notes de commande :</strong> {{order.notes}}
-                                </div>
-                                <!-- Payment status and toggle -->
-                                <div class="mt-2 flex items-center gap-3">
-                                    <span class="order-payment-status" [ngClass]="order.paye ? 'paye' : 'non-paye'">
-                                        {{ order.paye ? 'Payé' : 'Non payé' }}
-                                    </span>
-                                    <ng-container *ngIf="isCreator()">
-                                        <input type="checkbox" [checked]="order.paye" (change)="toggleOrderPaid(order, $any($event.target).checked)" />
-                                        <span class="ml-2">Payé</span>
-                                    </ng-container>
-                                </div>
-                            </mat-card-content>
-                            <mat-card-actions *ngIf="canManageOrder(order)" align="end">
-                                <button mat-icon-button color="primary" (click)="editOrder(order)" matTooltip="Modifier" aria-label="Modifier la commande">
-                                  <mat-icon>edit</mat-icon>
-                                </button>
-                                <button mat-icon-button color="warn" (click)="deleteOrder(order)" matTooltip="Supprimer" aria-label="Supprimer la commande">
-                                  <mat-icon>delete</mat-icon>
-                                </button>
-                            </mat-card-actions>
-                        </mat-card>
-                    </div>
-                    <div *ngIf="!filteredOrders || filteredOrders.length === 0" class="empty-orders-state">
-                        <span class="icon large" aria-hidden="true">
-                          <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="24" cy="18" r="8" fill="#6a82fb"/>
-                            <ellipse cx="24" cy="36" rx="14" ry="8" fill="#e9f7fe"/>
-                            <rect x="20" y="28" width="8" height="8" rx="2" fill="#b2f7cc"/>
-                          </svg>
-                        </span>
-                        <p class="text-muted">Aucune commande pour l'instant. Partagez le lien de la commande groupée pour inviter d'autres personnes !</p>
-                    </div>
-                </div>
-            </mat-card-content>
-            <mat-card-actions>
-                <button mat-stroked-button color="accent" (click)="goBack()">
-            <mat-icon>arrow_back</mat-icon> Retour aux commandes groupées
-        </button>
-                <ng-container *ngIf="userAndOrdersLoaded && commande?.status === 'cree'">
-                    <button mat-raised-button color="primary" (click)="participateInOrder()" *ngIf="canJoin()">
-                        <mat-icon>add_shopping_cart</mat-icon> Participer
+            </div>
+
+            <!-- Print Button - Only visible when status is confirmed -->
+            <div class="print-button-section" *ngIf="commande.status === 'confirmee'">
+                <button class="action-btn print-btn" (click)="printOrderDetails()">
+                    <mat-icon>print</mat-icon>
+                    <span>Imprimer pour restaurant</span>
+                </button>
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-btn back-btn" (click)="goBack()">
+                    <mat-icon>arrow_back</mat-icon>
+                    <span>Retour</span>
+                </button>
+
+                <ng-container *ngIf="userAndOrdersLoaded && commande.status === 'cree'">
+                    <button class="action-btn primary-btn" (click)="participateInOrder()" *ngIf="canJoin()">
+                        <mat-icon>add_shopping_cart</mat-icon>
+                        <span>Participer</span>
                     </button>
-                    <button *ngIf="!canJoin() && myOrder" mat-raised-button color="primary" (click)="editOrder(myOrder)">
-                        <mat-icon>edit</mat-icon> Mettre à jour ma commande
+                    <button class="action-btn primary-btn" (click)="editOrder(myOrder)" *ngIf="!canJoin() && myOrder">
+                        <mat-icon>edit</mat-icon>
+                        <span>Modifier ma commande</span>
                     </button>
                 </ng-container>
+
                 <ng-container *ngIf="isCreator()">
-                    <button mat-raised-button color="accent" *ngIf="commande?.status === 'cree'" (click)="onStatusChange('attente')">
-            <mat-icon>close</mat-icon> Fermer la participation
-          </button>
-                    <button mat-raised-button color="primary" *ngIf="commande?.status === 'attente'" (click)="onStatusChange('confirmee')">
-            <mat-icon>check</mat-icon> Confirmer la commande
-          </button>
-                    <button mat-raised-button color="warn" *ngIf="commande?.status !== 'annulee'" (click)="onStatusChange('annulee')">
-            <mat-icon>cancel</mat-icon> Annuler la commande
-          </button>
+                    <button class="action-btn warning-btn" *ngIf="commande.status === 'cree'" (click)="onStatusChange('attente')">
+                        <mat-icon>close</mat-icon>
+                        <span>Fermer la participation</span>
+                    </button>
+                    <button class="action-btn success-btn" *ngIf="commande.status === 'attente'" (click)="onStatusChange('confirmee')">
+                        <mat-icon>check</mat-icon>
+                        <span>Confirmer la commande</span>
+                    </button>
+                    <button class="action-btn danger-btn" *ngIf="commande.status !== 'annulee'" (click)="onStatusChange('annulee')">
+                        <mat-icon>cancel</mat-icon>
+                        <span>Annuler la commande</span>
+                    </button>
                 </ng-container>
-            </mat-card-actions>
-        </mat-card>
-        <div *ngIf="loading" class="text-center py-5">
-            <mat-spinner class="mx-auto my-8 block"></mat-spinner>
-            <p class="mt-3">Chargement des détails de la commande groupée...</p>
+            </div>
         </div>
-        <mat-card *ngIf="!loading && !commande" class="glass-card">
-            <mat-card-content class="text-center py-4">
-                <mat-icon class="large-icon text-danger">error</mat-icon>
-                <h3>Commande groupée introuvable</h3>
-                <p>La commande groupée demandée est introuvable.</p>
-                <button mat-raised-button color="primary" (click)="goBack()">
-          <mat-icon>arrow_back</mat-icon> Retour aux commandes groupées
-        </button>
-            </mat-card-content>
-        </mat-card>
+
+        <!-- Print Section (Hidden by default, shown when printing) -->
+        <div class="print-section" id="printSection">
+            <!-- Debug info for print section -->
+
+
+            <div class="print-header">
+                <h1>Commande Groupée - {{getRestaurantName(commande.restaurantId)}}</h1>
+                <div class="print-info">
+                    <p><strong>Date de commande:</strong> {{commande.createdAt | date:'dd/MM/yyyy HH:mm':'':'fr'}}</p>
+                    <p><strong>Statut:</strong> {{getStatusLabel(commande.status)}}</p>
+                    <p><strong>Total:</strong> {{ getTotalAmount() > 0 ? (getTotalAmount() | number:'1.2-2') : '0.00' }} DT</p>
+                    <p><strong>Nombre de participants:</strong> {{orders.length}}</p>
+                </div>
+            </div>
+
+            <!-- Restaurant Details Table -->
+            <div class="print-table-section">
+                <h2>Détails de la commande</h2>
+                <table class="print-table">
+                    <thead>
+                        <tr>
+                            <th>Participant</th>
+                            <th>Plat</th>
+                            <th>Notes</th>
+                            <th>Quantité</th>
+                            <th>Prix unitaire</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <ng-container *ngFor="let order of orders">
+                            <tr *ngFor="let item of order.items; let isFirst = first" [class.new-participant]="isFirst">
+                                <td *ngIf="isFirst" [attr.rowspan]="order.items.length" class="participant-cell">
+                                    <strong>{{order.participantName || 'Participant inconnu'}}</strong>
+                                    <br>
+                                    <small>{{order.createdAt | date:'dd/MM/yyyy HH:mm':'':'fr'}}</small>
+                                </td>
+                                <td>{{item.menuItemName || 'Plat inconnu'}}</td>
+                                <td>{{item.notes || '-'}}</td>
+                                <td>{{item.quantity || 0}}</td>
+                                <td>{{item.unitPrice || 0 | number:'1.2-2'}} DT</td>
+                                <td>{{(item.unitPrice || 0) * (item.quantity || 0) | number:'1.2-2'}} DT</td>
+                            </tr>
+                        </ng-container>
+                    </tbody>
+                    <tfoot>
+                        <tr class="total-row">
+                            <td colspan="5"><strong>Total Général</strong></td>
+                            <td><strong>{{ getTotalAmount() > 0 ? (getTotalAmount() | number:'1.2-2') : '0.00' }} DT</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- Summary Section -->
+            <div class="print-summary">
+                <h3>Résumé</h3>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <strong>Restaurant:</strong> {{restaurant.name || 'Non spécifié'}}
+                    </div>
+                    <div class="summary-item">
+                        <strong>Adresse:</strong> {{restaurant.address || 'Non spécifiée'}}
+                    </div>
+                    <div class="summary-item">
+                        <strong>Téléphone:</strong> {{restaurant.phone || 'Non spécifié'}}
+                    </div>
+                    <div class="summary-item">
+                        <strong>Créateur:</strong> {{commande.creatorName}}
+                    </div>
+                    <div class="summary-item">
+                        <strong>Date limite:</strong> {{commande.orderDeadline | date:'dd/MM/yyyy HH:mm':'':'fr'}}
+                    </div>
+                    <div class="summary-item">
+                        <strong>Nombre de plats:</strong> {{getTotalItems()}}
+                    </div>
+                </div>
+            </div>
+
+            <div class="print-footer">
+                <p>Document généré le {{currentDate | date:'dd/MM/yyyy HH:mm':'':'fr'}}</p>
+                <p>Commande groupée ID: {{commande.id}}</p>
+            </div>
+        </div>
+
+        <!-- Orders Section -->
+        <div class="orders-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <a routerLink="/group-orders/my-orders">
+                        <mat-icon>shopping_cart</mat-icon>
+                        <h2 class="section-title-text">Commandes ({{filteredOrders.length}})</h2>
+                    </a>
+                </div>
+
+                <!-- Search and Filter -->
+                <div class="search-filter-bar">
+                    <div class="search-box">
+                        <mat-icon>search</mat-icon>
+                        <input type="text" placeholder="Rechercher par participant..." [(ngModel)]="orderSearchTerm" (input)="applyOrderFilters()" />
+                    </div>
+                    <button class="clear-btn" (click)="clearOrderSearch()" *ngIf="orderSearchTerm">
+                        <mat-icon>clear</mat-icon>
+                        <span>Effacer</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Orders List -->
+            <div class="orders-list" *ngIf="filteredOrders.length > 0">
+                <div class="order-card" *ngFor="let order of filteredOrders; let i = index">
+                    <div class="order-header">
+                        <div class="order-participant">
+                            <div class="participant-avatar">
+                                {{order.participantName ? order.participantName[0] : '?'}}
+                            </div>
+                            <div class="participant-info">
+                                <h3>{{order.participantName || 'Participant inconnu'}}</h3>
+                                <span class="order-date">{{order.createdAt | date:'dd/MM/yyyy HH:mm':'':'fr'}}</span>
+                            </div>
+                        </div>
+                        <div class="order-total">
+                            <span class="total-amount">{{order.totalAmount || 0 | number:'1.2-2'}} DT</span>
+                            <span class="item-count">{{order.items ? order.items.length : 0}} plats</span>
+                        </div>
+                    </div>
+
+                    <div class="order-items">
+                        <div class="item-row" *ngFor="let item of order.items">
+                            <div class="item-info">
+                                <span class="item-name">{{item.menuItemName || 'Plat inconnu'}}</span>
+                                <span class="item-notes" *ngIf="item.notes">{{item.notes}}</span>
+                            </div>
+                            <div class="item-details">
+                                <span class="item-quantity">×{{item.quantity || 0}}</span>
+                                <span class="item-price">{{(item.unitPrice || 0) * (item.quantity || 0) | number:'1.2-2'}} DT</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="order-footer">
+                        <div class="payment-status" [ngClass]="order.paye ? 'paid' : 'unpaid'">
+                            <mat-icon>{{order.paye ? 'check_circle' : 'pending'}}</mat-icon>
+                            <span>{{order.paye ? 'Payé' : 'Non payé'}}</span>
+                        </div>
+
+                        <!-- Payment Toggle for Creators -->
+                        <div class="payment-toggle" *ngIf="isCreator()">
+                            <label class="payment-checkbox">
+                                <input type="checkbox" [checked]="order.paye" (change)="toggleOrderPaid(order, $any($event.target).checked)" />
+                                <span class="checkmark"></span>
+                                <span class="label-text">Marquer comme payé</span>
+                            </label>
+                        </div>
+
+                        <div class="order-actions" *ngIf="canManageOrder(order)">
+                            <button class="action-icon-btn" (click)="editOrder(order)" matTooltip="Modifier">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                            <button class="action-icon-btn danger" (click)="deleteOrder(order)" matTooltip="Supprimer">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" *ngIf="!filteredOrders || filteredOrders.length === 0">
+                <div class="empty-icon">
+                    <mat-icon>shopping_cart</mat-icon>
+                </div>
+                <h3>Aucune commande trouvée</h3>
+                <p *ngIf="orderSearchTerm">
+                    Aucune commande ne correspond à votre recherche.
+                </p>
+                <p *ngIf="!orderSearchTerm">
+                    Aucune commande pour l'instant. Partagez le lien pour inviter d'autres participants !
+                </p>
+                <button class="action-btn primary-btn" (click)="participateInOrder()" *ngIf="canJoin()">
+                    <mat-icon>add_shopping_cart</mat-icon>
+                    <span>Participer maintenant</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-overlay" *ngIf="loading">
+        <div class="loading-content">
+            <mat-spinner diameter="60"></mat-spinner>
+            <p>Chargement des détails...</p>
+        </div>
+    </div>
+
+    <!-- Error State -->
+    <div class="error-state" *ngIf="!loading && !commande">
+        <div class="error-content">
+            <mat-icon>error</mat-icon>
+            <h3>Commande introuvable</h3>
+            <p>La commande groupée demandée n'existe pas ou a été supprimée.</p>
+            <button class="action-btn primary-btn" (click)="goBack()">
+                <mat-icon>arrow_back</mat-icon>
+                <span>Retour aux commandes</span>
+            </button>
+        </div>
     </div>
 </div>

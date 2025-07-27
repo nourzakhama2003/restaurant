@@ -1,50 +1,158 @@
-<h2 mat-dialog-title class="form-title">
-    {{ menuItem ? 'Modifier le plat' : 'Ajouter un plat' }}
-</h2>
-
-<div class="menu-item-dialog-content">
-
-
-    <form [formGroup]="form" (ngSubmit)="submit()" class="menu-form menu-item-form-popup">
-        <div class="input-group">
-            <input class="Input" formControlName="name" required placeholder="Nom du plat..." />
+<div class="menu-item-form-container">
+    <!-- Enhanced Form Header -->
+    <div class="form-header bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white p-8 rounded-t-3xl relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent"></div>
+        <div class="relative z-10 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="header-icon bg-white/20 p-3 rounded-2xl backdrop-blur-sm border border-white/30">
+                    <mat-icon class="text-white text-2xl">{{ menuItem ? 'edit' : 'add' }}</mat-icon>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold tracking-tight">{{ menuItem ? 'Modifier le Plat' : 'Nouveau Plat' }}</h2>
+                    <p class="text-blue-100 text-base mt-2 opacity-90">Ajoutez ou modifiez les détails de votre plat</p>
+                </div>
+            </div>
+            <button class="close-btn bg-white/20 hover:bg-white/30 p-3 rounded-2xl transition-all duration-300 backdrop-blur-sm border border-white/30 hover:scale-110" (click)="dialogRef.close()">
+                <mat-icon class="text-white">close</mat-icon>
+            </button>
         </div>
-        <div class="input-row-responsive">
-            <div class="category-filter-container icon-inside flex-grow">
-                <div class="select-wrapper">
-                    <select class="custom-select with-svg-icon" formControlName="categoryId" required>
-                    <option value="">Sélectionner une catégorie</option>
-                    <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
-                </select>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="select-svg-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M6 10h12M9 14h6M10 18h4"/></svg>
+    </div>
+
+    <!-- Enhanced Form Content -->
+    <form [formGroup]="form" (ngSubmit)="submit()" class="menu-item-form">
+        <div class="form-content p-8 overflow-y-auto max-h-[calc(90vh-140px)]">
+            <!-- Restaurant Selection -->
+            <div class="form-field-card bg-white p-6 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300" *ngIf="!restaurantId">
+                <label class="field-label flex items-center text-base font-bold text-gray-800 mb-4">
+                    <mat-icon class="mr-2 text-indigo-600">restaurant</mat-icon>
+                    Restaurant *
+                </label>
+                <div class="restaurant-search-container">
+                    <input class="form-input w-full p-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-300 font-medium h-14" formControlName="restaurantSearch" placeholder="Rechercher un restaurant..."
+                        (input)="filterRestaurants()" required />
+                    <div class="restaurant-dropdown max-h-48 overflow-y-auto" *ngIf="filteredRestaurants.length > 0 && showRestaurantDropdown">
+                        <div class="restaurant-option" *ngFor="let restaurant of filteredRestaurants" (click)="selectRestaurant(restaurant)">
+                            <div class="restaurant-image">
+                                <img [src]="getRestaurantImage(restaurant)" [alt]="restaurant.name" />
+                            </div>
+                            <span>{{ restaurant.name }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="error-message" *ngIf="form.get('restaurantId')?.hasError('required') && form.get('restaurantId')?.touched">
+                    Le restaurant est requis
+                </div>
+                <div class="error-message" *ngIf="restaurantSearch && !isRestaurantSelected()">
+                    Veuillez sélectionner un restaurant dans la liste
+                </div>
+            </div>
+
+            <!-- Menu Item Name -->
+            <div class="form-field-card bg-white p-6 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300">
+                <label class="field-label flex items-center text-base font-bold text-gray-800 mb-4">
+                    <mat-icon class="mr-2 text-indigo-600">restaurant_menu</mat-icon>
+                    Nom du plat *
+                </label>
+                <input class="form-input w-full p-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-300 font-medium h-14" formControlName="name" placeholder="ex: Pizza Margherita" required />
+                <div class="error-message" *ngIf="form.get('name')?.hasError('required') && form.get('name')?.touched">
+                    Le nom du plat est requis
+                </div>
+                <div class="error-message" *ngIf="form.get('name')?.hasError('minlength') && form.get('name')?.touched">
+                    Le nom doit contenir au moins 2 caractères
+                </div>
+            </div>
+
+            <!-- Category Selection -->
+            <div class="form-field-card bg-white p-6 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300">
+                <label class="field-label flex items-center text-base font-bold text-gray-800 mb-4">
+                    <mat-icon class="mr-2 text-indigo-600">category</mat-icon>
+                    Catégorie *
+                </label>
+                <div class="relative">
+                    <select class="form-select w-full p-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-300 font-medium appearance-none h-14" formControlName="categoryId" required>
+                        <option value="">Choisir une catégorie</option>
+                        <option *ngFor="let cat of categories" [value]="cat.id">
+                            {{ cat.name }}
+                        </option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                        <mat-icon class="text-gray-400">expand_more</mat-icon>
+                    </div>
+                </div>
+                <div class="error-message" *ngIf="form.get('categoryId')?.hasError('required') && form.get('categoryId')?.touched">
+                    La catégorie est requise
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="form-field-card bg-white p-6 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300">
+                <label class="field-label flex items-center text-base font-bold text-gray-800 mb-4">
+                    <mat-icon class="mr-2 text-indigo-600">description</mat-icon>
+                    Description
+                </label>
+                <textarea class="form-textarea w-full p-6 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-300 resize-none font-medium" formControlName="description" placeholder="Décrivez ce plat..."
+                    rows="4"></textarea>
+            </div>
+
+            <!-- Price -->
+            <div class="form-field-card bg-white p-6 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300">
+                <label class="field-label flex items-center text-base font-bold text-gray-800 mb-4">
+                    <mat-icon class="mr-2 text-indigo-600">euro</mat-icon>
+                    Prix *
+                </label>
+                <div class="price-input-container relative">
+                    <input class="form-input w-full p-4 pr-12 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-300 font-medium h-14" type="number" formControlName="price" placeholder="0.00" min="0" step="0.01"
+                        required />
+                    <span class="price-suffix absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-bold">€</span>
+                </div>
+                <div class="error-message" *ngIf="form.get('price')?.hasError('required') && form.get('price')?.touched">
+                    Le prix est requis
+                </div>
+                <div class="error-message" *ngIf="form.get('price')?.hasError('min') && form.get('price')?.touched">
+                    Le prix doit être positif
+                </div>
+            </div>
+
+            <!-- Image Upload -->
+            <div class="form-field-card bg-white p-6 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300">
+                <label class="field-label flex items-center text-base font-bold text-gray-800 mb-4">
+                    <mat-icon class="mr-2 text-indigo-600">image</mat-icon>
+                    Image du plat
+                </label>
+                <div class="image-upload-section">
+                    <div class="current-image" *ngIf="imageBase64">
+                        <img [src]="imageBase64" alt="Image du plat" />
+                        <button type="button" class="remove-image-btn" (click)="removeImage()" matTooltip="Supprimer l'image">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </div>
+
+                    <div class="upload-area" *ngIf="!imageBase64">
+                        <input id="itemImageUpload" type="file" accept="image/*" (change)="onImageSelected($event)" class="hidden-input">
+                        <label for="itemImageUpload" class="upload-label">
+                            <mat-icon class="upload-icon">cloud_upload</mat-icon>
+                            <span class="upload-text">Cliquez pour ajouter une image</span>
+                            <span class="upload-hint">PNG, JPG jusqu'à 5MB</span>
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="input-group">
-            <textarea class="Input" formControlName="description" rows="3" placeholder="Description du plat..."></textarea>
-        </div>
-        <div class="input-group">
-            <div class="upload-container">
-                <input id="itemImageUpload" type="file" accept="image/*" (change)="onImageSelected($event)" class="hidden-input">
-                <label for="itemImageUpload" class="upload-label">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="upload-icon">
-                    <path d="M12 13v8"/>
-                    <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/>
-                    <path d="m8 17 4-4 4 4"/>
-                </svg>
-                <span class="upload-text">Upload Image</span>
-            </label>
+
+        <!-- Enhanced Form Actions -->
+        <div class="form-actions bg-white border-t-2 border-gray-200 p-8 rounded-b-3xl">
+            <div class="flex justify-between items-center">
+                <button type="button" class="cancel-btn flex items-center gap-3 px-8 py-4 bg-gray-100 text-gray-700 rounded-2xl hover:bg-gray-200 transition-all duration-300 font-semibold hover:scale-105" (click)="dialogRef.close()">
+                    <mat-icon>close</mat-icon>
+                    Annuler
+                </button>
+                <button type="submit" class="submit-btn flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl hover:from-purple-600 hover:to-indigo-600 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed font-bold shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none"
+                    [disabled]="form.invalid || isSubmitting">
+                    <mat-icon *ngIf="!isSubmitting" class="text-xl">{{ menuItem ? 'save' : 'add' }}</mat-icon>
+                    <div *ngIf="isSubmitting" class="spinner w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+                    {{ isSubmitting ? 'Enregistrement...' : (menuItem ? 'Mettre à jour' : 'Créer') }}
+                </button>
             </div>
-        </div>
-        <div *ngIf="imageBase64" class="image-preview input-group">
-            <img [src]="imageBase64" alt="Item Image Preview" style="max-width: 200px; max-height: 200px;">
-        </div>
-        <div class="input-group">
-            <input class="Input" type="number" formControlName="price" placeholder="Prix du plat..." />
-        </div>
-        <div class="form-actions" style="display: flex; justify-content: flex-end; gap: 16px; margin-top: 32px; padding-top: 24px; border-top: 1px solid #f3f4f6;">
-            <button mat-stroked-button type="button" (click)="dialogRef.close()">Annuler</button>
-            <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">Enregistrer</button>
         </div>
     </form>
 </div>

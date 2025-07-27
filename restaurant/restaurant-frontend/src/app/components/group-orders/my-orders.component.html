@@ -1,157 +1,212 @@
-<!-- my-orders.component.html -->
-<div class="orders-page-bg">
-    <div class="orders-page-container">
-        <div class="my-orders-wrapper">
-            <div class="header-row">
-                <div>
-                    <h2 class="page-title">Mes commandes</h2>
-                    <p class="subtitle">Toutes vos participations aux commandes groupées, joliment organisées.</p>
+<!-- Enhanced My Orders Component -->
+<div class="my-orders-container">
+    <!-- Header Section -->
+    <div class="page-header">
+        <div class="header-content">
+            <div class="header-left">
+                <div class="header-icon">
+                    <mat-icon>history</mat-icon>
                 </div>
-                <button mat-stroked-button color="primary" (click)="goBack()">
-          <mat-icon>arrow_back</mat-icon>
-          Retour
-        </button>
+                <div class="header-text">
+                    <h1 class="page-title">Mes Commandes</h1>
+                    <p class="page-subtitle">Toutes vos participations aux commandes groupées</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="back-btn" (click)="goBack()">
+                    <mat-icon>arrow_back</mat-icon>
+                    <span>Retour</span>
+                </button>
+                <button class="browse-btn" (click)="goToGroupOrders()">
+                    <mat-icon>explore</mat-icon>
+                    <span>Parcourir</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="search-filter-section">
+        <div class="search-container">
+            <div class="search-input-wrapper">
+                <mat-icon class="search-icon">search</mat-icon>
+                <input type="text" class="search-input" placeholder="Rechercher par nom de restaurant..." [(ngModel)]="searchTerm" (input)="applyFilters()" />
+            </div>
+        </div>
+
+        <div class="filters-row">
+            <div class="filter-group">
+                <label class="filter-label">
+                    <mat-icon>calendar_today</mat-icon>
+                    Date
+                </label>
+                <input type="date" class="date-input" [(ngModel)]="selectedDate" (change)="applyFilters()" />
             </div>
 
-            <!-- Search and Filter Section -->
-            <div class="search-filter-section sticky-filter">
-                <div class="search-row">
-                    <div class="form-row">
-                        <label for="myOrdersSearch">Rechercher par nom de restaurant</label>
-                        <input id="myOrdersSearch" class="Input" [(ngModel)]="searchTerm" (input)="applyFilters()" placeholder="Entrer le nom du restaurant..." />
-                    </div>
-
-                    <div class="form-row">
-                        <label for="myOrdersDateFilter">Filtrer par date</label>
-                        <input id="myOrdersDateFilter" class="Input" type="date" [(ngModel)]="selectedDate" (change)="applyFilters()" />
-                    </div>
-
-                    <div class="form-row">
-                        <label for="statusFilter">Filtrer par statut</label>
-                        <select id="statusFilter" class="Input" [(ngModel)]="statusFilter" (change)="applyFilters()">
-                            <option *ngFor="let status of statusOptions" [value]="status.value">{{ status.label }}</option>
-                        </select>
-                    </div>
-
-                    <button mat-stroked-button (click)="clearFilters()" class="clear-btn">
-            <mat-icon>clear</mat-icon>
-            Réinitialiser les filtres
-          </button>
-                </div>
-
-                <div class="filter-info" *ngIf="searchTerm || selectedDate || statusFilter !== 'created'">
+            <div class="filter-group">
+                <label class="filter-label">
                     <mat-icon>filter_list</mat-icon>
-                    <span>Affichage de {{ filteredOrders.length }} sur {{ orders.length }} commandes</span>
+                    Statut
+                </label>
+                <select class="status-select" [(ngModel)]="statusFilter" (change)="applyFilters()">
+                    <option *ngFor="let status of statusOptions" [value]="status.value">
+                        {{ status.label }}
+                    </option>
+                </select>
+            </div>
+
+            <button class="clear-filters-btn" (click)="clearFilters()">
+                <mat-icon>clear</mat-icon>
+                <span>Réinitialiser</span>
+            </button>
+        </div>
+
+        <div class="filter-info" *ngIf="searchTerm || selectedDate || statusFilter !== 'cree'">
+            <mat-icon>filter_list</mat-icon>
+            <span>{{ filteredOrders.length }} commande(s) trouvée(s) sur {{ orders.length }}</span>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-container" *ngIf="isLoading">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p>Chargement de vos commandes...</p>
+    </div>
+
+    <!-- Orders Content -->
+    <div class="orders-content" *ngIf="!isLoading">
+        <!-- Orders Grid -->
+        <div class="orders-grid" *ngIf="filteredOrders.length > 0">
+            <div class="order-card" *ngFor="let order of filteredOrders; let i = index" [@fadeInUp] [style.animation-delay]="(i * 100) + 'ms'">
+                <!-- Card Header -->
+                <div class="card-header">
+                    <div class="order-info">
+                        <div class="order-icon">
+                            <mat-icon>receipt_long</mat-icon>
+                        </div>
+                        <div class="order-details">
+                            <h3 class="order-title">Commande #{{ i + 1 }}</h3>
+                            <div class="participant-info">
+                                <div class="participant-avatar">{{ order.participantName ? order.participantName[0] : '?' }}</div>
+                                <span class="participant-name">{{ order.participantName }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="order-total">
+                        <span class="total-amount">{{ order.totalAmount | number:'1.2-2' }} TND</span>
+                    </div>
                 </div>
-            </div>
 
-            <div *ngIf="isLoading" class="loading-state">
-                <mat-spinner *ngIf="isLoading" class="size-8 md:size-10 mx-auto my-8 block"></mat-spinner>
-                <p>Chargement de vos commandes...</p>
-            </div>
+                <!-- Restaurant Info -->
+                <div class="restaurant-section" *ngIf="getRestaurantName(order.commandeId)">
+                    <div class="restaurant-badge">
+                        <mat-icon>restaurant</mat-icon>
+                        <span>{{ getRestaurantName(order.commandeId) }}</span>
+                    </div>
+                </div>
 
-            <ng-container *ngIf="!isLoading">
-                <div *ngIf="filteredOrders.length > 0; else noOrders">
-                    <div class="orders-timeline">
-                        <div class="timeline-vertical-line"></div>
-                        <div class="orders-grid">
-                            <div *ngFor="let order of filteredOrders; let i = index" class="timeline-item fade-in-card" [style.animationDelay]="(i * 80) + 'ms'">
-                                <div class="timeline-badge">
-                                    <span class="order-number">{{ i + 1 }}</span>
+                <!-- Order Items -->
+                <div class="card-content">
+                    <div class="items-section">
+                        <h4 class="section-title">
+                            <mat-icon>menu_book</mat-icon>
+                            Plats commandés
+                        </h4>
+                        <div class="items-list">
+                            <div class="item-card" *ngFor="let item of order.items">
+                                <div class="item-info">
+                                    <div class="item-name">{{ item.menuItemName }}</div>
+                                    <div class="item-quantity">x{{ item.quantity }}</div>
                                 </div>
-                                <div class="order-card glass-card">
-                                    <div class="order-card-header">
-                                        <div class="order-title-row">
-                                            <span class="order-title">Commande <span class="order-num">{{ i + 1 }}</span></span>
-                                            <span class="order-total">{{ order.totalAmount | currency:'USD':'symbol':'1.2-2' }}</span>
-                                        </div>
-                                        <div class="order-meta">
-                                            <span class="restaurant-name" *ngIf="getRestaurantName(order.commandeId)">
-                        <mat-icon>restaurant</mat-icon> {{ getRestaurantName(order.commandeId) }}
-                      </span>
-                                            <span><mat-icon>person</mat-icon> {{ order.participantName }}</span>
-                                            <span><mat-icon>schedule</mat-icon> {{ formatDate(order.createdAt) }}</span>
-                                            <span *ngIf="getCommandeInfo(order.commandeId)">
-                        <mat-icon>info</mat-icon>
-                        <span class="status-badge" [ngClass]="getCommandeInfo(order.commandeId)?.status?.toLowerCase() || ''">
-                          {{ getCommandeInfo(order.commandeId)?.status || 'Inconnu' }}
-                        </span>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="order-card-content">
-                                        <div class="order-items">
-                                            <h4>Plats</h4>
-                                            <div class="items-list">
-                                                <div *ngFor="let item of order.items" class="item-row">
-                                                    <div class="item-info">
-                                                        <span class="item-name">{{ item.menuItemName }}</span>
-                                                        <span class="item-quantity">x{{ item.quantity }}</span>
-                                                    </div>
-                                                    <div class="item-price">
-                                                        {{ (item.unitPrice * item.quantity) | currency:'USD':'symbol':'1.2-2' }}
-                                                    </div>
-                                                    <div *ngIf="item.notes" class="item-notes">
-                                                        <small class="text-muted">Note : {{ item.notes }}</small>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div *ngIf="order.notes" class="order-notes mt-3">
-                                            <mat-icon class="notes-icon">sticky_note_2</mat-icon>
-                                            <span class="notes-label">Notes de commande :</span>
-                                            <span class="notes-content">{{ order.notes }}</span>
-                                        </div>
-
-                                        <div class="group-order-info mt-3" *ngIf="getCommandeInfo(order.commandeId)">
-                                            <h5>Commande groupée</h5>
-                                            <div class="group-info">
-                                                <span class="restaurant-info" *ngIf="getRestaurantName(order.commandeId)">
-                          <mat-icon>restaurant</mat-icon> <strong>Restaurant :</strong> {{ getRestaurantName(order.commandeId) }}
-                        </span>
-                                                <span><mat-icon>person</mat-icon> <strong>Créée par :</strong> {{ getCommandeInfo(order.commandeId)?.creatorName }}</span>
-                                                <span><mat-icon>attach_money</mat-icon> <strong>Total :</strong> {{ getCommandeInfo(order.commandeId)?.totalPrice | currency:'USD':'symbol':'1.2-2' }}</span>
-                                                <span><mat-icon>schedule</mat-icon> <strong>Statut :</strong>
-                          <span class="status-badge" [ngClass]="getCommandeInfo(order.commandeId)?.status?.toLowerCase() || ''">
-                            {{ getCommandeInfo(order.commandeId)?.status || 'Inconnu' }}
-                          </span>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="order-card-actions">
-                                        <button mat-icon-button color="primary" (click)="viewDetails(order.commandeId)" matTooltip="Voir les détails" aria-label="Voir les détails">
-                      <mat-icon>group</mat-icon>
-                    </button>
-                                        <button mat-icon-button color="warn" (click)="deleteOrder(order)" [disabled]="!canManageOrder(order)" matTooltip="Supprimer" aria-label="Supprimer la commande">
-                      <mat-icon>delete</mat-icon>
-                    </button>
-                                    </div>
+                                <div class="item-price">{{ (item.unitPrice * item.quantity) | number:'1.2-2' }} TND</div>
+                                <div class="item-notes" *ngIf="item.notes">
+                                    <mat-icon>note</mat-icon>
+                                    <span>{{ item.notes }}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <ng-template #noOrders>
-                    <div class="alert alert-info restaurant-empty" role="alert">
-                        <div class="empty-flex-row">
-                            <span class="icon large" aria-hidden="true">
-                <!-- Custom SVG for empty state -->
-                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="24" cy="18" r="8" fill="#6a82fb"/>
-                  <ellipse cx="24" cy="36" rx="14" ry="8" fill="#e9f7fe"/>
-                  <rect x="20" y="28" width="8" height="8" rx="2" fill="#b2f7cc"/>
-                </svg>
-              </span>
-                            <span class="empty-flex-text">
-                Aucune commande trouvée. <a href="#" class="alert-link" (click)="$event.preventDefault(); goToGroupOrders();">Cliquez ici pour voir les commandes groupées.</a>
-              </span>
+                    <!-- Order Notes -->
+                    <div class="notes-section" *ngIf="order.notes">
+                        <div class="notes-card">
+                            <mat-icon class="notes-icon">sticky_note_2</mat-icon>
+                            <div class="notes-content">
+                                <span class="notes-label">Notes :</span>
+                                <span class="notes-text">{{ order.notes }}</span>
+                            </div>
                         </div>
                     </div>
-                </ng-template>
-            </ng-container>
+
+                    <!-- Group Order Info -->
+                    <div class="group-info-section" *ngIf="getCommandeInfo(order.commandeId)">
+                        <h4 class="section-title">
+                            <mat-icon>group_work</mat-icon>
+                            Commande groupée
+                        </h4>
+                        <div class="group-stats">
+                            <div class="stat-item">
+                                <mat-icon>person</mat-icon>
+                                <div class="stat-content">
+                                    <span class="stat-value">{{ getCommandeInfo(order.commandeId)?.creatorName }}</span>
+                                    <span class="stat-label">Créé par</span>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <mat-icon>attach_money</mat-icon>
+                                <div class="stat-content">
+                                    <span class="stat-value">{{ getCommandeInfo(order.commandeId)?.totalPrice | number:'1.2-2' }} TND</span>
+                                    <span class="stat-label">Total groupe</span>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <mat-icon>schedule</mat-icon>
+                                <div class="stat-content">
+                                    <span class="stat-value">{{ formatDate(order.createdAt) }}</span>
+                                    <span class="stat-label">Créé le</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Meta -->
+                    <div class="order-meta">
+                        <div class="created-date">
+                            <mat-icon>schedule</mat-icon>
+                            <span>{{ formatDate(order.createdAt) }}</span>
+                        </div>
+                        <div class="status-badge" *ngIf="getCommandeInfo(order.commandeId)">
+                            <mat-icon class="status-icon">{{ getStatusIcon(getCommandeInfo(order.commandeId)?.status || '') }}</mat-icon>
+                            <span>{{ getStatusLabel(getCommandeInfo(order.commandeId)?.status || '') }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card Actions -->
+                <div class="card-actions">
+                    <button class="action-btn view-btn" (click)="viewDetails(order.commandeId)" matTooltip="Voir les détails">
+                        <mat-icon>visibility</mat-icon>
+                        <span>Détails</span>
+                    </button>
+                    <button class="action-btn delete-btn" (click)="deleteOrder(order)" [disabled]="!canManageOrder(order)" matTooltip="Supprimer">
+                        <mat-icon>delete</mat-icon>
+                        <span>Supprimer</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" *ngIf="filteredOrders.length === 0">
+            <div class="empty-icon">
+                <mat-icon>shopping_cart_off</mat-icon>
+            </div>
+            <h3>Aucune commande trouvée</h3>
+            <p>Vous n'avez pas encore participé à des commandes groupées ou aucun résultat ne correspond à vos filtres.</p>
+            <button class="create-first-btn" (click)="goToGroupOrders()">
+                <mat-icon>add_shopping_cart</mat-icon>
+                <span>Parcourir les commandes</span>
+            </button>
         </div>
     </div>
 </div>

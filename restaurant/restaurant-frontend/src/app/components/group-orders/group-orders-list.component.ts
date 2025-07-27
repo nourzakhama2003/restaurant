@@ -28,7 +28,9 @@ import { FormsModule } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { UserService } from '../../services/user.service';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-group-orders-list',
@@ -49,9 +51,18 @@ import { UserService } from '../../services/user.service';
     MatDatepickerModule,
     MatNativeDateModule,
     MatProgressBarModule,
+    MatTooltipModule,
   ],
   templateUrl: './group-orders-list.component.html',
-  styleUrls: ['./group-orders-list.component.css']
+  styleUrls: ['./group-orders-list.component.css'],
+  animations: [
+    trigger('fadeInUp', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(20px)' }),
+        animate('0.4s ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ])
+  ]
 })
 export class GroupOrdersListComponent implements OnInit, OnDestroy {
   commandes: Commande[] = [];
@@ -74,6 +85,7 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
     { value: 'attente', label: 'En attente' },
     { value: 'confirmee', label: 'Confirmée' },
     { value: 'annulee', label: 'Annulée' },
+    { value: 'all', label: 'Tous les statuts' },
   ];
   // Remove userOrders map and related logic
   joinedCommandes: Set<string> = new Set();
@@ -98,26 +110,29 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
         this.loadRestaurants();
         this.loadAllCommandes();
       } else {
-        this.snackBar.open('Unable to load user information', 'Close', { duration: 3000 });
+        this.router.navigate(['/login']);
       }
     });
   }
 
   ngOnDestroy(): void {
-    Object.entries(this.countdowns).forEach(([commandeId, c]) => {
-      if (c.subscription) c.subscription.unsubscribe();
-      this.countdownService.stopCountdown(commandeId);
+    // Clean up countdown subscriptions
+    Object.values(this.countdowns).forEach(countdown => {
+      if (countdown.subscription) {
+        countdown.subscription.unsubscribe();
+      }
     });
   }
 
   loadRestaurants(): void {
     this.restaurantService.getAllRestaurants().subscribe({
-      next: (restaurants: Restaurant[]) => {
-        this.restaurants = restaurants.filter((r: Restaurant) => !r.deleted);
+      next: (restaurants) => {
+        this.restaurants = restaurants;
         this.setupRestaurantFilter();
       },
-      error: (error: any) => {
+      error: (error) => {
         console.error('Error loading restaurants:', error);
+        this.snackBar.open('Erreur lors du chargement des restaurants', 'Fermer', { duration: 3000 });
       }
     });
   }
@@ -125,134 +140,111 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
   private setupRestaurantFilter(): void {
     this.filteredRestaurants = this.restaurantSearchControl.valueChanges.pipe(
       startWith(''),
-      map(value => this._filterRestaurants(value || ''))
+      map(value => this._filterRestaurants(value))
     );
   }
 
-  private _filterRestaurants(value: string | Restaurant): Restaurant[] {
-    let filterValue = '';
-    if (typeof value === 'string') {
-      filterValue = value.toLowerCase();
-    } else if (value && typeof value === 'object' && 'name' in value) {
-      filterValue = (value.name || '').toLowerCase();
-    }
+  private _filterRestaurants(value: string | Restaurant | null): Restaurant[] {
+    if (!value) return this.restaurants;
+    const filterValue = typeof value === 'string' ? value.toLowerCase() : value.name.toLowerCase();
     return this.restaurants.filter(restaurant =>
-      restaurant.name.toLowerCase().includes(filterValue) ||
-      (restaurant.cuisineType && restaurant.cuisineType.toLowerCase().includes(filterValue))
+      restaurant.name.toLowerCase().includes(filterValue)
     );
   }
 
   onRestaurantSelected(restaurant: Restaurant): void {
     this.selectedRestaurantId = restaurant.id || '';
-    this.restaurantSearchControl.setValue(restaurant.name || '');
     this.filterByRestaurant();
   }
 
   displayRestaurantFn = (restaurant: any): string => {
-    console.log('displayWith:', restaurant);
-    if (!restaurant) return '';
-    if (typeof restaurant === 'string') return restaurant;
-    const name = restaurant.name || '';
-    const cuisine = restaurant.cuisineType || '';
-    if (name && cuisine) return `${name} - ${cuisine}`;
-    if (name) return name;
-    if (cuisine) return cuisine;
-    return '';
+    return restaurant && restaurant.name ? restaurant.name : '';
   }
 
   onSearchInput(): void {
-    const value = this.restaurantSearchControl.value;
-    if (!value) {
+    const searchValue = this.restaurantSearchControl.value;
+    if (typeof searchValue === 'string' && searchValue.trim() === '') {
       this.selectedRestaurantId = '';
-      this.filterByRestaurant();
-      return;
+      this.applyFilters();
     }
-    // If value is a string and matches a restaurant, set the control to the object
-    if (typeof value === 'string') {
-      const match = this.restaurants.find(r => r.name.toLowerCase() === value.toLowerCase());
-      if (match) {
-        this.restaurantSearchControl.setValue(match as any); // allow Restaurant type
-        this.selectedRestaurantId = match?.id || '';
-        this.filterByRestaurant();
-        return;
-      }
-    }
-    // Otherwise, do not change selection
   }
 
   clearRestaurantFilter(): void {
-    this.selectedRestaurantId = '';
     this.restaurantSearchControl.setValue('');
-    this.filterByRestaurant();
+    this.selectedRestaurantId = '';
+    this.applyFilters();
   }
 
   onDateChange(event: any): void {
-    this.selectedDate = event.value;
-    this.filterByRestaurant();
+    console.log('📅 Date change event:', event);
+    // Handle both input change events and date picker events
+    if (event && event.target) {
+      this.selectedDate = event.target.value ? new Date(event.target.value) : null;
+      console.log('📅 Selected date from target:', this.selectedDate);
+    } else if (event && event.value) {
+      this.selectedDate = new Date(event.value);
+      console.log('📅 Selected date from value:', this.selectedDate);
+    } else {
+      this.selectedDate = null;
+      console.log('📅 No date selected');
+    }
+    this.applyFilters();
   }
 
   clearDateFilter(): void {
     this.selectedDate = null;
-    this.filterByRestaurant();
+    this.applyFilters();
   }
 
   onStatusFilterChange(event: Event): void {
-    const value = (event.target as HTMLSelectElement).value;
-    this.statusFilter = value;
-    this.loadAllCommandes();
+    const target = event.target as HTMLSelectElement;
+    this.statusFilter = target.value;
+    this.applyFilters();
   }
 
   loadAllCommandes(): void {
-    this.commandeService.getCommandesByStatus(this.statusFilter).subscribe({
-      next: (commandes: Commande[]) => {
+    this.isLoading = true;
+    this.commandeService.getAllCommandes().subscribe({
+      next: (commandes) => {
+        console.log('📦 Loaded commandes:', commandes.length);
+        console.log('📊 Status distribution:', commandes.reduce((acc, cmd) => {
+          acc[cmd.status] = (acc[cmd.status] || 0) + 1;
+          return acc;
+        }, {} as any));
+
         this.commandes = commandes;
-        const orderPromises = commandes.map((commande, idx) =>
-          this.orderService.getOrdersByCommandeId(commande.id).toPromise().then(orders => {
-            this.commandes[idx].orders = (orders || []).filter(order => !order.deleted);
-          }).catch(error => {
-            console.error('Error loading orders for commande', commande.id, error);
-            this.commandes[idx].orders = [];
-          })
-        );
-        Promise.all(orderPromises).then(() => {
-          this.filteredCommandes = [...this.commandes];
-          this.setupCountdowns();
-          this.loadOrderCounts();
-          this.cdr.detectChanges();
-        });
+        this.loadOrderCounts();
+        this.setupCountdowns();
+        this.checkJoinedCommandes();
+        this.applyFilters(); // Apply initial filters after loading
+        this.isLoading = false;
       },
-      error: (error: any) => {
+      error: (error) => {
         console.error('Error loading commandes:', error);
+        this.snackBar.open('Erreur lors du chargement des commandes', 'Fermer', { duration: 3000 });
+        this.isLoading = false;
       }
     });
   }
 
   loadOrderCounts(): void {
-    const orderCountRequests = this.commandes.map(commande =>
-      this.orderService.getOrdersByCommandeId(commande.id)
+    const countPromises = this.commandes.map(commande =>
+      this.orderService.getOrdersByCommandeId(commande.id).toPromise()
     );
 
-    if (orderCountRequests.length > 0) {
-      forkJoin(orderCountRequests).subscribe({
-        next: (orderArrays: any[][]) => {
-          orderArrays.forEach((orders, index) => {
-            const commandeId = this.commandes[index].id;
-            const validOrders = orders.filter(order => !order.deleted);
-            this.orderCounts[commandeId] = validOrders.length;
-            this.orderTotals[commandeId] = this.calculateCommandeTotal(validOrders);
-            this.commandes[index].totalPrice = this.orderTotals[commandeId];
-          });
-          this.filterByRestaurant();
-        },
-        error: (error: any) => {
-          console.error('Error loading order counts:', error);
+    Promise.all(countPromises).then(orderArrays => {
+      orderArrays.forEach((orders, index) => {
+        if (orders) {
+          const commandeId = this.commandes[index].id;
+          this.orderCounts[commandeId] = orders.length;
+          this.orderTotals[commandeId] = this.calculateCommandeTotal(orders);
         }
       });
-    }
+    });
   }
 
   calculateCommandeTotal(orders: any[]): number {
-    return orders.reduce((total, order) => total + (order.totalAmount || 0), 0);
+    return orders.reduce((total, order) => total + (order.total || 0), 0);
   }
 
   getParticipantCount(commandeId: string): number {
@@ -260,186 +252,243 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
   }
 
   getCommandeTotal(commandeId: string): number {
+    const commande = this.commandes.find(c => c.id === commandeId);
+    if (commande && commande.totalPrice !== undefined) {
+      return commande.totalPrice;
+    }
     return this.orderTotals[commandeId] || 0;
   }
 
   filterByRestaurant(): void {
-    let filtered = this.commandes;
-    if (this.selectedRestaurantId) {
-      filtered = filtered.filter(c => c.restaurantId === this.selectedRestaurantId);
-    }
-    if (this.selectedDate) {
-      const selected = new Date(this.selectedDate);
-      selected.setHours(0, 0, 0, 0);
-      filtered = filtered.filter(c => {
-        const created = new Date(c.createdAt);
-        created.setHours(0, 0, 0, 0);
-        return created.getTime() === selected.getTime();
-      });
-    }
-    this.filteredCommandes = [...filtered];
-    this.setupCountdowns();
+    this.applyFilters();
   }
 
   getRestaurantName(restaurantId: string): string {
     const restaurant = this.restaurants.find(r => r.id === restaurantId);
-    return restaurant ? restaurant.name : 'Unknown Restaurant';
+    return restaurant ? restaurant.name : 'Restaurant inconnu';
   }
 
   getStatusColor(status: string): string {
-    switch ((status || '').toLowerCase()) {
+    switch (status) {
       case 'cree': return 'primary';
       case 'attente': return 'accent';
-      case 'confirmee': return 'primary';
+      case 'confirmee': return 'warn';
       case 'annulee': return 'warn';
       default: return 'primary';
     }
   }
 
+  getStatusIcon(status: string): string {
+    switch (status) {
+      case 'cree': return 'hourglass_empty';
+      case 'attente': return 'hourglass_top';
+      case 'confirmee': return 'check_circle';
+      case 'annulee': return 'cancel';
+      default: return 'help';
+    }
+  }
+
+  getStatusLabel(status: string): string {
+    switch (status) {
+      case 'cree': return 'Créée';
+      case 'attente': return 'En attente';
+      case 'confirmee': return 'Confirmée';
+      case 'annulee': return 'Annulée';
+      default: return status;
+    }
+  }
+
   formatDate(date: Date): string {
-    return new Date(date).toLocaleDateString() + ' ' + new Date(date).toLocaleTimeString();
+    return new Date(date).toLocaleDateString('fr-FR');
   }
 
   createGroupOrder(): void {
+    console.log('🚀 Create Group Order button clicked');
     this.router.navigate(['/group-orders/create']);
   }
 
   goToMyOrders(): void {
+    console.log('📋 My Orders button clicked');
     this.router.navigate(['/group-orders/my-orders']);
   }
 
   viewDetails(commandeId: string): void {
+    console.log('👁️ View Details button clicked for commande:', commandeId);
     this.router.navigate(['/group-orders/details', commandeId]);
   }
 
   participateInOrder(commandeId: string): void {
     const commande = this.commandes.find(c => c.id === commandeId);
     if (!commande) {
-      this.snackBar.open('Group order not found', 'Close', { duration: 3000 });
+      this.snackBar.open('Commande non trouvée', 'Fermer', { duration: 3000 });
       return;
     }
-    if (!this.currentUserId) {
-      this.snackBar.open('User not loaded', 'Close', { duration: 3000 });
+
+    if (this.isParticipationExpired(commande)) {
+      this.snackBar.open('La participation à cette commande a expiré', 'Fermer', { duration: 3000 });
       return;
     }
+
     if (!this.canParticipate(commande)) {
-      this.snackBar.open('Participation time has expired for this group order.', 'Close', { duration: 3000 });
+      this.snackBar.open('Vous ne pouvez pas participer à cette commande', 'Fermer', { duration: 3000 });
       return;
     }
+
     const dialogRef = this.dialog.open(OrderSubmissionComponent, {
-      width: '1000px',
+      width: '800px',
       maxWidth: '95vw',
       data: {
         commandeId: commandeId,
         restaurantId: commande.restaurantId,
-        participantId: this.currentUserId // Pass the backend user id
+        restaurantName: this.getRestaurantName(commande.restaurantId)
       }
     });
+
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.joinedCommandes.add(commandeId);
+        this.snackBar.open('Commande ajoutée avec succès', 'Fermer', { duration: 3000 });
         this.loadAllCommandes();
-        this.cdr.detectChanges();
-        this.snackBar.open('Order submitted successfully!', 'Close', { duration: 3000 });
       }
     });
   }
 
   isParticipationExpired(commande: Commande): boolean {
-    if (!commande.orderDeadline) return false;
-    const now = new Date().getTime();
-    const deadline = new Date(commande.orderDeadline).getTime();
-    return now >= deadline;
+    const now = new Date();
+    const deadline = new Date(commande.orderDeadline);
+    return now > deadline;
   }
 
   canParticipate(commande: Commande): boolean {
-    return commande.status === 'cree' && !this.isParticipationExpired(commande);
+    return commande.status === 'cree' && !this.hasJoined(commande.id);
   }
 
   setupCountdowns(): void {
-    // Unsubscribe previous subscriptions and stop countdowns
-    Object.entries(this.countdowns).forEach(([commandeId, c]) => {
-      if (c.subscription) c.subscription.unsubscribe();
-      this.countdownService.stopCountdown(commandeId);
-    });
-    this.countdowns = {};
+    this.commandes.forEach(commande => {
+      if (this.countdowns[commande.id]?.subscription) {
+        this.countdowns[commande.id].subscription?.unsubscribe();
+      }
 
-    this.filteredCommandes.forEach(commande => {
-      // Initialize with default value first
-      this.countdowns[commande.id] = { display: 'Calculating...', color: 'time-normal', subscription: null };
-      const subscription = this.countdownService.startCountdown(commande).subscribe(countdown => {
-        this.countdowns[commande.id].display = countdown.display;
-        this.countdowns[commande.id].color = countdown.color;
-        this.cdr.detectChanges();
-      });
-      this.countdowns[commande.id].subscription = subscription;
+      this.countdowns[commande.id] = {
+        display: '',
+        color: '',
+        subscription: null
+      };
+
+      // Use the existing countdown service method
+      this.countdowns[commande.id].subscription = this.countdownService.startCountdown(commande).subscribe(
+        (countdown: any) => {
+          this.countdowns[commande.id].display = countdown.display;
+          this.countdowns[commande.id].color = countdown.color;
+          this.cdr.detectChanges();
+        }
+      );
     });
   }
 
   getCountdownDisplay(commandeId: string): string {
-    return this.countdowns[commandeId]?.display || 'No deadline';
+    return this.countdowns[commandeId]?.display || '';
   }
 
   getCountdownColor(commandeId: string): string {
-    return this.countdowns[commandeId]?.color || 'time-normal';
+    return this.countdowns[commandeId]?.color || '';
   }
 
   getOrderProgress(createdAt: string | Date, orderDeadline: string | Date): number {
-    if (!createdAt || !orderDeadline) return 0;
     const start = new Date(createdAt).getTime();
     const end = new Date(orderDeadline).getTime();
-    const now = Date.now();
-    if (now >= end) return 100;
-    if (now <= start) return 0;
-    return Math.round(((now - start) / (end - start)) * 100);
+    const now = new Date().getTime();
+
+    const total = end - start;
+    const elapsed = now - start;
+
+    const progress = Math.min(Math.max((elapsed / total) * 100, 0), 100);
+    return Math.round(progress);
   }
 
   editOrder(commandeId: string): void {
-    this.router.navigate(['/group-orders/edit', commandeId]);
+    this.router.navigate(['/edit-order', commandeId]);
   }
 
   applyFilters(): void {
-    // Filter by restaurant name (searchTerm), date, and status, like 'Mes commandes'
-    this.filteredCommandes = this.commandes.filter(commande => {
-      // Get restaurant name
-      const restaurant = this.restaurants.find(r => r.id === commande.restaurantId);
-      const restaurantName = restaurant ? restaurant.name : '';
-      // Filter by restaurant name
-      const matchesSearchTerm = this.searchTerm ?
-        restaurantName.toLowerCase().includes(this.searchTerm.toLowerCase()) : true;
-      // Filter by date
-      const matchesDate = this.selectedDate ?
-        new Date(commande.createdAt).toLocaleDateString() === new Date(this.selectedDate).toLocaleDateString() : true;
-      // Filter by status
-      const matchesStatus = (commande.status || '').trim().toLowerCase() === this.statusFilter;
-      return matchesSearchTerm && matchesDate && matchesStatus;
+    let filtered = this.commandes;
+    console.log('🔍 Applying filters:', {
+      searchTerm: this.searchTerm,
+      selectedDate: this.selectedDate,
+      statusFilter: this.statusFilter,
+      selectedRestaurantId: this.selectedRestaurantId,
+      totalCommandes: this.commandes.length
     });
-    this.setupCountdowns();
-    this.cdr.detectChanges(); // Force UI update
+
+    // Filter by search term
+    if (this.searchTerm.trim()) {
+      const searchLower = this.searchTerm.toLowerCase().trim();
+      filtered = filtered.filter(commande => {
+        const restaurantName = this.getRestaurantName(commande.restaurantId).toLowerCase();
+        return restaurantName.includes(searchLower);
+      });
+      console.log('📝 After search filter:', filtered.length, 'commandes');
+    }
+
+    // Filter by date
+    if (this.selectedDate) {
+      const selectedDateStr = this.selectedDate.toISOString().split('T')[0];
+      filtered = filtered.filter(commande => {
+        const commandeDate = new Date(commande.createdAt);
+        const commandeDateStr = commandeDate.toISOString().split('T')[0];
+        console.log('📅 Comparing dates:', { selected: selectedDateStr, commande: commandeDateStr });
+        return commandeDateStr === selectedDateStr;
+      });
+      console.log('📅 After date filter:', filtered.length, 'commandes');
+    }
+
+    // Filter by status
+    if (this.statusFilter === 'all') {
+      // No specific status filter applied, show all
+      console.log('📊 Showing all statuses');
+    } else if (this.statusFilter && this.statusFilter !== 'all') {
+      filtered = filtered.filter(commande => commande.status === this.statusFilter);
+      console.log('🏷️ After status filter:', filtered.length, 'commandes with status:', this.statusFilter);
+    }
+
+    // Filter by restaurant if selected
+    if (this.selectedRestaurantId) {
+      filtered = filtered.filter(commande => commande.restaurantId === this.selectedRestaurantId);
+      console.log('🏪 After restaurant filter:', filtered.length, 'commandes');
+    }
+
+    this.filteredCommandes = filtered;
+    console.log('✅ Final filtered result:', this.filteredCommandes.length, 'commandes');
   }
 
   clearFilters(): void {
     this.searchTerm = '';
     this.selectedDate = null;
     this.statusFilter = 'cree';
+    this.selectedRestaurantId = '';
+    this.restaurantSearchControl.setValue('');
     this.applyFilters();
   }
 
-  // Remove userOrders map and related logic
-
   getCommandeOrders(commandeId: string): any[] {
-    // This assumes you have a way to access all orders for each commande
-    // If not, you may need to fetch them or store them in a map when loading commandes
-    // For now, let's assume orderCounts or orderTotals is not enough, so you need to fetch
-    // We'll use a placeholder for demonstration
-    // You should replace this with the actual orders array for the commande
-    return (this.commandes.find(c => c.id === commandeId)?.orders || []);
+    // This method should return the orders for a specific commande
+    // Implementation depends on your data structure
+    return [];
   }
 
   hasJoined(commandeId: string): boolean {
-    if (this.joinedCommandes.has(commandeId)) return true;
-    const commande = this.commandes.find(c => c.id === commandeId);
-    if (!commande || !commande.orders) return false;
-    return commande.orders.some(order => order.participantId === this.currentUserId);
+    return this.joinedCommandes.has(commandeId);
+  }
+
+  private checkJoinedCommandes(): void {
+    this.joinedCommandes.clear();
+    this.commandes.forEach(commande => {
+      // Check if current user has orders in this commande
+      this.orderService.getOrdersByCommandeId(commande.id).subscribe(orders => {
+        const userOrder = orders.find(order => order.participantId === this.currentUserId);
+        if (userOrder) {
+          this.joinedCommandes.add(commande.id);
+        }
+      });
+    });
   }
 }

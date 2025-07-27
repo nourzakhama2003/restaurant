@@ -26,7 +26,7 @@ public class RestaurantService {
             // Debug output with null checks
             for (Restaurant restaurant : restaurants) {
                 int menuCount = (restaurant.getMenus() != null) ? restaurant.getMenus().size() : 0;
-                System.out.println("Restaurant: " + restaurant.getName() + " has " + menuCount + " menu items");
+
             }
             
             return restaurants;

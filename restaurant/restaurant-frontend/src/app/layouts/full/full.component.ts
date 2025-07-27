@@ -57,6 +57,7 @@ export class FullComponent implements OnInit, OnDestroy {
 
   private layoutChangesSubscription: Subscription = Subscription.EMPTY;
   private isMobileScreen = false;
+  private _isMediumScreen = false;
   private isContentWidthFixed = true;
   private isCollapsedWidthFixed = false;
   private htmlElement: HTMLHtmlElement;
@@ -75,6 +76,7 @@ export class FullComponent implements OnInit, OnDestroy {
       .subscribe((state) => {
         this.options.sidenavOpened = true;
         this.isMobileScreen = state.breakpoints[MOBILE_VIEW];
+        this._isMediumScreen = state.breakpoints[TABLET_VIEW];
         if (!this.options.sidenavCollapsed) {
           this.options.sidenavCollapsed = state.breakpoints[TABLET_VIEW];
         }
@@ -95,6 +97,10 @@ export class FullComponent implements OnInit, OnDestroy {
 
   get isOver(): boolean {
     return this.isMobileScreen;
+  }
+
+  get isMediumScreen(): boolean {
+    return this._isMediumScreen;
   }
 
   toggleCollapsed(): void {

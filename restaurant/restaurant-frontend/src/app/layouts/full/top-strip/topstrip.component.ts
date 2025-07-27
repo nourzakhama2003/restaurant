@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Output, EventEmitter, Input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -23,6 +23,7 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./topstrip.css'],
 })
 export class AppTopstripComponent {
+  @Input() isOver: boolean = false;
   visible = false;
   constructor(
     private router: Router,

@@ -219,6 +219,59 @@ button[mat-raised-button]:hover {
     color: #6366f1;
 }
 
+
+/* Make all input fields, selects, and Angular Material form fields 100% width */
+
+.Input,
+input[type="text"],
+input[type="time"],
+input[type="date"],
+input[matInput],
+.mat-input-element,
+.mat-form-field-infix,
+.mat-select,
+.mat-autocomplete {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.mat-form-field {
+    width: 100%;
+}
+
+
+/* Ensure datepicker input and toggle are aligned and fill 100% width */
+
+.relative {
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.relative input[type="text"],
+.relative input[type="date"],
+.relative input[matInput] {
+    flex: 1 1 auto;
+    width: 100%;
+}
+
+.relative .mat-datepicker-toggle {
+    margin-left: -40px;
+    /* Adjust if needed to overlap the input edge */
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+
+/* Make time input match other inputs visually */
+
+input[type="time"] {
+    width: 100%;
+    box-sizing: border-box;
+}
+
 @media (max-width: 700px) {
     .create-order-wrapper {
         max-width: 98vw;

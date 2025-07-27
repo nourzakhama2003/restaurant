@@ -1,62 +1,109 @@
-<h2 mat-dialog-title>
-    {{ isEditMode ? 'Modifier le restaurant' : 'Ajouter un restaurant' }}
-</h2>
-
-<mat-spinner *ngIf="isLoading" class="size-8 md:size-10 mx-auto my-8 block"></mat-spinner>
-
-<form [formGroup]="restaurantForm" (ngSubmit)="onSubmit()" class="restaurant-form">
-
-    <mat-form-field appearance="fill">
-        <mat-label>Nom</mat-label>
-        <input formControlName="name" placeholder="Nom du restaurant" class="Input" required />
-        <mat-error *ngIf="restaurantForm.get('name')?.hasError('required') && restaurantForm.get('name')?.touched">
-            Le nom est obligatoire
-        </mat-error>
-    </mat-form-field>
-
-    <mat-form-field>
-        <mat-label>Description</mat-label>
-        <textarea class="Input" formControlName="description" placeholder="Description du restaurant" rows="3"></textarea>
-    </mat-form-field>
-
-    <mat-form-field appearance="fill">
-        <mat-label>Adresse</mat-label>
-        <input class="Input" formControlName="address" placeholder="Adresse complète" />
-    </mat-form-field>
-
-    <mat-form-field appearance="fill">
-        <mat-label>Téléphone</mat-label>
-        <input class="Input" formControlName="phone" placeholder="Numéro de téléphone" />
-    </mat-form-field>
-
-    <mat-form-field>
-        <mat-label>Type de cuisine</mat-label>
-        <input class="Input" formControlName="cuisineType" placeholder="Ex: Italienne, Tunisienne" />
-    </mat-form-field>
-
-    <div class="upload-container">
-        <!-- Hidden file input -->
-        <input id="imageUpload" type="file" accept="image/*" (change)="onFileSelected($event)" class="hidden-input">
-
-        <!-- Visible SVG trigger -->
-        <label for="imageUpload" class="upload-label">
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="upload-icon text-black ">
-      <path d="M12 13v8"/>
-      <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/>
-      <path d="m8 17 4-4 4 4"/>
-    </svg>
-    <span class="upload-text">Upload Image</span>
-  </label>
+<div class="restaurant-form-container">
+    <!-- Form Header -->
+    <div class="form-header">
+        <div class="form-title-section">
+            <mat-icon class="form-icon">{{ isEditMode ? 'edit' : 'add' }}</mat-icon>
+            <h2>{{ isEditMode ? 'Modifier le Restaurant' : 'Nouveau Restaurant' }}</h2>
+        </div>
+        <button class="close-btn" (click)="onCancel()">
+            <mat-icon>close</mat-icon>
+        </button>
     </div>
 
-    <!-- Image preview -->
-    <div *ngIf="selectedImage" class="image-preview">
-        <img [src]="selectedImage" alt="Profile Image Preview" style="max-width: 200px; max-height: 200px;">
+    <!-- Loading Spinner -->
+    <div class="loading-overlay" *ngIf="isLoading">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Chargement...</p>
     </div>
 
-    <mat-dialog-actions align="end" class="form-actions flex flex-row gap-10  w-full">
-        <button mat-stroked-button type="button" (click)="onCancel()">Annuler</button>
-        <button mat-flat-button color="primary" type="submit" [disabled]="restaurantForm.invalid" (click)="onSubmit()">Enregistrer</button>
-    </mat-dialog-actions>
+    <!-- Form Content -->
+    <form [formGroup]="restaurantForm" (ngSubmit)="onSubmit()" class="restaurant-form">
+        <div class="form-content">
+            <!-- Restaurant Name -->
+            <div class="form-field">
+                <label class="field-label">
+                    <mat-icon>restaurant</mat-icon>
+                    Nom du restaurant *
+                </label>
+                <input class="form-input" formControlName="name" placeholder="ex: Pizza Palace" required />
+                <div class="error-message" *ngIf="restaurantForm.get('name')?.hasError('required') && restaurantForm.get('name')?.touched">
+                    Le nom du restaurant est requis
+                </div>
+            </div>
 
-</form>
+            <!-- Description -->
+            <div class="form-field">
+                <label class="field-label">
+                    <mat-icon>description</mat-icon>
+                    Description
+                </label>
+                <textarea class="form-textarea" formControlName="description" placeholder="Décrivez votre restaurant..." rows="3"></textarea>
+            </div>
+
+            <!-- Address -->
+            <div class="form-field">
+                <label class="field-label">
+                    <mat-icon>location_on</mat-icon>
+                    Adresse
+                </label>
+                <input class="form-input" formControlName="address" placeholder="Adresse complète du restaurant" />
+            </div>
+
+            <!-- Phone -->
+            <div class="form-field">
+                <label class="field-label">
+                    <mat-icon>phone</mat-icon>
+                    Téléphone
+                </label>
+                <input class="form-input" formControlName="phone" placeholder="Numéro de téléphone" />
+            </div>
+
+            <!-- Cuisine Type -->
+            <div class="form-field">
+                <label class="field-label">
+                    <mat-icon>local_dining</mat-icon>
+                    Type de cuisine
+                </label>
+                <input class="form-input" formControlName="cuisineType" placeholder="ex: Italienne, Tunisienne, Française" />
+            </div>
+
+            <!-- Image Upload -->
+            <div class="form-field">
+                <label class="field-label">
+                    <mat-icon>image</mat-icon>
+                    Image du restaurant
+                </label>
+                <div class="image-upload-section">
+                    <div class="current-image" *ngIf="selectedImage">
+                        <img [src]="selectedImage" alt="Image du restaurant" />
+                        <button type="button" class="remove-image-btn" (click)="removeImage()" matTooltip="Supprimer l'image">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </div>
+
+                    <div class="upload-area" *ngIf="!selectedImage">
+                        <input id="imageUpload" type="file" accept="image/*" (change)="onFileSelected($event)" class="hidden-input">
+                        <label for="imageUpload" class="upload-label">
+                            <mat-icon class="upload-icon">cloud_upload</mat-icon>
+                            <span class="upload-text">Cliquez pour ajouter une image</span>
+                            <span class="upload-hint">PNG, JPG jusqu'à 5MB</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="button" class="cancel-btn" (click)="onCancel()">
+                <mat-icon>close</mat-icon>
+                Annuler
+            </button>
+            <button type="submit" class="submit-btn" [disabled]="restaurantForm.invalid || isLoading">
+                <mat-icon *ngIf="!isLoading">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+                <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+                {{ isLoading ? 'Enregistrement...' : (isEditMode ? 'Mettre à jour' : 'Créer') }}
+            </button>
+        </div>
+    </form>
+</div>

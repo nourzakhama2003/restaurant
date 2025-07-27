@@ -1,130 +1,602 @@
-  .spinner {
-      animation: spin 0.8s linear infinite;
-  }
-  
-  @keyframes spin {
-      0% {
-          transform: rotate(0deg);
-      }
-      100% {
-          transform: rotate(360deg);
-      }
-  }
-  /* Customize Angular Material select */
-  
-  .mat-form-field {
-      width: 100%;
-  }
-  
-  .mat-form-field-outline {
-      border-radius: 8px;
-      border: 1px solid #e5e7eb;
-  }
-  
-  .mat-form-field-outline-thick {
-      border-color: #2563eb;
-  }
-  
-  .mat-form-field-flex {
-      background: #f9fafb;
-      border-radius: 8px;
-      padding: 0.5rem;
-  }
-  
-  .mat-form-field-label {
-      color: #4b5563;
-      font-weight: 500;
-  }
-  
-  .mat-select-value {
-      color: #111827;
-      font-size: 0.875rem;
-  }
-  
-  .mat-select-arrow {
-      color: #2563eb;
-  }
-  
-  .mat-form-field-appearance-outline.mat-focused .mat-form-field-outline-thick {
-      border-width: 2px;
-  }
-  /* Scrollbar styles */
-  
-  .category-select::-webkit-scrollbar,
-  .mat-select-panel::-webkit-scrollbar {
-      width: 6px;
-  }
-  
-  .category-select::-webkit-scrollbar-thumb,
-  .mat-select-panel::-webkit-scrollbar-thumb {
-      background: #d1d5db;
-      border-radius: 4px;
-  }
-  
-  .category-select::-webkit-scrollbar-track,
-  .mat-select-panel::-webkit-scrollbar-track {
-      background: #f3f4f6;
-  }
-  
-  .item-content {
-      display: grid;
-      grid-template-columns: 2fr 1fr 2fr 1fr auto;
-      gap: 20px;
-      align-items: center;
-  }
-  
-  .menu-item-select-field,
-  .item-quantity,
-  .item-notes,
-  .item-subtotal,
-  .item-actions {
-      min-width: 120px;
-      max-width: 220px;
-      width: 100%;
-  }
-  
-  .menu-item-select-field .mat-form-field-flex,
-  .item-quantity input,
-  .item-notes input {
-      min-height: 44px;
-      height: 44px;
-      font-size: 1rem;
-      padding-top: 0;
-      padding-bottom: 0;
-      box-sizing: border-box;
-  }
-  
-  @media (max-width: 900px) {
-      .item-content {
-          grid-template-columns: 1fr 1fr;
-          gap: 12px;
-      }
-      .menu-item-select-field,
-      .item-quantity,
-      .item-notes,
-      .item-subtotal,
-      .item-actions {
-          min-width: 0;
-          max-width: 100%;
-      }
-  }
-  
-  @media (max-width: 600px) {
-      .item-content {
-          grid-template-columns: 1fr;
-          gap: 10px;
-      }
-      .menu-item-select-field,
-      .item-quantity,
-      .item-notes,
-      .item-subtotal,
-      .item-actions {
-          min-width: 0;
-          max-width: 100%;
-          width: 100%;
-      }
-      .order-submission-form {
-          padding: 0.5rem;
-          max-width: 100vw;
-      }
-  }
+/* Professional Order Submission Form Styles */
+
+
+/* Container and backdrop */
+
+.order-submission-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.order-submission-form {
+    animation: slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+}
+
+
+/* Enhanced Header styles */
+
+.form-header {
+    position: relative;
+    overflow: hidden;
+}
+
+.form-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+    pointer-events: none;
+}
+
+.header-icon {
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.header-icon:hover {
+    transform: scale(1.05);
+}
+
+.close-btn {
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+    transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.3) !important;
+}
+
+
+/* Content area */
+
+.form-content {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+.form-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.form-content::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+
+.form-content::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.form-content::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+
+/* Card styles */
+
+.user-info-card,
+.category-filter-card,
+.menu-section-card,
+.notes-section-card,
+.summary-section-card {
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.user-info-card:hover,
+.category-filter-card:hover,
+.menu-section-card:hover,
+.notes-section-card:hover,
+.summary-section-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Section icons */
+
+.section-icon {
+    transition: all 0.3s ease;
+}
+
+.section-icon:hover {
+    transform: scale(1.1) rotate(5deg);
+}
+
+
+/* Buttons */
+
+.add-btn,
+.add-item-btn,
+.add-first-item-btn,
+.submit-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.add-btn::before,
+.add-item-btn::before,
+.add-first-item-btn::before,
+.submit-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.add-btn:hover::before,
+.add-item-btn:hover::before,
+.add-first-item-btn:hover::before,
+.submit-btn:hover::before {
+    left: 100%;
+}
+
+
+/* Item cards */
+
+.item-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.item-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.item-card:hover::before {
+    transform: scaleX(1);
+}
+
+
+/* Form fields */
+
+input,
+select,
+textarea {
+    transition: all 0.2s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+
+/* Quantity input */
+
+.quantity-input-wrapper {
+    position: relative;
+}
+
+.quantity-input-wrapper::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.quantity-input-wrapper:focus-within::after {
+    transform: scaleX(1);
+}
+
+
+/* Subtotal display */
+
+.item-subtotal {
+    position: relative;
+    overflow: hidden;
+}
+
+.item-subtotal::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(34, 197, 94, 0.1) 0%, transparent 70%);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+
+/* Remove button */
+
+.remove-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.remove-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s ease, height 0.3s ease;
+}
+
+.remove-btn:hover::before {
+    width: 100%;
+    height: 100%;
+}
+
+
+/* Loading spinner */
+
+.spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* Empty states */
+
+.empty-state,
+.no-menu-items {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.empty-icon,
+.empty-state-icon {
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+
+/* Angular Material customization */
+
+.mat-form-field {
+    width: 100%;
+}
+
+.mat-form-field-appearance-outline .mat-form-field-outline {
+    border-radius: 12px;
+    border: 1px solid #d1d5db;
+    transition: all 0.2s ease;
+}
+
+.mat-form-field-appearance-outline.mat-focused .mat-form-field-outline {
+    border-color: #3b82f6;
+    border-width: 2px;
+}
+
+.mat-form-field-appearance-outline .mat-form-field-flex {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 0.75rem;
+}
+
+.mat-form-field-label {
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.mat-select-value {
+    color: #111827;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.mat-select-arrow {
+    color: #3b82f6;
+}
+
+
+/* Dropdown options */
+
+.mat-option {
+    transition: all 0.2s ease;
+}
+
+.mat-option:hover {
+    background: linear-gradient(90deg, #f0f9ff, #e0f2fe);
+}
+
+.mat-option.mat-selected {
+    background: linear-gradient(90deg, #dbeafe, #bfdbfe);
+    color: #1e40af;
+}
+
+
+/* Responsive design */
+
+@media (max-width: 1024px) {
+    .item-content {
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    .item-subtotal,
+    .item-actions {
+        grid-column: span 2;
+        justify-self: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .order-submission-container {
+        padding: 0.25rem;
+        align-items: flex-start;
+    }
+    .order-submission-form {
+        max-width: 98vw;
+        max-height: 98vh;
+        margin: 0.5rem;
+    }
+    .form-header {
+        padding: 1rem;
+    }
+    .form-header h2 {
+        font-size: 1.125rem;
+    }
+    .form-content {
+        padding: 1rem;
+        max-height: calc(98vh - 200px);
+    }
+    .item-content {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    .item-subtotal,
+    .item-actions {
+        grid-column: 1;
+    }
+    .form-actions {
+        padding: 1rem;
+        position: sticky;
+        bottom: 0;
+        background: white;
+        border-top: 1px solid #e5e7eb;
+        z-index: 10;
+    }
+    .form-actions .flex {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    .submit-btn,
+    .cancel-btn {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        font-size: 1rem;
+        min-height: 48px;
+    }
+}
+
+@media (max-width: 480px) {
+    .order-submission-container {
+        padding: 0;
+    }
+    .order-submission-form {
+        max-width: 100vw;
+        max-height: 100vh;
+        margin: 0;
+        border-radius: 0;
+    }
+    .form-header {
+        padding: 0.75rem;
+        border-radius: 0;
+    }
+    .form-header h2 {
+        font-size: 1rem;
+    }
+    .form-header p {
+        font-size: 0.875rem;
+    }
+    .form-content {
+        padding: 0.75rem;
+        max-height: calc(100vh - 180px);
+    }
+    .user-info-card,
+    .category-filter-card,
+    .menu-section-card,
+    .notes-section-card,
+    .summary-section-card {
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+    .section-header h3 {
+        font-size: 1rem;
+    }
+    .item-card {
+        padding: 0.75rem;
+    }
+    .form-actions {
+        padding: 0.75rem;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        border-top: 2px solid #e5e7eb;
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .submit-btn,
+    .cancel-btn {
+        padding: 1rem;
+        font-size: 1rem;
+        font-weight: 600;
+        min-height: 52px;
+        border-radius: 12px;
+    }
+    /* Ensure content doesn't get hidden behind fixed buttons */
+    .form-content {
+        padding-bottom: 120px;
+    }
+}
+
+@media (max-width: 360px) {
+    .form-header {
+        padding: 0.5rem;
+    }
+    .form-header h2 {
+        font-size: 0.875rem;
+    }
+    .form-content {
+        padding: 0.5rem;
+        padding-bottom: 120px;
+    }
+    .user-info-card,
+    .category-filter-card,
+    .menu-section-card,
+    .notes-section-card,
+    .summary-section-card {
+        padding: 0.5rem;
+    }
+    .item-card {
+        padding: 0.5rem;
+    }
+    .form-actions {
+        padding: 0.5rem;
+    }
+    .submit-btn,
+    .cancel-btn {
+        padding: 0.875rem;
+        font-size: 0.875rem;
+        min-height: 48px;
+    }
+}
+
+
+/* Accessibility improvements */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+
+/* Focus indicators for better accessibility */
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+
+/* High contrast mode support */
+
+@media (prefers-contrast: high) {
+    .item-card {
+        border: 2px solid #000;
+    }
+    .item-subtotal {
+        background: #000;
+        color: #fff;
+    }
+}

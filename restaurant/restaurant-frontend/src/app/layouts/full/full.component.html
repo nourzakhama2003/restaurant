@@ -1,27 +1,24 @@
-<app-topstrip>
+<app-topstrip [isOver]="isOver || isMediumScreen" (toggleMobileNav)="sidenav.toggle()">
 </app-topstrip>
 
 <mat-sidenav-container class="mainWrapper orange_theme light-theme w-full" autosize autoFocus dir="ltr">
     <!-- ============================================================== -->
     <!-- Vertical Sidebar -->
     <!-- ============================================================== -->
-    <mat-sidenav #leftsidenav [mode]="isOver ? 'over' : 'side'" [opened]="!isOver" (openedChange)="onSidenavOpenedChange($event)" (closedStart)="onSidenavClosedStart()" class="sidebarNav">
-        <div class="flex-layout">
-            <app-sidebar (toggleMobileNav)="sidenav.toggle()" [showToggle]="isOver"></app-sidebar>
-            <div class="p-24">
-                <div class="bg-light-secondary d-flex align-items-center gap-4 rounded p-20 m-t-20">
-                    <div>
-                        <h5 class="f-s-16 f-w-600 m-b-8">
-                            Découvrez la version <br> Pro
-                        </h5>
-                        <a mat-flat-button href="https://www.wrappixel.com/templates/flexy-material-angular-admin/?ref=376#demos" target="_blank" class="d-flex justify-content-center bg-secondary">
-              Découvrir
-            </a>
-                    </div>
-                    <img src="/assets/images/backgrounds/sidebar-buynow-bg.png" alt="imgae" class="side-img m-t--48 m-r--8" />
+    <mat-sidenav #leftsidenav [mode]="isOver ? 'over' : 'side'" [opened]="!isOver && !isMediumScreen" (openedChange)="onSidenavOpenedChange($event)" (closedStart)="onSidenavClosedStart()" class="sidebarNav" *ngIf="!isMediumScreen">
+        <app-sidebar (toggleMobileNav)="sidenav.toggle()" [showToggle]="isOver">
+            <div class="sidebar-pro-card d-flex align-items-center gap-4 p-20 m-t-20">
+                <div>
+                    <h5 class="f-s-16 f-w-600 m-b-8">
+                        Découvrez la version <br> Pro
+                    </h5>
+                    <a mat-flat-button href="https://www.wrappixel.com/templates/flexy-material-angular-admin/?ref=376#demos" target="_blank" class="d-flex justify-content-center bg-secondary">
+          Découvrir
+        </a>
                 </div>
+                <img src="/assets/images/backgrounds/sidebar-buynow-bg.png" alt="imgae" class="side-img m-t--48 m-r--8" />
             </div>
-        </div>
+        </app-sidebar>
     </mat-sidenav>
 
     <!-- ============================================================== -->
@@ -34,16 +31,18 @@
 
         <app-header [showToggle]="!isOver" (toggleMobileNav)="sidenav.toggle()"></app-header>
 
-        <main class="  m-0 md:m-10 ">
+        <main class="   ">
             <!-- ============================================================== -->
             <!-- Outlet -->
             <!-- ============================================================== -->
             <router-outlet></router-outlet>
         </main>
 
-        <div class="p-16 p-t-8 p-b-30 text-center">
-            Design & Développé par <a class="text-decoration-none" href="https://www.wrappixel.com/" target="_blank">WrapPixel.com</a>
+        <div class="pro-footer text-center p-8">
+            Essayez la <a href="https://www.wrappixel.com/templates/flexy-material-angular-admin/?ref=376#demos" target="_blank" class="pro-link">Version Pro</a> pour plus de fonctionnalités !
         </div>
+
+
 
     </mat-sidenav-content>
 

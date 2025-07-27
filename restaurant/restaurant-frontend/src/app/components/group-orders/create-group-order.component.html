@@ -4,67 +4,64 @@
             <mat-card-header>
                 <mat-card-title>
                     <span class="title-icon"><mat-icon>group_add</mat-icon></span>
-                    <span>Create Group Order</span>
+                    <span>Créer une commande groupée</span>
                 </mat-card-title>
-                <mat-card-subtitle>Start a group food order for your team</mat-card-subtitle>
+
             </mat-card-header>
             <mat-card-content>
                 <form [formGroup]="groupOrderForm" (ngSubmit)="onSubmit()" class="modern-form">
                     <div class="form-row">
-                        <label for="restaurantSearch">Search Restaurant</label>
-                        <input id="restaurantSearch" type="text" class="Input" formControlName="restaurantSearch" [matAutocomplete]="auto" placeholder="Type restaurant name or cuisine type..." required>
+                        <input id="creatorName" class="Input" formControlName="creatorName" readonly>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="restaurantSearch">rechercher Restaurant</label>
+                        <input id="restaurantSearch" type="text" class="Input " formControlName="restaurantSearch" [matAutocomplete]="auto" placeholder="Tapez le nom du restaurant ou le type de cuisine..." required>
                         <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onRestaurantSelected($event.option.value)" [displayWith]="displayRestaurantFn">
                             <mat-option *ngFor="let restaurant of filteredRestaurants | async" [value]="restaurant">
                                 <div class="restaurant-option">
                                     <div class="restaurant-name">{{restaurant.name}}</div>
-                                    <div class="restaurant-cuisine">{{restaurant.cuisineType || 'No cuisine type'}}</div>
+                                    <div class="restaurant-cuisine">{{restaurant.cuisineType || 'Aucun type de cuisine'}}</div>
                                 </div>
                             </mat-option>
                         </mat-autocomplete>
-                        <div class="hint">Start typing to search restaurants by name or cuisine type</div>
-                        <div class="error" *ngIf="groupOrderForm.get('restaurantSearch')?.hasError('required')">
-                            Restaurant is required
-                        </div>
                         <div class="error" *ngIf="groupOrderForm.get('restaurantSearch')?.value && !isRestaurantSelected()">
-                            Please select a restaurant from the dropdown
+                            Veuillez sélectionner un restaurant dans la liste
                         </div>
                     </div>
-                    <div class="form-row">
-                        <label for="creatorName">Your Name</label>
-                        <input id="creatorName" class="Input" formControlName="creatorName" readonly>
-                        <div class="hint">Automatically filled from your profile</div>
-                    </div>
+
                     <div class="form-row deadline-row">
-                        <label for="orderDeadlineDate">Order Deadline Date</label>
-                        <input id="orderDeadlineDate" class="Input" [matDatepicker]="picker" formControlName="orderDeadlineDate" required>
-                        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                        <mat-datepicker #picker></mat-datepicker>
-                        <div class="hint">Date when the order participation closes</div>
-                        <div class="error" *ngIf="groupOrderForm.get('orderDeadlineDate')?.hasError('required')">
-                            Order deadline date is required
+                        <label for="orderDeadlineTime">Heure de clôture des commandes</label>
+                        <div class="relative"><input id="orderDeadlineDate" class="Input" [matDatepicker]="picker" formControlName="orderDeadlineDate" required>
+                            <mat-datepicker-toggle class="absolute top-0 right-0" matSuffix [for]="picker"></mat-datepicker-toggle>
+                            <mat-datepicker #picker></mat-datepicker>
                         </div>
-                        <label for="orderDeadlineTime">Order Deadline Time</label>
+                        <div class="hint">Date à laquelle la participation aux commandes se termine</div>
+                        <div class="error" *ngIf="groupOrderForm.get('orderDeadlineDate')?.hasError('required')">
+                            La date de clôture est requise
+                        </div>
+
                         <input id="orderDeadlineTime" class="Input" type="time" formControlName="orderDeadlineTime" required>
-                        <div class="hint">Time when the order participation closes</div>
+                        <div class="hint">Heure à laquelle la participation aux commandes se termine</div>
                         <div class="error" *ngIf="groupOrderForm.get('orderDeadlineTime')?.hasError('required')">
-                            Order deadline time is required
+                            L'heure de clôture est requise
                         </div>
                     </div>
                     <div class="form-row deadline-progress-row" *ngIf="groupOrderForm.get('orderDeadlineDate')?.value && groupOrderForm.get('orderDeadlineTime')?.value">
                         <mat-progress-bar mode="determinate" [value]="isDeadlineValid ? 100 : 30" color="primary"></mat-progress-bar>
                         <div class="deadline-feedback" [ngClass]="{'valid': isDeadlineValid, 'invalid': !isDeadlineValid}">
                             <mat-icon>{{isDeadlineValid ? 'check_circle' : 'warning'}}</mat-icon>
-                            <span>{{isDeadlineValid ? 'Deadline is valid - order will be created successfully' : deadlineValidationMessage}}</span>
+                            <span>{{isDeadlineValid ? 'La date limite est valide - la commande sera créée avec succès' : deadlineValidationMessage}}</span>
                         </div>
                     </div>
                 </form>
             </mat-card-content>
             <mat-card-actions align="end">
                 <button mat-stroked-button color="warn" (click)="onCancel()" type="button">
-          <mat-icon>close</mat-icon> Cancel
+          <mat-icon>close</mat-icon> Annuler
         </button>
                 <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="groupOrderForm.invalid || isLoading || !isDeadlineValid || !isRestaurantSelected()">
-          <mat-icon>add_circle</mat-icon> {{isLoading ? 'Creating...' : 'Create Group Order'}}
+          <mat-icon>add_circle</mat-icon> {{isLoading ? 'Création...' : 'Créer la commande groupée'}}
               </button>
             </mat-card-actions>
         </mat-card>

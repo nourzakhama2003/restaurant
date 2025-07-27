@@ -18,6 +18,8 @@ import { Order } from '../../models/group-order.model';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../confirm-dialog.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-my-orders',
@@ -34,10 +36,19 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatDatepickerModule,
     MatNativeDateModule,
     FormsModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatTooltipModule
   ],
   templateUrl: "./my-orders.component.html",
-  styleUrls: ["./my-orders.component.css"]
+  styleUrls: ["./my-orders.component.css"],
+  animations: [
+    trigger('fadeInUp', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(20px)' }),
+        animate('0.4s ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ])
+  ]
 })
 export class MyOrdersComponent implements OnInit {
   orders: Order[] = [];
@@ -132,7 +143,7 @@ export class MyOrdersComponent implements OnInit {
   }
 
   formatDate(date: Date): string {
-    return new Date(date).toLocaleDateString() + ' ' + new Date(date).toLocaleTimeString();
+    return new Date(date).toLocaleDateString('fr-FR');
   }
 
   canDeleteOrder(order: Order): boolean {
@@ -195,7 +206,6 @@ export class MyOrdersComponent implements OnInit {
     });
   }
 
-
   viewDetails(commandeId: string): void {
     this.router.navigate(['/group-orders/details', commandeId]);
   }
@@ -227,5 +237,26 @@ export class MyOrdersComponent implements OnInit {
     this.selectedDate = null;
     this.statusFilter = 'cree';
     this.applyFilters();
+  }
+
+  // New methods for enhanced UI
+  getStatusIcon(status: string): string {
+    switch (status) {
+      case 'cree': return 'hourglass_empty';
+      case 'attente': return 'hourglass_top';
+      case 'confirmee': return 'check_circle';
+      case 'annulee': return 'cancel';
+      default: return 'help';
+    }
+  }
+
+  getStatusLabel(status: string): string {
+    switch (status) {
+      case 'cree': return 'Créée';
+      case 'attente': return 'En attente';
+      case 'confirmee': return 'Confirmée';
+      case 'annulee': return 'Annulée';
+      default: return status;
+    }
   }
 }

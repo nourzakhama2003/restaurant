@@ -8,16 +8,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RestaurantService } from '../../services/restaurant.service';
 import { Restaurant } from '../../models/restaurant.model';
 import { RestaurantFormDialogComponent } from '../restaurant-form/restaurant-form-dialog.component';
 import { ConfirmDialogRestaurantComponent } from '../../confirm-dialog-restaurant.component';
 import { MenuDialogComponent } from '../menu-dialog/menu-dialog.component';
 import { RouterModule } from '@angular/router';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { trigger, state, style, animate, transition } from '@angular/animations';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { delay } from 'rxjs';
+
 @Component({
   selector: 'app-restaurant-list',
   standalone: true,
@@ -31,14 +31,19 @@ import { delay } from 'rxjs';
     MatButtonModule,
     MatDialogModule,
     MatSnackBarModule,
-    RouterModule,
-    MatProgressSpinnerModule
-    // BrowserAnimationsModule removed
+    MatTooltipModule,
+    MatProgressSpinnerModule,
+    RouterModule
   ],
   templateUrl: './restaurant-list.component.html',
   styleUrls: ['./restaurant-list.component.css'],
   animations: [
-    // Define the fade-in animation
+    trigger('fadeInUp', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(20px)' }),
+        animate('0.3s ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ]),
     trigger('fadeIn', [
       transition(':enter', [
         style({ opacity: 0 }),
@@ -98,9 +103,8 @@ export class RestaurantListComponent implements OnInit, AfterViewInit {
   loadRestaurants(): void {
     this.isLoading = true;
     this.restaurantService.getAllRestaurants()
-      .pipe(delay(1000))
       .subscribe({
-        next: (data: Restaurant[]) => {
+        next: (data) => {
           this.restaurants = data;
           this.isLoading = false;
         },
@@ -116,47 +120,56 @@ export class RestaurantListComponent implements OnInit, AfterViewInit {
     return this.restaurants.filter(
       (r) =>
         (r.name ?? '').toLowerCase().includes(text) ||
-        (r.description ?? '').toLowerCase().includes(text)
+        (r.description ?? '').toLowerCase().includes(text) ||
+        (r.cuisineType ?? '').toLowerCase().includes(text) ||
+        (r.address ?? '').toLowerCase().includes(text)
     );
+  }
+
+  clearSearch(): void {
+    this.searchText = '';
+  }
+
+  getRestaurantImage(restaurant: Restaurant): string {
+    if (restaurant.profileImageBase64) {
+      return restaurant.profileImageBase64;
+    }
+    // Fallback to default restaurant image
+    return '/assets/images/restaurant.jpeg';
   }
 
   openDialog(restaurant?: Restaurant): void {
     const dialogRef = this.dialog.open(RestaurantFormDialogComponent, {
       width: '600px',
-      maxHeight: '90vh',
-      height: 'auto',
+      maxWidth: '95vw',
       data: restaurant || {}
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        if (restaurant && restaurant.id) {
-          this.restaurantService.updateRestaurant(restaurant.id, result).subscribe({
-            next: (updated) => {
-              const index = this.restaurants.findIndex((r) => r.id === restaurant.id);
-              if (index !== -1) {
-                this.restaurants[index] = updated;
-                this.snackBar.open('Restaurant updated successfully!', 'Close', {
-                  duration: 3000,
-                  horizontalPosition: 'center',
-                  verticalPosition: 'top'
-                });
-              }
-            },
-            error: (err) => this.handleError(err)
-          });
+        if (restaurant) {
+          // Update existing restaurant
+          this.restaurantService.updateRestaurant(restaurant.id!, result)
+            .subscribe({
+              next: (updatedRestaurant) => {
+                const index = this.restaurants.findIndex(r => r.id === restaurant.id);
+                if (index !== -1) {
+                  this.restaurants[index] = updatedRestaurant;
+                }
+                this.snackBar.open('Restaurant mis à jour avec succès', 'Fermer', { duration: 3000 });
+              },
+              error: (err) => this.handleError(err)
+            });
         } else {
-          this.restaurantService.createRestaurant(result).subscribe({
-            next: (newRest) => {
-              this.restaurants.push(newRest);
-              this.snackBar.open('Restaurant added successfully!', 'Close', {
-                duration: 3000,
-                horizontalPosition: 'center',
-                verticalPosition: 'top'
-              });
-            },
-            error: (err) => this.handleError(err)
-          });
+          // Create new restaurant
+          this.restaurantService.createRestaurant(result)
+            .subscribe({
+              next: (newRestaurant) => {
+                this.restaurants.push(newRestaurant);
+                this.snackBar.open('Restaurant créé avec succès', 'Fermer', { duration: 3000 });
+              },
+              error: (err) => this.handleError(err)
+            });
         }
       }
     });
@@ -164,45 +177,45 @@ export class RestaurantListComponent implements OnInit, AfterViewInit {
 
   deleteRestaurant(id: string): void {
     const dialogRef = this.dialog.open(ConfirmDialogRestaurantComponent, {
-      width: '600px',
-      data: { message: 'Voulez-vous vraiment supprimer ce restaurant ?' }
+      width: '400px',
+      data: {
+        title: 'Confirmer la suppression',
+        message: 'Êtes-vous sûr de vouloir supprimer ce restaurant ? Cette action est irréversible.',
+        confirmText: 'Supprimer',
+        cancelText: 'Annuler'
+      }
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result === true) {
-        this.restaurantService.deleteRestaurant(id).subscribe({
-          next: () => {
-            this.restaurants = this.restaurants.filter((r) => r.id !== id);
-            this.snackBar.open('Restaurant deleted successfully!', 'Close', {
-              duration: 3000,
-              horizontalPosition: 'center',
-              verticalPosition: 'top'
-            });
-          },
-          error: (err) => this.handleError(err)
-        });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.restaurantService.deleteRestaurant(id)
+          .subscribe({
+            next: () => {
+              this.restaurants = this.restaurants.filter(r => r.id !== id);
+              this.snackBar.open('Restaurant supprimé avec succès', 'Fermer', { duration: 3000 });
+            },
+            error: (err) => this.handleError(err)
+          });
       }
     });
   }
 
   openMenuDialog(restaurant: Restaurant): void {
     const dialogRef = this.dialog.open(MenuDialogComponent, {
-      width: '600px',
-      data: restaurant
+      width: '800px',
+      maxWidth: '95vw',
+      data: { restaurantId: restaurant.id }
     });
 
-    dialogRef.afterClosed().subscribe(() => {
-      this.loadRestaurants();
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Handle menu dialog result if needed
+      }
     });
   }
 
   private handleError(err: any): void {
-    console.error(err);
-    this.snackBar.open('An error occurred. Please try again.', 'Close', {
-      duration: 3000,
-      horizontalPosition: 'center',
-      verticalPosition: 'top',
-      panelClass: ['error-snackbar']
-    });
+    console.error('Error:', err);
+    this.snackBar.open('Une erreur est survenue', 'Fermer', { duration: 3000 });
   }
 }

@@ -331,3 +331,47 @@ body {
         @apply border border-gray-200;
     }
 }
+
+
+/* Print: Only show print section, hide everything else */
+
+@media print {
+    body * {
+        visibility: hidden !important;
+    }
+    #printSection,
+    #printSection * {
+        visibility: visible !important;
+    }
+    #printSection {
+        position: absolute !important;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        background: white;
+        page-break-before: avoid;
+        page-break-after: avoid;
+    }
+}
+
+.pro-footer {
+    background: linear-gradient(90deg, #f0f4ff 0%, #e0e7ff 100%);
+    color: #334155;
+    font-size: 1rem;
+    border-radius: 12px;
+    margin: 16px auto 0 auto;
+    max-width: 600px;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.08);
+}
+
+.pro-link {
+    color: #667eea;
+    font-weight: 600;
+    text-decoration: underline;
+    transition: color 0.2s;
+}
+
+.pro-link:hover {
+    color: #764ba2;
+    text-decoration: none;
+}

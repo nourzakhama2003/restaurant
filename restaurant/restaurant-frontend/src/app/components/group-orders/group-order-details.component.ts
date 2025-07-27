@@ -24,6 +24,7 @@ import { Subscription } from 'rxjs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { FormsModule } from '@angular/forms';
 import { WebSocketService } from '../../services/websocket.service';
+import { RouterModule } from '@angular/router'; // <-- Add this import
 
 // Polyfill for 'global' in browser
 
@@ -43,6 +44,7 @@ import { WebSocketService } from '../../services/websocket.service';
     MatFormFieldModule,
     MatProgressBarModule,
     FormsModule,
+    RouterModule
   ],
   templateUrl: './group-order-details.component.html',
   styleUrls: ['./group-order-details.component.css']
@@ -87,6 +89,8 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
   statusUpdating = false;
   private pollingInterval: any;
   private wsSubscription: any;
+
+  currentDate = new Date();
 
   constructor(
     private route: ActivatedRoute,
@@ -269,6 +273,9 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
   }
 
   getTotalAmount(): number {
+    if (this.commande && this.commande.totalPrice !== undefined) {
+      return this.commande.totalPrice;
+    }
     return this.orders.reduce((total: number, order: Order) => total + (order.totalAmount || 0), 0);
   }
 
@@ -277,12 +284,32 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
   }
 
   getStatusColor(status: string): string {
-    switch ((status || '').toLowerCase()) {
+    switch (status) {
       case 'cree': return 'primary';
       case 'attente': return 'accent';
-      case 'confirmee': return 'primary';
+      case 'confirmee': return 'warn';
       case 'annulee': return 'warn';
       default: return 'primary';
+    }
+  }
+
+  getStatusIcon(status: string): string {
+    switch (status) {
+      case 'cree': return 'hourglass_empty';
+      case 'attente': return 'hourglass_top';
+      case 'confirmee': return 'check_circle';
+      case 'annulee': return 'cancel';
+      default: return 'help';
+    }
+  }
+
+  getStatusLabel(status: string): string {
+    switch (status) {
+      case 'cree': return 'Créée';
+      case 'attente': return 'En attente';
+      case 'confirmee': return 'Confirmée';
+      case 'annulee': return 'Annulée';
+      default: return status;
     }
   }
 
@@ -375,11 +402,34 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
   }
 
   participateInOrder(): void {
-    if (this.isPastDeadline()) {
-      this.snackBar.open('Participation is closed for this order', 'Close', { duration: 3000 });
+    if (!this.commande) {
+      this.snackBar.open('Group order not found', 'Close', { duration: 3000 });
       return;
     }
-    this.router.navigate(['/group-orders/participate', this.commandeId]);
+    if (!this.currentUserId) {
+      this.snackBar.open('User not loaded', 'Close', { duration: 3000 });
+      return;
+    }
+    if (!this.canJoin()) {
+      this.snackBar.open('Participation time has expired for this group order.', 'Close', { duration: 3000 });
+      return;
+    }
+    const dialogRef = this.dialog.open(OrderSubmissionComponent, {
+      width: '1000px',
+      maxWidth: '95vw',
+      data: {
+        commandeId: this.commandeId,
+        restaurantId: this.commande.restaurantId,
+        participantId: this.currentUserId // Pass the backend user id
+      }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadOrdersForCommande();
+        this.cdr.detectChanges();
+        this.snackBar.open('Order submitted successfully!', 'Close', { duration: 3000 });
+      }
+    });
   }
 
   goBack(): void {
@@ -484,5 +534,52 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
         }
       });
     }
+  }
+
+  /**
+   * Print the order details for restaurant
+   */
+  printOrderDetails() {
+    // Show print section
+    const printSection = document.getElementById('printSection');
+    if (printSection) {
+      printSection.style.display = 'block';
+    }
+
+    // Wait a moment for the content to render, then print
+    setTimeout(() => {
+      window.print();
+
+      // Hide print section after printing
+      setTimeout(() => {
+        if (printSection) {
+          printSection.style.display = 'none';
+        }
+      }, 1000);
+    }, 100);
+  }
+
+  /**
+   * Get total number of items across all orders
+   */
+  getTotalItems(): number {
+    if (!this.orders) return 0;
+
+    return this.orders.reduce((total, order) => {
+      if (order.items) {
+        return total + order.items.reduce((itemTotal, item) => {
+          return itemTotal + (item.quantity || 0);
+        }, 0);
+      }
+      return total;
+    }, 0);
+  }
+
+  /**
+   * Get count of orders that have items
+   */
+  getOrdersWithItemsCount(): number {
+    if (!this.orders) return 0;
+    return this.orders.filter(order => order.items && order.items.length > 0).length;
   }
 }

@@ -4,21 +4,45 @@ import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { MenuService } from '../../services/menu.service';
 import { MenuItem } from '../../models/menu-item.model';
 import { RestaurantService } from '../../services/restaurant.service';
 import { Restaurant } from '../../models/restaurant.model';
 import { MenuItemFormComponent } from '../menu-item-form/menu-item-form.component';
 import { ConfirmDialogComponent } from '../../confirm-dialog.component';
-import { HlmSpinnerComponent } from '@spartan-ng/helm/spinner';
 import { Category } from '../../models/category.model';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
     selector: 'app-all-menu-items',
     standalone: true,
-    imports: [CommonModule, FormsModule, MatButtonModule, MatIconModule, HlmSpinnerComponent],
+    imports: [
+        CommonModule,
+        FormsModule,
+        MatButtonModule,
+        MatIconModule,
+        MatTooltipModule,
+        MatProgressSpinnerModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatSnackBarModule
+    ],
     templateUrl: './all-menu-items.component.html',
-    styleUrls: ['./menu-list.component.css']
+    styleUrls: ['./all-menu-items.component.css'],
+    animations: [
+        trigger('fadeInUp', [
+            transition(':enter', [
+                style({ opacity: 0, transform: 'translateY(20px)' }),
+                animate('0.3s ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+            ])
+        ])
+    ]
 })
 export class AllMenuItemsComponent implements OnInit, AfterViewInit {
     menuItems: MenuItem[] = [];
@@ -32,7 +56,8 @@ export class AllMenuItemsComponent implements OnInit, AfterViewInit {
     constructor(
         private menuService: MenuService,
         private restaurantService: RestaurantService,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private snackBar: MatSnackBar
     ) { }
 
     ngOnInit(): void {
@@ -43,7 +68,10 @@ export class AllMenuItemsComponent implements OnInit, AfterViewInit {
         });
         this.menuService.getAllCategories().subscribe({
             next: (cats) => this.categories = cats,
-            error: (err) => console.error('Erreur lors du chargement des catégories:', err)
+            error: (err) => {
+                console.error('Erreur lors du chargement des catégories:', err);
+                this.snackBar.open('Erreur lors du chargement des catégories', 'Fermer', { duration: 3000 });
+            }
         });
     }
 
@@ -77,6 +105,8 @@ export class AllMenuItemsComponent implements OnInit, AfterViewInit {
                 this.isLoading = false;
             },
             error: (err) => {
+                console.error('Erreur lors du chargement des plats:', err);
+                this.snackBar.open('Erreur lors du chargement des plats', 'Fermer', { duration: 3000 });
                 this.isLoading = false;
             }
         });
@@ -87,18 +117,41 @@ export class AllMenuItemsComponent implements OnInit, AfterViewInit {
         return rest ? rest.name : restaurantId;
     }
 
+    getCategoryName(categoryId?: string): string {
+        if (!categoryId) return '';
+        const cat = this.categories.find(c => c.id === categoryId);
+        return cat ? cat.name : '';
+    }
+
+    clearSearch() {
+        this.searchText = '';
+    }
+
     delete(id?: string) {
         if (!id) return;
         const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-            width: '350px',
-            data: { message: 'Are you sure you want to delete this menu item?' }
+            width: '400px',
+            data: {
+                title: 'Supprimer le plat',
+                message: 'Êtes-vous sûr de vouloir supprimer ce plat ? Cette action est irréversible.',
+                confirmLabel: 'Supprimer',
+                confirmIcon: 'delete'
+            }
         });
         dialogRef.afterClosed().subscribe(result => {
             if (result) {
                 this.isLoading = true;
-                this.menuService.deleteMenuItem(id).subscribe(() => {
-                    this.menuItems = this.menuItems.filter(i => i.id !== id);
-                    this.isLoading = false;
+                this.menuService.deleteMenuItem(id).subscribe({
+                    next: () => {
+                        this.menuItems = this.menuItems.filter(i => i.id !== id);
+                        this.isLoading = false;
+                        this.snackBar.open('Plat supprimé avec succès', 'Fermer', { duration: 3000 });
+                    },
+                    error: (err) => {
+                        console.error('Erreur lors de la suppression:', err);
+                        this.snackBar.open('Erreur lors de la suppression du plat', 'Fermer', { duration: 3000 });
+                        this.isLoading = false;
+                    }
                 });
             }
         });
@@ -106,26 +159,30 @@ export class AllMenuItemsComponent implements OnInit, AfterViewInit {
 
     editItem(item: MenuItem) {
         const dialogRef = this.dialog.open(MenuItemFormComponent, {
-            width: '400px',
+            width: '600px',
+            maxWidth: '95vw',
             data: { menuItem: item, restaurantId: item.restaurantId }
         });
         dialogRef.afterClosed().subscribe(result => {
             if (result) {
                 this.isLoading = true;
                 this.loadAllItems();
+                this.snackBar.open('Plat mis à jour avec succès', 'Fermer', { duration: 3000 });
             }
         });
     }
 
     addItem() {
         const dialogRef = this.dialog.open(MenuItemFormComponent, {
-            width: '400px',
+            width: '600px',
+            maxWidth: '95vw',
             data: {}
         });
         dialogRef.afterClosed().subscribe(result => {
             if (result) {
                 this.isLoading = true;
                 this.loadAllItems();
+                this.snackBar.open('Plat créé avec succès', 'Fermer', { duration: 3000 });
             }
         });
     }

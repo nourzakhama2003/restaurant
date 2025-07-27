@@ -40,7 +40,7 @@ public class MenuItemService {
         }
         
         // Validate and set category name
-        if (item.getCategoryId() != null) {
+        if (item.getCategoryId() != null && !item.getCategoryId().trim().isEmpty()) {
             Category category = categoryRepository.findById(item.getCategoryId()).orElse(null);
             if (category == null) {
                 throw new IllegalArgumentException("Category with id " + item.getCategoryId() + " does not exist");
@@ -70,7 +70,7 @@ public class MenuItemService {
             // Update imageBase64 if provided (allow clearing image as well)
             existing.setImageBase64(item.getImageBase64());
             // Validate and set category name
-            if (item.getCategoryId() != null) {
+            if (item.getCategoryId() != null && !item.getCategoryId().trim().isEmpty()) {
                 Category category = categoryRepository.findById(item.getCategoryId()).orElse(null);
                 if (category == null) {
                     throw new IllegalArgumentException("Category with id " + item.getCategoryId() + " does not exist");

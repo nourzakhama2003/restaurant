@@ -1,141 +1,231 @@
-<div class="order-submission-form bg-white p-6 rounded-xl shadow-lg max-w-3xl mx-auto max-h-[90vh] overflow-y-auto">
-    <div class="form-header text-center mb-6">
-        <h2 class="text-2xl font-semibold text-gray-900">{{ isEditMode ? 'Modifier votre commande' : 'Soumettre votre commande' }}</h2>
-        <p class="text-gray-600 mt-1 text-sm">Ajoutez vos articles pour rejoindre cette commande groupée</p>
-    </div>
+<div class="order-submission-container">
+    <!-- Enhanced Backdrop with blur effect -->
+    <div class="backdrop-blur-sm bg-black/30 fixed inset-0 z-40 animate-fadeIn"></div>
 
-    <form [formGroup]="orderForm" class="order-form flex flex-col gap-6">
-        <!-- User Name (Hidden but auto-filled) -->
-        <div class="user-info bg-blue-50 p-4 rounded-lg border-l-4 border-blue-600">
-            <p class="text-gray-800 text-sm"><strong>Commande au nom de :</strong> {{ orderForm.get('participantName')?.value }}</p>
-        </div>
-
-        <!-- Category Dropdown -->
-        <div class="category-dropdown-wrapper">
-            <label for="category-select" class="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
-            <select id="category-select" class="category-select w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 bg-white text-gray-800" [value]="selectedCategory" (change)="onCategoryChange($any($event.target).value)">
-                <option value="">Toutes les catégories</option>
-                <option *ngFor="let cat of availableCategories" [value]="cat">{{ cat }}</option>
-            </select>
-        </div>
-
-        <!-- Menu Items Section -->
-        <div class="menu-section bg-gray-50 p-6 rounded-lg border border-gray-200">
-            <div class="section-header flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold text-gray-900">Sélectionner les plats</h3>
-                <button type="button" (click)="addMenuItem()" class="add-btn flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                    <span class="text-base">＋</span>
-                    Ajouter un plat
+    <!-- Main Form Container with enhanced styling -->
+    <div class="order-submission-form relative z-50 bg-white rounded-3xl shadow-2xl max-w-5xl mx-auto max-h-[95vh] overflow-hidden border border-gray-100">
+        <!-- Enhanced Header with better gradient -->
+        <div class="form-header bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white p-8 rounded-t-3xl relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent"></div>
+            <div class="relative z-10 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="header-icon bg-white/20 p-3 rounded-2xl backdrop-blur-sm border border-white/30">
+                        <mat-icon class="text-white text-2xl">{{ isEditMode ? 'edit' : 'add_shopping_cart' }}</mat-icon>
+                    </div>
+                    <div>
+                        <h2 class="text-3xl font-bold tracking-tight">{{ isEditMode ? 'Modifier votre commande' : 'Soumettre votre commande' }}</h2>
+                        <p class="text-blue-100 text-base mt-2 opacity-90">Ajoutez vos articles pour rejoindre cette commande groupée</p>
+                    </div>
+                </div>
+                <button type="button" (click)="onCancel()" class="close-btn bg-white/20 hover:bg-white/30 p-3 rounded-2xl transition-all duration-300 backdrop-blur-sm border border-white/30 hover:scale-110">
+                    <mat-icon class="text-white">close</mat-icon>
                 </button>
             </div>
+        </div>
 
-            <!-- Loading state -->
-            <div *ngIf="isLoadingMenuItems" class="loading-state text-center py-10">
-                <div class="spinner w-10 h-10 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto"></div>
-                <p class="text-gray-600 mt-3 text-sm">Chargement des plats...</p>
-            </div>
-
-            <!-- No menu items available -->
-            <div *ngIf="!isLoadingMenuItems && menuItems.length === 0" class="no-menu-items text-center py-10">
-                <span class="text-4xl">🍽️</span>
-                <p class="text-gray-700 mt-3 text-base">Aucun plat disponible pour ce restaurant.</p>
-                <p class="text-gray-500 text-sm">Veuillez contacter l'administrateur du restaurant.</p>
-                <button class="add-item-btn mt-4 px-5 py-2 bg-gradient-to-r from-blue-600 to-pink-600 text-white rounded-lg hover:from-pink-600 hover:to-blue-600 transition" type="button" (click)="addItemToRestaurant()">
-                    <span class="text-base">＋</span> Ajouter un plat au restaurant
-                </button>
-            </div>
-
-            <!-- Menu items -->
-            <div formArrayName="items" *ngIf="!isLoadingMenuItems && menuItems.length > 0" class="items-container flex flex-col gap-4">
-                <div *ngFor="let item of orderItems.controls; let i = index" [formGroupName]="i" class="item-row bg-white p-5 rounded-lg border border-gray-200 hover:shadow-md transition">
-                    <div class="item-content grid grid-cols-1 md:grid-cols-[2fr_1fr_2fr_1fr_auto] gap-4 items-end">
-                        <div class="item-select">
-                            <div class="menu-dropdown-wrapper">
-                                <label for="menu-item-select-{{i}}" class="block text-sm font-medium text-gray-700 mb-1">Plat</label>
-                                <mat-form-field appearance="outline" class="w-full">
-                                    <mat-label>Plat</mat-label>
-                                    <mat-select formControlName="menuItemId" (selectionChange)="onMenuItemSelect(i, $event.value)">
-                                        <mat-option value="" disabled>Sélectionner un plat...</mat-option>
-                                        <mat-option *ngFor="let menuItem of filteredMenuItemsByCategory" [value]="menuItem.id">
-                                            <span class="dropdown-item-img-wrapper">
-                                                <img *ngIf="menuItem.imageBase64" [src]="menuItem.imageBase64" alt="{{menuItem.name}}" class="dropdown-item-img w-5 h-5 object-cover rounded mr-2" />
-                                            </span> {{ menuItem.name }} - ${{ menuItem.price.toFixed(2) }}
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                                <div *ngIf="item.get('menuItemId')?.hasError('required') && item.touched" class="text-red-600 text-xs mt-1">
-                                    Veuillez sélectionner un plat
-                                </div>
-                            </div>
+        <!-- Enhanced Scrollable Content -->
+        <div class="form-content p-8 overflow-y-auto max-h-[calc(95vh-140px)]">
+            <form [formGroup]="orderForm" class="order-form space-y-8">
+                <!-- Enhanced User Info Card -->
+                <div class="user-info-card bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 p-6 rounded-2xl border border-blue-200 shadow-sm hover:shadow-md transition-all duration-300">
+                    <div class="flex items-center space-x-4">
+                        <div class="user-avatar bg-gradient-to-r from-blue-500 to-purple-600 text-white p-3 rounded-2xl shadow-lg">
+                            <mat-icon class="text-xl">person</mat-icon>
                         </div>
-
-                        <!-- Quantity input -->
-                        <div class="item-quantity">
-                            <label for="quantity-{{i}}" class="block text-sm font-medium text-gray-700 mb-1">Qté</label>
-                            <input id="quantity-{{i}}" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600" type="number" formControlName="quantity" min="1" (input)="calculateItemTotal(i)" [class.border-red-600]="item.get('quantity')?.invalid && item.touched">
-                            <div class="text-red-600 text-xs mt-1" *ngIf="item.get('quantity')?.hasError('required') && item.touched">
-                                Requis
-                            </div>
-                            <div class="text-red-600 text-xs mt-1" *ngIf="item.get('quantity')?.hasError('min') && item.touched">
-                                Min 1
-                            </div>
-                        </div>
-
-                        <!-- Notes input -->
-                        <div class="item-notes">
-                            <label for="notes-{{i}}" class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-                            <input id="notes-{{i}}" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600" formControlName="notes" placeholder="ex : sans oignons">
-                        </div>
-
-                        <div class="item-subtotal text-center p-3 bg-green-50 rounded-lg">
-                            <span class="subtotal-amount font-medium text-green-700">${{ getItemSubtotal(i).toFixed(2) }}</span>
-                        </div>
-
-                        <div class="item-actions self-center">
-                            <button type="button" (click)="removeMenuItem(i)" [disabled]="orderItems.length === 1" class="icon-btn p-2 rounded-full hover:bg-red-50 transition" title="Supprimer le plat">
-                                <span class="text-red-600">🗑️</span>
-                            </button>
+                        <div>
+                            <p class="text-sm text-gray-600 font-medium">Commande au nom de</p>
+                            <p class="font-bold text-gray-900 text-lg">{{ orderForm.get('participantName')?.value }}</p>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div *ngIf="orderItems.length === 0" class="alert alert-info bg-blue-50 p-4 rounded-lg text-blue-800 text-sm">
-                Aucun plat ajouté pour l'instant. <a href="#" class="alert-link text-blue-900 underline hover:text-blue-700" (click)="$event.preventDefault(); addMenuItem();">Cliquez ici pour ajouter votre premier plat.</a>
-                <span class="block text-2xl mt-2">🛒</span>
-            </div>
-        </div>
-
-        <!-- Order Notes -->
-        <div class="notes-section bg-white p-5 rounded-lg border border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-900 mb-3">Notes supplémentaires</h3>
-            <label for="order-notes" class="block text-sm font-medium text-gray-700 mb-1">Notes de commande (optionnel)</label>
-            <textarea id="order-notes" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600" formControlName="notes" placeholder="Instructions ou demandes spéciales..."></textarea>
-        </div>
-
-        <!-- Order Summary -->
-        <div class="summary-section bg-gray-50 p-5 rounded-lg border border-gray-200">
-            <div class="summary-content flex flex-col gap-3">
-                <div class="summary-row flex justify-between text-gray-700 text-sm">
-                    <span>Nombre total de plats :</span>
-                    <span>{{ getTotalQuantity() }}</span>
+                <!-- Enhanced Category Filter -->
+                <div class="category-filter-card bg-white p-6 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300">
+                    <label for="category-select" class="block text-base font-bold text-gray-800 mb-4 flex items-center">
+                        <mat-icon class="mr-2 text-indigo-600">category</mat-icon>
+                        Filtrer par catégorie
+                    </label>
+                    <div class="relative">
+                        <select id="category-select" class="w-full p-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 bg-white text-gray-800 transition-all duration-300 appearance-none font-medium" [value]="selectedCategory" (change)="onCategoryChange($any($event.target).value)">
+                            <option value="">🍽️ Toutes les catégories</option>
+                            <option *ngFor="let cat of availableCategories" [value]="cat">📂 {{ cat }}</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                            <mat-icon class="text-gray-400">expand_more</mat-icon>
+                        </div>
+                    </div>
                 </div>
-                <div class="summary-row flex justify-between text-base font-semibold text-gray-900 border-t pt-3">
-                    <span>Montant total :</span>
-                    <span class="total-amount text-green-700">${{ getTotalAmount() }}</span>
+
+                <!-- Enhanced Menu Items Section -->
+                <div class="menu-section-card bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl border border-gray-200 shadow-sm">
+                    <div class="section-header flex justify-between items-center mb-8">
+                        <div class="flex items-center space-x-4">
+                            <div class="section-icon bg-gradient-to-r from-green-500 to-emerald-600 p-3 rounded-2xl shadow-lg">
+                                <mat-icon class="text-white text-xl">restaurant_menu</mat-icon>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-900">Sélectionner les plats</h3>
+                        </div>
+                        <button type="button" (click)="addMenuItem()" class="add-btn flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl hover:from-purple-600 hover:to-indigo-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold">
+                            <mat-icon>add</mat-icon>
+                            <span>Ajouter un plat</span>
+                        </button>
+                    </div>
+
+                    <!-- Enhanced Loading state -->
+                    <div *ngIf="isLoadingMenuItems" class="loading-state text-center py-16">
+                        <div class="spinner w-16 h-16 border-4 border-gray-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-6"></div>
+                        <p class="text-gray-600 text-lg font-medium">Chargement des plats...</p>
+                    </div>
+
+                    <!-- Enhanced No menu items available -->
+                    <div *ngIf="!isLoadingMenuItems && menuItems.length === 0" class="no-menu-items text-center py-16">
+                        <div class="empty-state-icon text-8xl mb-6">🍽️</div>
+                        <h4 class="text-2xl font-bold text-gray-700 mb-3">Aucun plat disponible</h4>
+                        <p class="text-gray-500 text-lg mb-8">Veuillez contacter l'administrateur du restaurant.</p>
+                        <button class="add-item-btn px-8 py-4 bg-gradient-to-r from-indigo-600 to-pink-600 text-white rounded-2xl hover:from-pink-600 hover:to-indigo-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold" type="button"
+                            (click)="addItemToRestaurant()">
+                            <mat-icon class="mr-3">add</mat-icon>
+                            Ajouter un plat au restaurant
+                        </button>
+                    </div>
+
+                    <!-- Enhanced Menu items -->
+                    <div formArrayName="items" *ngIf="!isLoadingMenuItems && menuItems.length > 0" class="items-container space-y-6">
+                        <div *ngFor="let item of orderItems.controls; let i = index" [formGroupName]="i" class="item-card bg-white p-8 rounded-2xl border-2 border-gray-100 hover:border-indigo-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+                            <div class="item-content grid grid-cols-1 lg:grid-cols-[2fr_1fr_2fr_1fr_auto] gap-6 items-end">
+                                <!-- Enhanced Dish Selection -->
+                                <div class="item-select">
+                                    <label class="block text-base font-bold text-gray-800 mb-3 flex items-center">
+                                        <mat-icon class="mr-2 text-indigo-600">restaurant</mat-icon>
+                                        Plat
+                                    </label>
+                                    <mat-form-field appearance="outline" class="w-full">
+                                        <mat-label>Sélectionner un plat...</mat-label>
+                                        <mat-select formControlName="menuItemId" (selectionChange)="onMenuItemSelect(i, $event.value)">
+                                            <mat-option value="" disabled>Sélectionner un plat...</mat-option>
+                                            <mat-option *ngFor="let menuItem of filteredMenuItemsByCategory" [value]="menuItem.id">
+                                                <div class="flex items-center space-x-4 py-2">
+                                                    <img *ngIf="menuItem.imageBase64" [src]="menuItem.imageBase64" [alt]="menuItem.name" class="w-12 h-12 object-cover rounded-xl" />
+                                                    <span class="flex-1 font-medium">{{ menuItem.name }}</span>
+                                                    <span class="text-green-600 font-bold text-lg">${{ menuItem.price.toFixed(2) }}</span>
+                                                </div>
+                                            </mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                    <div *ngIf="item.get('menuItemId')?.hasError('required') && item.touched" class="text-red-600 text-sm mt-2 flex items-center">
+                                        <mat-icon class="text-sm mr-2">error</mat-icon>
+                                        Veuillez sélectionner un plat
+                                    </div>
+                                </div>
+
+                                <!-- Enhanced Quantity -->
+                                <div class="item-quantity">
+                                    <label class="block text-base font-bold text-gray-800 mb-3 flex items-center">
+                                        <mat-icon class="mr-2 text-indigo-600">numbers</mat-icon>
+                                        Quantité
+                                    </label>
+                                    <div class="quantity-input-wrapper relative">
+                                        <input class="w-full p-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-300 font-medium" type="number" formControlName="quantity" min="1" (input)="calculateItemTotal(i)" [class.border-red-500]="item.get('quantity')?.invalid && item.touched"
+                                            placeholder="1">
+                                    </div>
+                                    <div class="text-red-600 text-sm mt-2 flex items-center" *ngIf="item.get('quantity')?.hasError('required') && item.touched">
+                                        <mat-icon class="text-sm mr-2">error</mat-icon>
+                                        Requis
+                                    </div>
+                                    <div class="text-red-600 text-sm mt-2 flex items-center" *ngIf="item.get('quantity')?.hasError('min') && item.touched">
+                                        <mat-icon class="text-sm mr-2">error</mat-icon>
+                                        Min 1
+                                    </div>
+                                </div>
+
+                                <!-- Enhanced Notes -->
+                                <div class="item-notes">
+                                    <label class="block text-base font-bold text-gray-800 mb-3 flex items-center">
+                                        <mat-icon class="mr-2 text-indigo-600">note</mat-icon>
+                                        Notes
+                                    </label>
+                                    <input class="w-full p-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-300 font-medium" formControlName="notes" placeholder="ex: sans oignons, bien cuit...">
+                                </div>
+
+                                <!-- Enhanced Subtotal -->
+                                <div class="item-subtotal text-center p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border-2 border-green-200">
+                                    <p class="text-sm text-green-600 mb-2 font-medium">Sous-total</p>
+                                    <span class="subtotal-amount text-2xl font-bold text-green-700">${{ getItemSubtotal(i).toFixed(2) }}</span>
+                                </div>
+
+                                <!-- Enhanced Actions -->
+                                <div class="item-actions self-center">
+                                    <button type="button" (click)="removeMenuItem(i)" [disabled]="orderItems.length === 1" class="remove-btn p-4 rounded-2xl hover:bg-red-50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed border-2 border-red-100 hover:border-red-200"
+                                        title="Supprimer le plat">
+                                        <mat-icon class="text-red-500 text-xl">delete</mat-icon>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Enhanced Empty state -->
+                    <div *ngIf="orderItems.length === 0" class="empty-state text-center py-16">
+                        <div class="empty-icon text-6xl mb-6">🛒</div>
+                        <h4 class="text-2xl font-bold text-gray-700 mb-3">Aucun plat ajouté</h4>
+                        <p class="text-gray-500 text-lg mb-6">Commencez par ajouter votre premier plat</p>
+                        <button type="button" (click)="addMenuItem()" class="add-first-item-btn px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl hover:from-purple-600 hover:to-indigo-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold">
+                            <mat-icon class="mr-3">add_shopping_cart</mat-icon>
+                            Ajouter votre premier plat
+                        </button>
+                    </div>
                 </div>
-            </div>
+
+                <!-- Enhanced Order Notes -->
+                <div class="notes-section-card bg-white p-8 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300">
+                    <div class="flex items-center space-x-4 mb-6">
+                        <div class="section-icon bg-gradient-to-r from-orange-500 to-red-600 p-3 rounded-2xl shadow-lg">
+                            <mat-icon class="text-white text-xl">note</mat-icon>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900">Notes supplémentaires</h3>
+                    </div>
+                    <label class="block text-base font-bold text-gray-800 mb-3 flex items-center">
+                        <mat-icon class="mr-2 text-indigo-600">edit_note</mat-icon>
+                        Instructions spéciales (optionnel)
+                    </label>
+                    <textarea class="w-full p-6 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-300 resize-none font-medium" rows="4" formControlName="notes" placeholder="Instructions ou demandes spéciales pour votre commande..."></textarea>
+                </div>
+
+                <!-- Enhanced Order Summary -->
+                <div class="summary-section-card bg-gradient-to-br from-indigo-50 to-purple-50 p-8 rounded-2xl border-2 border-indigo-200 shadow-lg">
+                    <div class="flex items-center space-x-4 mb-6">
+                        <div class="section-icon bg-gradient-to-r from-indigo-500 to-purple-600 p-3 rounded-2xl shadow-lg">
+                            <mat-icon class="text-white text-xl">receipt</mat-icon>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900">Résumé de la commande</h3>
+                    </div>
+                    <div class="summary-content space-y-4">
+                        <div class="summary-row flex justify-between items-center py-4 border-b-2 border-indigo-200">
+                            <span class="text-lg font-semibold text-gray-700">Nombre total de plats :</span>
+                            <span class="font-bold text-gray-900 text-xl">{{ getTotalQuantity() }}</span>
+                        </div>
+                        <div class="summary-row flex justify-between items-center py-4">
+                            <span class="text-xl font-bold text-gray-900">Montant total :</span>
+                            <span class="total-amount text-3xl font-bold text-green-600">${{ getTotalAmount() }}</span>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
 
-        <!-- Form Actions -->
-        <div class="form-actions sticky bottom-0 bg-white pt-4 pb-2 flex justify-end gap-3 border-t border-gray-200">
-            <button type="button" (click)="onCancel()" class="cancel-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium">
-                Annuler
-            </button>
-            <button type="button" (click)="onSubmit()" [disabled]="orderForm.invalid || isLoading || orderItems.length === 0" class="submit-btn flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed text-sm font-medium">
-                <span class="text-base">{{ isLoading ? '⏳' : '➡️' }}</span>
-                {{ isLoading ? (isEditMode ? 'Mise à jour...' : 'Soumission...') : (isEditMode ? 'Mettre à jour la commande' : 'Soumettre la commande') }}
-            </button>
+        <!-- Enhanced Sticky Footer Actions -->
+        <div class="form-actions bg-white border-t-2 border-gray-200 p-8 rounded-b-3xl">
+            <div class="flex justify-between items-center">
+                <button type="button" (click)="onCancel()" class="cancel-btn flex items-center gap-3 px-8 py-4 bg-gray-100 text-gray-700 rounded-2xl hover:bg-gray-200 transition-all duration-300 font-semibold hover:scale-105">
+                    <mat-icon>close</mat-icon>
+                    Annuler
+                </button>
+                <button type="button" (click)="onSubmit()" [disabled]="orderForm.invalid || isLoading || orderItems.length === 0" class="submit-btn flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl hover:from-purple-600 hover:to-indigo-600 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed font-bold shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none">
+                    <mat-icon *ngIf="!isLoading" class="text-xl">{{ isEditMode ? 'save' : 'send' }}</mat-icon>
+                    <div *ngIf="isLoading" class="spinner w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+                    {{ isLoading ? (isEditMode ? 'Mise à jour...' : 'Soumission...') : (isEditMode ? 'Mettre à jour la commande' : 'Soumettre la commande') }}
+                </button>
+            </div>
         </div>
-    </form>
+    </div>
 </div>

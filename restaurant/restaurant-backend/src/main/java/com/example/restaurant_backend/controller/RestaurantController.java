@@ -18,9 +18,9 @@ public class RestaurantController {
     @GetMapping
     public List<Restaurant> getAllRestaurants() {
         try {
-            System.out.println("Getting all restaurants...");
+
             List<Restaurant> restaurants = restaurantService.getAllRestaurants();
-            System.out.println("Found " + restaurants.size() + " restaurants");
+
             return restaurants;
         } catch (Exception e) {
             System.err.println("Error in getAllRestaurants: " + e.getMessage());
