@@ -450,6 +450,11 @@
 
 .action-btn:hover {
     transform: translateY(-2px);
+    background: #f9fafb;
+}
+
+.location-btn:hover {
+    background: #3b82f6;
 }
 
 .action-btn mat-icon {
@@ -459,7 +464,7 @@
 }
 
 .menu-btn:hover {
-    background: #667eea;
+    background: #10b981;
     color: white;
 }
 

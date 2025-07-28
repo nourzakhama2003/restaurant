@@ -224,8 +224,8 @@ export class RestaurantListComponent implements OnInit, AfterViewInit {
         name: restaurant.name,
         address: restaurant.address
       },
-      width: '600px',
-      maxWidth: '95vw'
+      width: '700px',
+      maxWidth: '100vw'
     });
   }
 
@@ -244,7 +244,7 @@ export class RestaurantListComponent implements OnInit, AfterViewInit {
     <mat-dialog-content style="padding:0;">
       <iframe
         width="100%"
-        height="400"
+        height="500"
         frameborder="0"
         style="border:0"
         [src]="googleMapsUrl | safeUrl"

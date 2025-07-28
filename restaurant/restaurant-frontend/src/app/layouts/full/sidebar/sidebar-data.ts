@@ -2,7 +2,12 @@ import { NavItem } from './nav-item/nav-item';
 
 export const navItems: NavItem[] = [
   {
-    navCap: 'Accueil',
+    displayName: 'Accueil',
+    iconName: 'home',
+    route: '/',
+  },
+  {
+    navCap: 'Navigation',
   },
   {
     displayName: 'Tableau de bord',
@@ -19,7 +24,7 @@ export const navItems: NavItem[] = [
   },
   {
     displayName: 'Commandes groupées',
-    iconName: 'notebook-pen', // matches the SVG in the top strip
+    iconName: 'notebook-pen',
     route: '/group-orders',
     chip: true,
     chipClass: 'bg-light-success text-success',
@@ -27,7 +32,7 @@ export const navItems: NavItem[] = [
   },
   {
     displayName: 'Mes commandes',
-    iconName: 'list-check', // matches the SVG in the top strip
+    iconName: 'list-check',
     route: '/group-orders/my-orders',
   },
   {
