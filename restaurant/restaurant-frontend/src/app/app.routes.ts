@@ -8,10 +8,11 @@ import { RegistrationSuccessComponent } from './auth/registration-success/regist
 import { AuthGuard } from './guards/auth.guard';
 import { MenuListComponent } from './components/menu-list/menu-list.component';
 import { AllMenuItemsComponent } from './components/menu-list/all-menu-items.component';
+import { HomeComponent } from './pages/home/home.component';
 
 export const routes: Routes = [
-  // Default route - let the auth guard handle the redirect
-  { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+  // Default route - show the new HomeComponent
+  { path: '', component: HomeComponent, pathMatch: 'full' },
 
   // Public routes (no authentication required)
   {

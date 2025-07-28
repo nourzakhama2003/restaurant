@@ -7,7 +7,7 @@
                     <mat-icon>restaurant</mat-icon>
                 </div>
                 <div class="title-content">
-                    <h1 class="page-title">Restaurants</h1>
+                    <h1 class="page-title">Restaurants </h1>
                     <p class="page-subtitle">Gérez tous vos restaurants</p>
                 </div>
             </div>
@@ -104,6 +104,9 @@
                     </button>
                     <button class="action-btn delete-btn" *ngIf="restaurant.id" (click)="deleteRestaurant(restaurant.id)" matTooltip="Supprimer le restaurant">
                         <mat-icon>delete</mat-icon>
+                    </button>
+                    <button class="action-btn location-btn" (click)="openMapPopup(restaurant)" matTooltip="Voir l'emplacement sur Google Maps">
+                        <mat-icon>location_on</mat-icon>
                     </button>
                 </div>
             </div>

@@ -1,0 +1,66 @@
+<div class="hero-3d glass">
+    <div class="hero-3d-text">
+        <h1>La plateforme pour vos commandes en groupe</h1>
+        <p>
+            Organisez, partagez et gérez vos repas en entreprise ou entre amis.<br> Une expérience collaborative, immersive et unique pour tous vos besoins de restauration collective.
+        </p>
+        <button class="cta-3d" [routerLink]="['/login']">Commencer</button>
+    </div>
+    <div class="hero-3d-image">
+        <img src="assets/images/3d/cotravail.png" alt="Repas en groupe 3D" />
+    </div>
+</div>
+
+<div class="features-3d">
+    <a class="feature-card-3d glass" routerLink="/group-orders/my-orders" appScrollAnimate="scroll-in-left">
+        <img src="assets/images/3d/icons8-take-away-food-94.png" alt="Commande individuelle 3D" />
+        <h2>Commandes individuelles & groupées</h2>
+        <p>Créez ou rejoignez une commande en quelques clics, seul ou à plusieurs.</p>
+    </a>
+    <a class="feature-card-3d glass" routerLink="/group-orders" appScrollAnimate="scroll-in-right">
+        <img src="assets/images/3d/group-meal-3d.png" alt="Collaboration 3D" />
+        <h2>Gestion collaborative</h2>
+        <p>Invitez vos collègues ou amis, suivez les participations et validez ensemble la commande.</p>
+    </a>
+    <a class="feature-card-3d glass" routerLink="/restaurant" appScrollAnimate="scroll-in-left">
+        <img src="assets/images/3d/icons8-tableware-94.png" alt="Menu 3D" />
+        <h2>Menus dynamiques</h2>
+        <p>Consultez et gérez les menus, suggestions du jour et plats favoris en temps réel.</p>
+    </a>
+    <a class="feature-card-3d glass" routerLink="/dashboard" appScrollAnimate="scroll-in-right">
+        <img src="assets/images/3d/icons8-analytics-94.png" alt="Analytique 3D" />
+        <h2>Suivi & Analytique</h2>
+        <p>Visualisez l’historique, les statistiques et optimisez vos commandes et ventes.</p>
+    </a>
+</div>
+
+<div class="testimonials-modern">
+    <h3><i class="icon-quote"></i> Ils nous font confiance</h3>
+    <div class="testimonial-list-modern">
+        <div class="testimonial-modern glass" appScrollAnimate="scroll-in-left">
+            <div class="testimonial-avatar" style="background-image:url('assets/images/profile/user-1.jpg')"></div>
+            <div class="testimonial-content">
+                <p>« Enfin une solution qui facilite vraiment les commandes de groupe au bureau. Plus d’oublis, tout est centralisé et rapide ! »</p>
+                <span>- Claire, Office Manager</span>
+            </div>
+        </div>
+        <div class="testimonial-modern glass " appScrollAnimate="scroll-in-right">
+            <div class="testimonial-avatar" style="background-image:url('assets/images/profile/user-2.jpg')"></div>
+            <div class="testimonial-content">
+                <p>« J’organise régulièrement des repas entre amis, et cette plateforme a tout changé. Simple, efficace et conviviale. »</p>
+                <span>- Mehdi, Utilisateur régulier</span>
+            </div>
+        </div>
+        <div class="testimonial-modern glass" appScrollAnimate="scroll-in-left">
+            <div class="testimonial-avatar" style="background-image:url('assets/images/profile/user-3.jpg')"></div>
+            <div class="testimonial-content">
+                <p>« Le suivi des commandes et les statistiques m’aident à mieux gérer mon restaurant et à fidéliser mes clients. »</p>
+                <span>- Sophie, Restauratrice</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="home-footer">
+    <p>&copy; 2024 Plateforme Restaurant. Tous droits réservés.</p>
+</footer>
