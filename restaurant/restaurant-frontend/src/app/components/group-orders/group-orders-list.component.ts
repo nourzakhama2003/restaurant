@@ -176,17 +176,17 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
   }
 
   onDateChange(event: any): void {
-    console.log('📅 Date change event:', event);
+    
     // Handle both input change events and date picker events
     if (event && event.target) {
       this.selectedDate = event.target.value ? new Date(event.target.value) : null;
-      console.log('📅 Selected date from target:', this.selectedDate);
+     
     } else if (event && event.value) {
       this.selectedDate = new Date(event.value);
-      console.log('📅 Selected date from value:', this.selectedDate);
+
     } else {
       this.selectedDate = null;
-      console.log('📅 No date selected');
+
     }
     this.applyFilters();
   }
@@ -411,13 +411,7 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
 
   applyFilters(): void {
     let filtered = this.commandes;
-    console.log('🔍 Applying filters:', {
-      searchTerm: this.searchTerm,
-      selectedDate: this.selectedDate,
-      statusFilter: this.statusFilter,
-      selectedRestaurantId: this.selectedRestaurantId,
-      totalCommandes: this.commandes.length
-    });
+ 
 
     // Filter by search term
     if (this.searchTerm.trim()) {
@@ -426,7 +420,7 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
         const restaurantName = this.getRestaurantName(commande.restaurantId).toLowerCase();
         return restaurantName.includes(searchLower);
       });
-      console.log('📝 After search filter:', filtered.length, 'commandes');
+
     }
 
     // Filter by date
@@ -434,11 +428,10 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
       const selectedDateStr = this.selectedDate.toISOString().split('T')[0];
       filtered = filtered.filter(commande => {
         const commandeDate = new Date(commande.createdAt);
-        const commandeDateStr = commandeDate.toISOString().split('T')[0];
-        console.log('📅 Comparing dates:', { selected: selectedDateStr, commande: commandeDateStr });
+        const commandeDateStr = commandeDate.toISOString().split('T')[0];  
         return commandeDateStr === selectedDateStr;
       });
-      console.log('📅 After date filter:', filtered.length, 'commandes');
+  
     }
 
     // Filter by status

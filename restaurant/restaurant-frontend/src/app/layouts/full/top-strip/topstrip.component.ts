@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, Input } from '@angular/core';
+import { Component, Output, EventEmitter, Input, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -22,9 +22,11 @@ import { CommonModule } from '@angular/common';
   templateUrl: './topstrip.component.html',
   styleUrls: ['./topstrip.css'],
 })
-export class AppTopstripComponent {
+export class AppTopstripComponent implements OnInit {
   @Input() isOver: boolean = false;
   visible = false;
+  userName: string = 'User';
+  userEmail: string = 'email non trouvé';
   constructor(
     private router: Router,
     private keycloak: KeycloakService
@@ -50,12 +52,15 @@ export class AppTopstripComponent {
     this.router.navigate(['/restaurants']);
   }
 
-  async getUserName(): Promise<string> {
+  async ngOnInit(): Promise<void> {
     try {
       const userProfile = await this.keycloak.loadUserProfile();
-      return userProfile.username || 'User';
+      this.userName = userProfile.username || 'User';
+      this.userEmail = userProfile.email || 'email non trouvé';
     } catch (error) {
-      return 'User';
+      console.error('Failed to load user profile:', error);
+      this.userName = 'User';
+      this.userEmail = 'email non trouvé';
     }
   }
 }
