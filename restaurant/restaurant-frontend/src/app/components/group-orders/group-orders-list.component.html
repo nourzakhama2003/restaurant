@@ -39,7 +39,7 @@
           <mat-icon>calendar_today</mat-icon>
           Date
         </label>
-                <input type="date" class="date-input" [(ngModel)]="selectedDate" (change)="onDateChange($event)" />
+                <input type="date" class="date-input" [(ngModel)]="selectedDate" (change)="onDateChange()" />
             </div>
 
             <div class="filter-group">
@@ -47,7 +47,7 @@
           <mat-icon>filter_list</mat-icon>
           Statut
         </label>
-                <select class="status-select" [(ngModel)]="statusFilter" (change)="onStatusFilterChange($event)">
+                <select class="status-select" [(ngModel)]="statusFilter" (change)="onStatusFilterChange()">
           <option *ngFor="let status of statusOptions" [value]="status.value">
             {{ status.label }}
           </option>

@@ -75,7 +75,7 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
   orderTotals: { [commandeId: string]: number } = {};
   isLoading = false;
   countdowns: { [commandeId: string]: { display: string, color: string, subscription: Subscription | null } } = {};
-  selectedDate: Date | null = null;
+  selectedDate: string | null = null;
   currentUserId: string = '';
   // Added for My Orders style filters
   searchTerm: string = '';
@@ -175,19 +175,7 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
     this.applyFilters();
   }
 
-  onDateChange(event: any): void {
-    
-    // Handle both input change events and date picker events
-    if (event && event.target) {
-      this.selectedDate = event.target.value ? new Date(event.target.value) : null;
-     
-    } else if (event && event.value) {
-      this.selectedDate = new Date(event.value);
-
-    } else {
-      this.selectedDate = null;
-
-    }
+  onDateChange(): void {
     this.applyFilters();
   }
 
@@ -196,9 +184,7 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
     this.applyFilters();
   }
 
-  onStatusFilterChange(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    this.statusFilter = target.value;
+  onStatusFilterChange(): void {
     this.applyFilters();
   }
 
@@ -425,7 +411,7 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
 
     // Filter by date
     if (this.selectedDate) {
-      const selectedDateStr = this.selectedDate.toISOString().split('T')[0];
+      const selectedDateStr = this.selectedDate;
       filtered = filtered.filter(commande => {
         const commandeDate = new Date(commande.createdAt);
         const commandeDateStr = commandeDate.toISOString().split('T')[0];  
@@ -436,21 +422,20 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
 
     // Filter by status
     if (this.statusFilter === 'all') {
-      // No specific status filter applied, show all
-      console.log('📊 Showing all statuses');
+
     } else if (this.statusFilter && this.statusFilter !== 'all') {
       filtered = filtered.filter(commande => commande.status === this.statusFilter);
-      console.log('🏷️ After status filter:', filtered.length, 'commandes with status:', this.statusFilter);
+    
     }
 
     // Filter by restaurant if selected
     if (this.selectedRestaurantId) {
       filtered = filtered.filter(commande => commande.restaurantId === this.selectedRestaurantId);
-      console.log('🏪 After restaurant filter:', filtered.length, 'commandes');
+  
     }
 
     this.filteredCommandes = filtered;
-    console.log('✅ Final filtered result:', this.filteredCommandes.length, 'commandes');
+  
   }
 
   clearFilters(): void {

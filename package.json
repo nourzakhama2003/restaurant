@@ -1,5 +1,10 @@
 {
   "dependencies": {
-    "@angular/material": "^20.1.0"
+    "@angular/material": "^20.1.0",
+    "@stomp/stompjs": "^7.1.1",
+    "sockjs-client": "^1.6.1"
+  },
+  "devDependencies": {
+    "@types/sockjs-client": "^1.5.4"
   }
 }
