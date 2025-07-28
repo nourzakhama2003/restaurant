@@ -17,6 +17,10 @@ import { ConfirmDialogRestaurantComponent } from '../../confirm-dialog-restauran
 import { MenuDialogComponent } from '../menu-dialog/menu-dialog.component';
 import { RouterModule } from '@angular/router';
 import { trigger, state, style, animate, transition } from '@angular/animations';
+import { Inject } from '@angular/core';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Component as DialogComponent } from '@angular/core';
+import { SafeUrlPipe } from '../../pipe/filter.pipe';
 
 @Component({
   selector: 'app-restaurant-list',
@@ -214,8 +218,51 @@ export class RestaurantListComponent implements OnInit, AfterViewInit {
     });
   }
 
+  openMapPopup(restaurant: Restaurant): void {
+    this.dialog.open(MapPopupDialog, {
+      data: {
+        name: restaurant.name,
+        address: restaurant.address
+      },
+      width: '600px',
+      maxWidth: '95vw'
+    });
+  }
+
   private handleError(err: any): void {
     console.error('Error:', err);
     this.snackBar.open('Une erreur est survenue', 'Fermer', { duration: 3000 });
+  }
+}
+
+@DialogComponent({
+  selector: 'map-popup-dialog',
+  standalone: true,
+  imports: [SafeUrlPipe, MatDialogModule],
+  template: `
+    <h2 mat-dialog-title>Emplacement du restaurant</h2>
+    <mat-dialog-content style="padding:0;">
+      <iframe
+        width="100%"
+        height="400"
+        frameborder="0"
+        style="border:0"
+        [src]="googleMapsUrl | safeUrl"
+        allowfullscreen>
+      </iframe>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Fermer</button>
+      <a [href]="externalGoogleMapsUrl" target="_blank" rel="noopener" mat-button>Ouvrir dans Google Maps</a>
+    </mat-dialog-actions>
+  `
+})
+export class MapPopupDialog {
+  googleMapsUrl: string;
+  externalGoogleMapsUrl: string;
+  constructor(@Inject(MAT_DIALOG_DATA) public data: { name: string, address: string }) {
+    const query = encodeURIComponent(`${data.name} ${data.address || ''}`);
+    this.googleMapsUrl = `https://www.google.com/maps?q=${query}&output=embed`;
+    this.externalGoogleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
   }
 }

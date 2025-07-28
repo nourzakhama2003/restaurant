@@ -105,6 +105,9 @@
                     <button class="action-btn delete-btn" *ngIf="restaurant.id" (click)="deleteRestaurant(restaurant.id)" matTooltip="Supprimer le restaurant">
                         <mat-icon>delete</mat-icon>
                     </button>
+                    <button class="action-btn location-btn" (click)="openMapPopup(restaurant)" matTooltip="Voir l'emplacement sur Google Maps">
+                        <mat-icon>location_on</mat-icon>
+                    </button>
                 </div>
             </div>
         </div>
