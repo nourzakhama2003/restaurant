@@ -41,12 +41,6 @@
         }
     }
     
-    .login-logo-row {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 18px;
-    }
-    
     .login-logo {
         width: 64px;
         height: 64px;
@@ -341,7 +335,7 @@
         overflow: hidden;
         width: 768px;
         max-width: 100%;
-        min-height: 480px;
+        min-height: 580px;
     }
     
     .form-container {
@@ -404,13 +398,11 @@
     }
     
     .overlay {
-        background: #FF416C;
-        background: -webkit-linear-gradient(to right, #FF4B2B, #FF416C);
-        background: linear-gradient(to right, #FF4B2B, #FF416C);
+        background: -webkit-linear-gradient(to right, #000000, #000000);
+        background: linear-gradient(to right, #000000, #000000);
         background-repeat: no-repeat;
         background-size: cover;
         background-position: 0 0;
-        color: #FFFFFF;
         position: relative;
         left: -100%;
         height: 100%;
@@ -455,6 +447,22 @@
         transform: translateX(20%);
     }
     
+    .overlay-panel.overlay-right {
+        background-image: url('/assets/images/3d/cotravail.png');
+        background-size: auto 50%;
+        background-position: center 60%;
+        background-repeat: no-repeat;
+        background-color: #000000;
+    }
+    
+    .overlay-panel.overlay-left {
+        background-image: url('/assets/images/3d/cotravail.png');
+        background-size: auto 50%;
+        background-position: center 60%;
+        background-repeat: no-repeat;
+        background-color: #000000;
+    }
+    
     .social-container {
         margin: 20px 0;
     }
@@ -487,10 +495,50 @@
     }
     
     footer i {
-        color: red;
+        color: black;
     }
     
     footer a {
         color: #3c97bf;
         text-decoration: none;
+    }
+    /* From Uiverse.io by alexroumi */
+    
+    button {
+        padding: 15px 25px;
+        border: unset;
+        border-radius: 15px;
+        color: #efefef;
+        z-index: 1;
+        background: #000000;
+        position: relative;
+        font-weight: 1000;
+        font-size: 17px;
+        -webkit-box-shadow: 4px 8px 19px -3px rgba(0, 0, 0, 0.27);
+        box-shadow: 4px 8px 19px -3px rgba(0, 0, 0, 0.27);
+        transition: all 250ms;
+        overflow: hidden;
+    }
+    
+    button::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 0;
+        border-radius: 15px;
+        background-color: #ffffff;
+        z-index: -1;
+        -webkit-box-shadow: 4px 8px 19px -3px rgba(0, 0, 0, 0.27);
+        box-shadow: 4px 8px 19px -3px rgba(0, 0, 0, 0.27);
+        transition: all 250ms
+    }
+    
+    button:hover {
+        color: #000000;
+    }
+    
+    button:hover::before {
+        width: 100%;
     }
