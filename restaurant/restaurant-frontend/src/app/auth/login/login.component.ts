@@ -1,13 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { KeycloakService } from 'keycloak-angular';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+
+
+
+
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, MatIconModule],
+  imports: [CommonModule, MatIconModule, MatCheckboxModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
@@ -15,6 +20,7 @@ export class LoginComponent implements OnInit {
   isLoading = false;
   showRegistrationSuccess = false;
   returnUrl = '/dashboard';
+  @ViewChild('container') container!: ElementRef;
 
   constructor(
     private keycloak: KeycloakService,
@@ -94,5 +100,13 @@ export class LoginComponent implements OnInit {
       console.error('Social login failed:', error);
       this.isLoading = false;
     }
+  }
+
+  onSignUp() {
+    this.container.nativeElement.classList.add('right-panel-active');
+  }
+
+  onSignIn() {
+    this.container.nativeElement.classList.remove('right-panel-active');
   }
 }
