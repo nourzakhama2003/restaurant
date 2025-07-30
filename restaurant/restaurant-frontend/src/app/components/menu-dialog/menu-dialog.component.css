@@ -10,7 +10,7 @@
     text-transform: uppercase;
     letter-spacing: 1.5px;
     /* Espacement plus large pour plus de clarté */
-    background: linear-gradient(45deg, #1e3c72, #233b5d);
+    background: linear-gradient(45deg, #ced200, #d97706);
     /* Couleur bleue */
     -webkit-background-clip: text;
     color: transparent;

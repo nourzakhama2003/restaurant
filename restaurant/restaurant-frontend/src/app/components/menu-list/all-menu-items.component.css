@@ -63,7 +63,7 @@
 }
 
 .add-menu-item-btn {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: linear-gradient(135deg, rgb(200, 135, 22) 0%, #f6b503 100%);
     color: white;
     border: none;
     border-radius: 12px;
@@ -80,7 +80,7 @@
 
 .add-menu-item-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+    box-shadow: 0 8px 25px rgba(252, 185, 50, 0.4);
 }
 
 .add-menu-item-btn mat-icon {
@@ -371,7 +371,7 @@
 }
 
 .price-badge {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: linear-gradient(135deg, #e4b702 0%, #f6b503 100%);
     color: white;
     padding: 0.5rem 1rem;
     border-radius: 20px;

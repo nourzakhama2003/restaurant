@@ -47,7 +47,7 @@
         </div>
 
         <div *ngIf="!isLoading && filteredCategories.length > 0" class="categories-grid">
-            <div class="category-card" *ngFor="let cat of filteredCategories; let i = index">
+            <div class="menu-item-card" *ngFor="let cat of filteredCategories; let i = index">
                 <div class="card-header">
                     <div class="category-avatar">
                         <img [src]="getImageForCategory(cat)" [alt]="cat.name" />
