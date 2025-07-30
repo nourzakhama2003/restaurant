@@ -596,3 +596,198 @@
         transform: none;
     }
 }
+
+.home-navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem 3rem 1rem 3rem;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 1.5rem 1.5rem 0 0;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+    margin-bottom: 2rem;
+}
+
+.home-navbar .logo {
+    font-size: 2rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.home-navbar ul {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.home-navbar a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    font-size: 1.1rem;
+    transition: color 0.2s;
+    cursor: pointer;
+}
+
+.home-navbar a:hover,
+.home-navbar a.home-link.active-link {
+    color: #ff9800;
+}
+
+.home-navbar a.about-link.active-link {
+    color: #ff9800;
+    font-weight: bold;
+    border-bottom: 2.5px solid #ff9800;
+    background: rgba(255, 152, 0, 0.08);
+    border-radius: 0.7rem;
+    padding: 0.5rem 1.2rem;
+}
+
+.home-navbar .login-link,
+.home-navbar .signup-link {
+    padding: 0.5rem 1.2rem;
+    border-radius: 1.2rem;
+    margin-left: 0.5rem;
+    font-weight: 600;
+    transition: background 0.2s, color 0.2s;
+}
+
+.home-navbar .login-link {
+    background: #fff3e0;
+    color: #ff9800;
+    border: 1px solid #ff9800;
+}
+
+.home-navbar .login-link:hover {
+    background: #ff9800;
+    color: #fff;
+}
+
+.home-navbar .signup-link {
+    background: #ff9800;
+    color: #fff;
+    border: 1px solid #ff9800;
+}
+
+.home-navbar .signup-link:hover {
+    background: #e68900;
+    color: #fff;
+}
+
+.hero-modern {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    padding: 3rem 4rem;
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.hero-content {
+    max-width: 50%;
+}
+
+.hero-content h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.hero-content .highlight {
+    color: #ff9800;
+    font-weight: 900;
+}
+
+.hero-content p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    color: #555;
+}
+
+.cta-modern {
+    background: #ff9800;
+    color: #fff;
+    border: none;
+    padding: 1rem 2.5rem;
+    border-radius: 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.15);
+    transition: background 0.2s;
+}
+
+.cta-modern:hover {
+    background: #e68900;
+}
+
+.star-review {
+    margin-top: 1.5rem;
+    font-size: 2rem;
+    color: #ffd700;
+    font-weight: bold;
+}
+
+.hero-image {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-image img {
+    max-width: 1000px;
+    width: 100%;
+    height: auto;
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10);
+    /* Remove white background frame */
+    /* mix-blend-mode: multiply;
+    background: transparent;
+    /* Alternative approach if mix-blend-mode doesn't work */
+    /* filter: brightness(1.1) contrast(1.1);
+    object-fit: contain; */
+}
+
+
+/* Specific fix for the white rounded frame */
+
+.hero-image img[src*="restaurants.png"] {
+    mix-blend-mode: multiply;
+    background: transparent;
+    /* Remove the white rounded rectangle background */
+    filter: brightness(1.05) contrast(1.05) saturate(1.1);
+}
+
+
+/* If the above doesn't work, try this more aggressive approach */
+
+.hero-image img[src*="restaurants.png"] {
+    mix-blend-mode: darken;
+    background: transparent;
+    filter: brightness(1.2) contrast(1.2);
+}
+
+
+/* Remove any previous background fixes since image is now transparent */
+
+@media (max-width: 900px) {
+    .hero-modern {
+        flex-direction: column;
+        padding: 2rem 1rem;
+    }
+    .hero-content,
+    .hero-image {
+        max-width: 100%;
+        text-align: center;
+    }
+    .hero-image img {
+        margin-top: 2rem;
+        max-width: 90vw;
+    }
+}

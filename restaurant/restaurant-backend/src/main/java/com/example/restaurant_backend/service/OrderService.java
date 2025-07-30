@@ -119,8 +119,14 @@ public class OrderService {
         if (this.orderRepository.existsById(id)) {
             order.setId(id);
             Order updatedOrder = this.orderRepository.save(order);
-            // After updating, check if all orders in the commande are paid
+            
+            System.out.println("🔄 OrderService: Updated order with ID: " + updatedOrder.getId());
+            
+            // After updating, update the commande's orders list and total price
             if (order.getCommandeId() != null) {
+                updateCommandeOrdersList(order.getCommandeId());
+                
+                // Check if all orders in the commande are paid
                 List<Order> orders = this.orderRepository.findByCommandeId(order.getCommandeId());
                 boolean allPaid = orders.stream().allMatch(o -> o.isPaye());
                 Optional<Commande> commandeOpt = this.commandeRepository.findById(order.getCommandeId());
@@ -130,12 +136,15 @@ public class OrderService {
                         commande.setStatus(Commande.STATUS_CONFIRMEE);
                         commande.setUpdatedAt(java.time.LocalDateTime.now());
                         this.commandeRepository.save(commande);
+                        System.out.println("✅ OrderService: Auto-updated commande status to CONFIRMEE");
                     }
+                    
                     // Broadcast the updated commande to WebSocket subscribers
                     System.out.println("[WEBSOCKET BROADCAST] Sending update to /topic/group-orders/" + commande.getId() + ": " + commande);
                     messagingTemplate.convertAndSend("/topic/group-orders/" + commande.getId(), commande);
                 }
             }
+            
             return updatedOrder;
         }
         return null;

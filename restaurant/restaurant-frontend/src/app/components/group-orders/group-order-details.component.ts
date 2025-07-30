@@ -359,8 +359,8 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
       return;
     }
     const dialogRef = this.dialog.open(OrderSubmissionComponent, {
-      width: '1000px',
-      maxWidth: '95vw',
+      width: '1500px',
+      maxWidth: '100vw',
       data: {
         commandeId: this.commandeId,
         restaurantId: this.commande?.restaurantId,
