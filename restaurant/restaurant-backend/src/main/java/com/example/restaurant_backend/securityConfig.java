@@ -29,7 +29,7 @@ public class securityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/ws/**").permitAll() // Allow WebSocket handshake
-                        .requestMatchers("/api/**").permitAll()  // Temporarily allow all API endpoints
+                        // Temporarily allow all API endpoints   .requestMatchers("/api/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2

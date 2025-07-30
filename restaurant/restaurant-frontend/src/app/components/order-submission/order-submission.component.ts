@@ -304,29 +304,36 @@ export class OrderSubmissionComponent implements OnInit {
           id: this.existingOrderId,
           ...orderData
         };
+
+        console.log('🔄 Updating order with data:', updateData);
+
         this.orderService.updateOrder(this.existingOrderId, updateData).subscribe({
           next: (order) => {
             this.isLoading = false;
+            console.log('✅ Order updated successfully:', order);
             this.snackBar.open('Order updated successfully!', 'Close', { duration: 3000 });
             this.dialogRef.close(order);
           },
           error: (error) => {
             this.isLoading = false;
-            console.error('Error updating order:', error);
+            console.error('❌ Error updating order:', error);
             this.snackBar.open('Error updating order', 'Close', { duration: 3000 });
           }
         });
       } else {
         // Create new order
+        console.log('🔄 Creating new order with data:', orderData);
+
         this.orderService.createOrder(orderData).subscribe({
           next: (order) => {
             this.isLoading = false;
+            console.log('✅ Order created successfully:', order);
             this.snackBar.open('Order submitted successfully!', 'Close', { duration: 3000 });
             this.dialogRef.close(order);
           },
           error: (error) => {
             this.isLoading = false;
-            console.error('Error submitting order:', error);
+            console.error('❌ Error submitting order:', error);
             this.snackBar.open('Error submitting order', 'Close', { duration: 3000 });
           }
         });

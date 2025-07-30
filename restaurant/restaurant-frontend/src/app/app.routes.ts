@@ -9,21 +9,24 @@ import { AuthGuard } from './guards/auth.guard';
 import { MenuListComponent } from './components/menu-list/menu-list.component';
 import { AllMenuItemsComponent } from './components/menu-list/all-menu-items.component';
 import { HomeComponent } from './pages/home/home.component';
+import { ContactsComponent } from './pages/contacts/contacts.component';
 
 export const routes: Routes = [
   // Default route - show the new HomeComponent
-  { path: '', component: HomeComponent, pathMatch: 'full' },
+
 
   // Public routes (no authentication required)
   {
     path: '',
     component: BlankComponent,
     children: [
+      { path: '', component: HomeComponent, pathMatch: 'full' },
       { path: 'login', component: LoginComponent },
-      { path: 'sign-in', component: LoginComponent },
+ 
       { path: 'register', component: RegisterComponent },
       { path: 'registration-success', component: RegistrationSuccessComponent },
       { path: 'access-denied', component: AccessDeniedComponent },
+      { path: 'contacts', component: ContactsComponent },
     ],
   },
   // Protected routes (authentication required)

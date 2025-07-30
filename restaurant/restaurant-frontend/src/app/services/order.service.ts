@@ -44,6 +44,10 @@ export class OrderService {
 
     // Update order
     updateOrder(id: string, order: Order): Observable<Order> {
+        console.log('🔄 OrderService: Calling updateOrder API');
+        console.log('   URL:', `${this.apiUrl}/${id}`);
+        console.log('   Order data:', order);
+
         return this.http.put<Order>(`${this.apiUrl}/${id}`, order);
     }
 

@@ -1,21 +1,14 @@
 <div class="categories-container">
     <!-- Header Section -->
     <div class="categories-header">
-        <div class="header-content">
-            <div class="header-title-section">
-                <div class="title-icon">
-                    <mat-icon>category</mat-icon>
-                </div>
-                <div class="title-content">
-                    <h1 class="page-title">Gestion des Catégories</h1>
-                    <p class="page-subtitle">Organisez vos menus par catégories</p>
-                </div>
-            </div>
-            <button class="add-category-btn" (click)="editingCategory = null; form.reset(); showForm = true;">
-                <mat-icon>add</mat-icon>
-                <span>Nouvelle Catégorie</span>
-            </button>
+        <div class="form-title-section">
+            <mat-icon class="form-icon">folder</mat-icon>
+            <h2>Gestion des Catégories</h2>
         </div>
+        <button class="add-category-btn" (click)="editingCategory = null; form.reset(); showForm = true;">
+            <mat-icon>add</mat-icon>
+            Nouvelle Catégorie
+        </button>
     </div>
 
     <!-- Search and Filter Section -->
@@ -23,7 +16,7 @@
         <div class="search-container">
             <div class="search-input-wrapper">
                 <mat-icon class="search-icon">search</mat-icon>
-                <input type="text" class="search-input" placeholder="Rechercher une catégorie..." [(ngModel)]="searchTerm" (input)="filterCategories()" />
+                <input type="text" class="form-input" placeholder="Rechercher une catégorie..." [(ngModel)]="searchTerm" (input)="filterCategories()" />
                 <button *ngIf="searchTerm" class="clear-search-btn" (click)="clearSearch()" mat-icon-button>
                     <mat-icon>close</mat-icon>
                 </button>
@@ -37,32 +30,27 @@
 
     <!-- Categories Grid -->
     <div class="categories-content">
-        <div *ngIf="isLoading" class="loading-state">
+        <div *ngIf="isLoading" class="loading-overlay">
             <mat-spinner diameter="40"></mat-spinner>
             <p>Chargement des catégories...</p>
         </div>
 
         <div *ngIf="!isLoading && filteredCategories.length === 0" class="empty-state">
-            <div class="empty-icon">
-                <mat-icon>category</mat-icon>
-            </div>
+            <mat-icon class="text-4xl text-gray-500">folder</mat-icon>
             <h3>Aucune catégorie trouvée</h3>
             <p *ngIf="searchTerm">Aucune catégorie ne correspond à votre recherche.</p>
             <p *ngIf="!searchTerm">Commencez par créer votre première catégorie.</p>
-            <button *ngIf="!searchTerm" class="create-first-btn" (click)="editingCategory = null; form.reset(); showForm = true;">
+            <button *ngIf="!searchTerm" class="add-category-btn" (click)="editingCategory = null; form.reset(); showForm = true;">
                 <mat-icon>add</mat-icon>
                 Créer la première catégorie
             </button>
         </div>
 
         <div *ngIf="!isLoading && filteredCategories.length > 0" class="categories-grid">
-            <div class="category-card" *ngFor="let cat of filteredCategories; let i = index" [@fadeInUp] [style.animation-delay]="(i * 100) + 'ms'">
+            <div class="category-card" *ngFor="let cat of filteredCategories; let i = index">
                 <div class="card-header">
                     <div class="category-avatar">
                         <img [src]="getImageForCategory(cat)" [alt]="cat.name" />
-                        <div class="avatar-overlay">
-                            <mat-icon>photo_camera</mat-icon>
-                        </div>
                     </div>
                     <div class="category-badge">
                         <span>Catégorie</span>
@@ -86,46 +74,41 @@
         </div>
     </div>
 
-    <!-- Category Form Modal -->
-    <div *ngIf="showForm" class="form-modal-overlay" (click)="closeForm()">
-        <div class="form-modal" (click)="$event.stopPropagation()">
-            <div class="form-header">
-                <div class="form-title-section">
-                    <mat-icon class="form-icon">{{ editingCategory ? 'edit' : 'add' }}</mat-icon>
+
+
+    <div *ngIf="showForm" class="modal-overlay" (click)="closeForm()">
+        <div class="modal-container" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <div class="modal-title-section">
+                    <mat-icon class="modal-icon">{{ editingCategory ? 'edit' : 'add' }}</mat-icon>
                     <h2>{{ editingCategory ? 'Modifier la Catégorie' : 'Nouvelle Catégorie' }}</h2>
                 </div>
-                <button class="close-btn" (click)="closeForm()">
-                    <mat-icon>close</mat-icon>
-                </button>
+                <button class="modal-close-btn" (click)="closeForm()">
+                <mat-icon>close</mat-icon>
+            </button>
             </div>
-
             <form [formGroup]="form" (ngSubmit)="submit()" class="category-form">
-                <div class="form-content">
+                <div class="modal-content">
+                    <!-- Form fields remain unchanged -->
                     <!-- Category Name -->
                     <div class="form-field">
                         <label class="field-label">
-                            <mat-icon>label</mat-icon>
+                            <mat-icon>label_outline</mat-icon>
                             Nom de la catégorie *
                         </label>
-                        <mat-form-field appearance="outline" class="full-width">
-                            <mat-label>Nom de la catégorie</mat-label>
-                            <input matInput formControlName="name" placeholder="ex: Plats principaux" required />
-                            <mat-error *ngIf="form.get('name')?.hasError('required')">
-                                Le nom de la catégorie est requis
-                            </mat-error>
-                        </mat-form-field>
+                        <input class="form-input" formControlName="name" placeholder="ex: Plats principaux" required />
+                        <div class="error-message" *ngIf="form.get('name')?.hasError('required') && form.get('name')?.touched">
+                            Le nom de la catégorie est requis
+                        </div>
                     </div>
 
                     <!-- Category Description -->
                     <div class="form-field">
                         <label class="field-label">
-                            <mat-icon>description</mat-icon>
+                            <mat-icon>edit_note</mat-icon>
                             Description
                         </label>
-                        <mat-form-field appearance="outline" class="full-width">
-                            <mat-label>Description de la catégorie</mat-label>
-                            <textarea matInput formControlName="description" placeholder="Décrivez cette catégorie..." rows="3"></textarea>
-                        </mat-form-field>
+                        <textarea class="form-textarea" formControlName="description" placeholder="Décrivez cette catégorie..." rows="3"></textarea>
                     </div>
 
                     <!-- Image Upload -->
@@ -153,8 +136,8 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="form-actions">
+                <div class="modal-actions">
+                    <!-- Form actions remain unchanged -->
                     <button type="button" class="cancel-btn" (click)="closeForm()">
                         <mat-icon>close</mat-icon>
                         Annuler
@@ -168,4 +151,6 @@
             </form>
         </div>
     </div>
+    <!-- Category Form Modal -->
+
 </div>
