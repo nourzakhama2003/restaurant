@@ -1,7 +1,13 @@
 <!-- Navigation Bar -->
 <nav class="home-navbar glass">
     <div class="logo">🍽️ Restaurant</div>
-    <ul>
+    <button class="mobile-menu-toggle" (click)="toggleMobileMenu()">
+  <div class="hamburger"></div>
+  <div class="hamburger"></div>
+  <div class="hamburger"></div>
+</button>
+
+    <ul [ngClass]="{ 'active': mobileMenuOpen }" id="mobile-menu">
         <li>
             <a routerLink="/" routerLinkActive="active-link home-link" [routerLinkActiveOptions]="{ exact: true }">Accueil</a>
         </li>

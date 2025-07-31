@@ -23,17 +23,12 @@ export const navItems: NavItem[] = [
     chipContent: 'PRO',
   },
   {
-    displayName: 'Commandes groupées',
+    displayName: 'Commandes ',
     iconName: 'notebook-pen',
     route: '/group-orders',
     chip: true,
     chipClass: 'bg-light-success text-success',
     chipContent: 'NOUVEAU',
-  },
-  {
-    displayName: 'Mes commandes',
-    iconName: 'list-check',
-    route: '/group-orders/my-orders',
   },
   {
     displayName: 'Tous les plats',

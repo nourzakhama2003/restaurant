@@ -2,16 +2,23 @@ import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ScrollAnimateDirective } from './scroll-animate.directive';
 import { KeycloakService } from 'keycloak-angular';
+import { NgClass } from '@angular/common'; // ✅ Ajout nécessaire
 
 @Component({
     selector: 'app-home',
     standalone: true,
-    imports: [RouterModule, ScrollAnimateDirective],
+    imports: [RouterModule, ScrollAnimateDirective, NgClass],
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.css']
 })
 export class HomeComponent {
+    mobileMenuOpen = false;
     constructor(private keycloak: KeycloakService) { }
+
+
+    toggleMobileMenu() {
+        this.mobileMenuOpen = !this.mobileMenuOpen;
+    }
 
     async login() {
         try {

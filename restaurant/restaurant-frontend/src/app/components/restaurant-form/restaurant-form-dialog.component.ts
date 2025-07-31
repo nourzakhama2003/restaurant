@@ -11,6 +11,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterModule } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-restaurant-form-dialog',
@@ -29,7 +30,15 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatProgressSpinnerModule
   ],
   templateUrl: './restaurant-form-dialog.component.html',
-  styleUrls: ['./restaurant-form-dialog.component.css']
+  styleUrls: ['./restaurant-form-dialog.component.css'],
+  animations: [
+    trigger('fadeInUp', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(20px)' }),
+        animate('0.3s ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ])
+  ]
 })
 export class RestaurantFormDialogComponent {
   selectedImage: string | null = null;

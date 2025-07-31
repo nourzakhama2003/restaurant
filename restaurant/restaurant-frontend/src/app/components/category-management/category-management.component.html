@@ -76,7 +76,7 @@
 
 
 
-    <div *ngIf="showForm" class="modal-overlay" (click)="closeForm()">
+    <div *ngIf="showForm" class="modal-overlay" @fadeInUp (click)="closeForm()">
         <div class="modal-container" (click)="$event.stopPropagation()">
             <div class="modal-header">
                 <div class="modal-title-section">

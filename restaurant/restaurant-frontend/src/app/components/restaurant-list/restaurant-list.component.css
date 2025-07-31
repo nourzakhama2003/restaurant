@@ -344,10 +344,6 @@
     transition: opacity 0.3s ease;
 }
 
-.restaurant-card:hover .image-overlay {
-    opacity: 1;
-}
-
 .image-overlay mat-icon {
     color: white;
     font-size: 2rem;
@@ -538,3 +534,6 @@
         padding: 0.75rem 1rem 1rem;
     }
 }
+
+
+/*map*/
