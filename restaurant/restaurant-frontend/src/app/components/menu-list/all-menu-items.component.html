@@ -1,5 +1,5 @@
 <div class="menu-items-container">
-    <!-- Header Section -->
+    
     <div class="menu-items-header">
         <div class="header-content">
             <div class="header-title-section">
@@ -18,7 +18,6 @@
         </div>
     </div>
 
-    <!-- Search and Filter Section -->
     <div class="search-filter-section">
         <div class="search-container">
             <div class="search-input-wrapper">
@@ -29,7 +28,6 @@
                 </button>
             </div>
         </div>
-
         <div class="filters-row">
             <div class="filter-group">
                 <label class="filter-label">
@@ -45,7 +43,6 @@
                     </mat-select>
                 </mat-form-field>
             </div>
-
             <div class="filter-info" *ngIf="searchText || selectedCategoryId">
                 <mat-icon>filter_list</mat-icon>
                 <span>{{ filteredMenuItems.length }} plat(s) trouvé(s)</span>
@@ -53,7 +50,6 @@
         </div>
     </div>
 
-    <!-- Menu Items Content -->
     <div class="menu-items-content">
         <div *ngIf="isLoading" class="loading-state">
             <mat-spinner diameter="40"></mat-spinner>

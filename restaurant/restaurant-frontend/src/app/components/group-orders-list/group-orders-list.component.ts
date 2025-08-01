@@ -77,7 +77,7 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
   countdowns: { [commandeId: string]: { display: string, color: string, subscription: Subscription | null } } = {};
   selectedDate: string | null = null;
   currentUserId: string = '';
-  // Added for My Orders style filters
+
   searchTerm: string = '';
   statusFilter: string = 'cree';
   statusOptions: { value: string, label: string }[] = [
@@ -87,7 +87,7 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
     { value: 'annulee', label: 'Annulée' },
     { value: 'all', label: 'Tous les statuts' },
   ];
-  // Remove userOrders map and related logic
+ 
   joinedCommandes: Set<string> = new Set();
 
   constructor(
@@ -116,7 +116,7 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Clean up countdown subscriptions
+   
     Object.values(this.countdowns).forEach(countdown => {
       if (countdown.subscription) {
         countdown.subscription.unsubscribe();
@@ -202,7 +202,7 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
         this.loadOrderCounts();
         this.setupCountdowns();
         this.checkJoinedCommandes();
-        this.applyFilters(); // Apply initial filters after loading
+        this.applyFilters(); 
         this.isLoading = false;
       },
       error: (error) => {
@@ -289,17 +289,17 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
   }
 
   createGroupOrder(): void {
-    console.log('🚀 Create Group Order button clicked');
+    console.log(' Create Group Order button clicked');
     this.router.navigate(['/group-orders/create']);
   }
 
   goToMyOrders(): void {
-    console.log('📋 My Orders button clicked');
+    console.log(' My Orders button clicked');
     this.router.navigate(['/group-orders/my-orders']);
   }
 
   viewDetails(commandeId: string): void {
-    console.log('👁️ View Details button clicked for commande:', commandeId);
+    console.log(' View Details button clicked for commande:', commandeId);
     this.router.navigate(['/group-orders/details', commandeId]);
   }
 
@@ -360,7 +360,7 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
         subscription: null
       };
 
-      // Use the existing countdown service method
+    
       this.countdowns[commande.id].subscription = this.countdownService.startCountdown(commande).subscribe(
         (countdown: any) => {
           this.countdowns[commande.id].display = countdown.display;
@@ -399,7 +399,7 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
     let filtered = this.commandes;
  
 
-    // Filter by search term
+   
     if (this.searchTerm.trim()) {
       const searchLower = this.searchTerm.toLowerCase().trim();
       filtered = filtered.filter(commande => {
@@ -408,8 +408,6 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
       });
 
     }
-
-    // Filter by date
     if (this.selectedDate) {
       const selectedDateStr = this.selectedDate;
       filtered = filtered.filter(commande => {
@@ -420,7 +418,7 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
   
     }
 
-    // Filter by status
+  
     if (this.statusFilter === 'all') {
 
     } else if (this.statusFilter && this.statusFilter !== 'all') {
@@ -428,7 +426,7 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
     
     }
 
-    // Filter by restaurant if selected
+  
     if (this.selectedRestaurantId) {
       filtered = filtered.filter(commande => commande.restaurantId === this.selectedRestaurantId);
   
@@ -448,8 +446,7 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
   }
 
   getCommandeOrders(commandeId: string): any[] {
-    // This method should return the orders for a specific commande
-    // Implementation depends on your data structure
+  
     return [];
   }
 
@@ -460,7 +457,7 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
   private checkJoinedCommandes(): void {
     this.joinedCommandes.clear();
     this.commandes.forEach(commande => {
-      // Check if current user has orders in this commande
+  
       this.orderService.getOrdersByCommandeId(commande.id).subscribe(orders => {
         const userOrder = orders.find(order => order.participantId === this.currentUserId);
         if (userOrder) {

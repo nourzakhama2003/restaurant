@@ -5,35 +5,34 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-register',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './register.component.html',
-  styleUrls: ['./register.component.css']
+    selector: 'app-register',
+    standalone: true,
+    imports: [CommonModule, FormsModule],
+    templateUrl: './register.component.html',
+    styleUrls: ['./register.component.css']
 })
 export class RegisterComponent {
-  isLoading = false;
+    isLoading = false;
 
-  constructor(
-    private keycloak: KeycloakService,
-    private router: Router
-  ) { }
+    constructor(
+        private keycloak: KeycloakService,
+        private router: Router
+    ) { }
 
-  async onSubmit() {
-    this.isLoading = true;
-    try {
-      // Use Keycloak's built-in registration flow
-      // After registration, we'll redirect to a special page that handles the logout
-      await this.keycloak.register({
-        redirectUri: window.location.origin + '/registration-success'
-      });
-    } catch (error) {
-      console.error('Registration failed:', error);
-      this.isLoading = false;
+    async onSubmit() {
+        this.isLoading = true;
+        try {
+
+            await this.keycloak.register({
+                redirectUri: window.location.origin + '/registration-success'
+            });
+        } catch (error) {
+            console.error('Registration failed:', error);
+            this.isLoading = false;
+        }
     }
-  }
 
-  goToLogin() {
-    this.router.navigate(['/login']);
-  }
+    goToLogin() {
+        this.router.navigate(['/login']);
+    }
 }

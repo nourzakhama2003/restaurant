@@ -15,7 +15,7 @@ import { MenuItem } from '../../models/menu-item.model';
 import { RestaurantService } from '../../services/restaurant.service';
 import { Restaurant } from '../../models/restaurant.model';
 import { MenuItemFormComponent } from '../menu-item-form/menu-item-form.component';
-import { ConfirmDialogComponent } from '../../confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../generalconfirmation/confirm-dialog.component';
 import { Category } from '../../models/category.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -89,10 +89,8 @@ export class AllMenuItemsComponent implements OnInit, AfterViewInit {
             { threshold: 0.2 }
         );
 
-        // Observe initial cards
         this.cards.forEach(card => observer.observe(card.nativeElement));
 
-        // Re-observe whenever the list changes (e.g., after filtering or loading)
         this.cards.changes.subscribe((cards: QueryList<ElementRef>) => {
             cards.forEach(card => observer.observe(card.nativeElement));
         });

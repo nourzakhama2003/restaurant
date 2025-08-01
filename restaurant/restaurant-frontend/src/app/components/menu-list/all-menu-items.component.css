@@ -1,4 +1,4 @@
-/* Professional Menu Items Management Styles */
+
 
 .menu-items-container {
     max-width: 1400px;
@@ -8,8 +8,6 @@
     min-height: 100vh;
 }
 
-
-/* Header Section */
 
 .menu-items-header {
     background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
@@ -90,7 +88,7 @@
 }
 
 
-/* Search and Filter Section */
+
 
 .search-filter-section {
     background: white;
@@ -213,7 +211,7 @@
 }
 
 
-/* Menu Items Content */
+
 
 .menu-items-content {
     min-height: 400px;
@@ -279,7 +277,7 @@
 }
 
 
-/* Menu Items Grid */
+
 
 .menu-items-grid {
     display: grid;

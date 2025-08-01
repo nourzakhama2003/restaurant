@@ -167,16 +167,12 @@ export class OrderSubmissionComponent implements OnInit {
     }
 
     this.isLoadingMenuItems = true;
-    console.log('Loading menu items for restaurant ID:', this.data.restaurantId);
     // Use MenuService to load menu items directly, just like menu-dialog component
     this.menuService.getMenuItemsByRestaurant(this.data.restaurantId).subscribe({
       next: (menuItems: MenuItem[]) => {
         this.isLoadingMenuItems = false;
-        console.log('Menu items loaded from MenuService:', menuItems);
         // Filter for non-deleted items only
         this.menuItems = menuItems.filter((item: MenuItem) => !item.deleted);
-        console.log('Filtered available menu items:', this.menuItems);
-        console.log('Number of available menu items:', this.menuItems.length);
 
         if (this.menuItems.length === 0) {
           this.snackBar.open('No menu items available for this restaurant.', 'Close', { duration: 3000 });
@@ -305,7 +301,6 @@ export class OrderSubmissionComponent implements OnInit {
           ...orderData
         };
 
-        console.log('🔄 Updating order with data:', updateData);
 
         this.orderService.updateOrder(this.existingOrderId, updateData).subscribe({
           next: (order) => {
@@ -322,12 +317,10 @@ export class OrderSubmissionComponent implements OnInit {
         });
       } else {
         // Create new order
-        console.log('🔄 Creating new order with data:', orderData);
 
         this.orderService.createOrder(orderData).subscribe({
           next: (order) => {
             this.isLoading = false;
-            console.log('✅ Order created successfully:', order);
             this.snackBar.open('Order submitted successfully!', 'Close', { duration: 3000 });
             this.dialogRef.close(order);
           },

@@ -16,7 +16,7 @@ import { CommandeService, CommandeWithRestaurant } from '../../services/commande
 import { UserService } from '../../services/user.service';
 import { Order } from '../../models/group-order.model';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { ConfirmDialogComponent } from '../../confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../generalconfirmation/confirm-dialog.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { trigger, transition, style, animate } from '@angular/animations';
@@ -123,7 +123,7 @@ export class MyOrdersComponent implements OnInit {
       this.commandeService.getCommandeWithRestaurantById(commandeId).subscribe({
         next: (commande) => {
           this.commandeDetails[commandeId] = commande;
-          // Apply filters after each commande is loaded to update restaurant names
+         
           this.applyFilters();
         },
         error: (error) => {
@@ -226,7 +226,7 @@ export class MyOrdersComponent implements OnInit {
         restaurantName.toLowerCase().includes(this.searchTerm.toLowerCase()) : true;
       const matchesDate = this.selectedDate ?
         new Date(order.createdAt).toLocaleDateString() === new Date(this.selectedDate).toLocaleDateString() : true;
-      // By default, only show 'cree'. Dropdown allows other statuses.
+
       const matchesStatus = commandeInfo?.status?.toLowerCase() === this.statusFilter;
       return matchesSearchTerm && matchesDate && matchesStatus;
     });

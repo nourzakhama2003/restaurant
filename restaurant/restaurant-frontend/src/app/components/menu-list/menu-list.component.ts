@@ -14,7 +14,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MenuItemFormComponent } from '../menu-item-form/menu-item-form.component';
-import { ConfirmDialogComponent } from '../../confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../generalconfirmation/confirm-dialog.component';
 import { MatCardModule } from '@angular/material/card';
 import { RestaurantService } from '../../services/restaurant.service';
 import { Restaurant } from '../../models/restaurant.model';
@@ -203,7 +203,6 @@ export class MenuListComponent implements OnInit {
   get filteredMenuItems(): MenuItem[] {
     let filtered = this.menuItems;
 
-    // Filter by search text
     if (this.searchText.trim()) {
       const searchLower = this.searchText.toLowerCase().trim();
       filtered = filtered.filter(item =>
@@ -212,7 +211,6 @@ export class MenuListComponent implements OnInit {
       );
     }
 
-    // Filter by category
     if (this.selectedCategoryId) {
       filtered = filtered.filter(item => item.categoryId === this.selectedCategoryId);
     }

@@ -1,5 +1,5 @@
 <div class="restaurant-form-container" @fadeInUp>
-    <!-- Form Header -->
+
     <div class="form-header">
         <div class="form-title-section">
             <mat-icon class="form-icon">{{ isEditMode ? 'edit' : 'add' }}</mat-icon>
@@ -10,16 +10,16 @@
         </button>
     </div>
 
-    <!-- Loading Spinner -->
+
     <div class="loading-overlay" *ngIf="isLoading">
         <mat-spinner diameter="40"></mat-spinner>
         <p>Chargement...</p>
     </div>
 
-    <!-- Form Content -->
+
     <form [formGroup]="restaurantForm" (ngSubmit)="onSubmit()" class="restaurant-form">
         <div class="form-content">
-            <!-- Restaurant Name -->
+           
             <div class="form-field">
                 <label class="field-label">
                     <mat-icon>restaurant</mat-icon>
@@ -31,7 +31,7 @@
                 </div>
             </div>
 
-            <!-- Description -->
+       
             <div class="form-field">
                 <label class="field-label">
                     <mat-icon>description</mat-icon>
@@ -40,7 +40,7 @@
                 <textarea class="form-textarea" formControlName="description" placeholder="Décrivez votre restaurant..." rows="3"></textarea>
             </div>
 
-            <!-- Address -->
+   
             <div class="form-field">
                 <label class="field-label">
                     <mat-icon>location_on</mat-icon>
@@ -49,7 +49,6 @@
                 <input class="form-input" formControlName="address" placeholder="Adresse complète du restaurant" />
             </div>
 
-            <!-- Phone -->
             <div class="form-field">
                 <label class="field-label">
                     <mat-icon>phone</mat-icon>
@@ -58,7 +57,7 @@
                 <input class="form-input" formControlName="phone" placeholder="Numéro de téléphone" />
             </div>
 
-            <!-- Cuisine Type -->
+           
             <div class="form-field">
                 <label class="field-label">
                     <mat-icon>local_dining</mat-icon>
@@ -67,7 +66,7 @@
                 <input class="form-input" formControlName="cuisineType" placeholder="ex: Italienne, Tunisienne, Française" />
             </div>
 
-            <!-- Image Upload -->
+         
             <div class="form-field">
                 <label class="field-label">
                     <mat-icon>image</mat-icon>
@@ -93,7 +92,7 @@
             </div>
         </div>
 
-        <!-- Form Actions -->
+  
         <div class="form-actions flex justify-between items-center">
             <button type="button" class="cancel-btn" (click)="onCancel()">
                 <mat-icon>close</mat-icon>

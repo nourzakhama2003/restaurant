@@ -16,13 +16,10 @@ export class WebSocketService {
         const token = await this.keycloakService.getToken();
         this.client = new Client({
             webSocketFactory: () => new SockJS(`http://localhost:8081/ws?access_token=${token}`),
-            // debug: (msg: string) => { console.log('[STOMP DEBUG]', msg); }, // Remove debug logs
             reconnectDelay: 5000,
         });
         this.client.onConnect = () => {
-            // console.log('WebSocket connected for commandeId:', commandeId);
             this.subscription = this.client.subscribe(`/topic/group-orders/${commandeId}`, (message: IMessage) => {
-                // console.log('WebSocket message received for commandeId:', commandeId, 'message:', message.body);
                 this.subject.next(JSON.parse(message.body));
             });
         };

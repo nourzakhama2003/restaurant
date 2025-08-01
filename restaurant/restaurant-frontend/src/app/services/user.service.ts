@@ -68,7 +68,7 @@ export class UserService {
         const email = this.keycloakService.getCurrentUserEmail();
         const fullName = this.keycloakService.getCurrentUserFullName();
 
-        console.log('Creating user from Keycloak data:', { username, email, fullName });
+
 
         if (!email) {
             throw new Error('Unable to get user email from Keycloak');
@@ -80,7 +80,7 @@ export class UserService {
             // Note: Phone numbers will be collected during order creation
         };
 
-        console.log('Creating user with request:', createRequest);
+
 
         return this.createUser(createRequest);
     }

@@ -1,0 +1,12 @@
+ <h2 mat-dialog-title class="dialog-title text-blue-500">{{ data.title || 'Confirmer la suppression' }}</h2>
+    <mat-dialog-content class="dialog-content">
+      <p class="dialog-message">{{ data.message }}</p>
+    </mat-dialog-content>
+    <mat-dialog-actions class="dialog-actions">
+      <button mat-raised-button class="cancel-button" (click)="onCancel()" aria-label="Annuler">
+        <mat-icon>cancel</mat-icon> Annuler
+      </button>
+      <button mat-raised-button class="delete-button" (click)="onConfirm()" [attr.aria-label]="data.confirmLabel || 'Confirmer la suppression'">
+        <mat-icon>{{ data.confirmIcon || 'delete' }}</mat-icon> {{ data.confirmLabel || 'Supprimer' }}
+      </button>
+    </mat-dialog-actions>

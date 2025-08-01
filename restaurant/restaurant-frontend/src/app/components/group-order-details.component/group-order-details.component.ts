@@ -15,7 +15,7 @@ import { CommandeService, Commande } from '../../services/commande.service';
 import { OrderService } from '../../services/order.service';
 import { UserService } from '../../services/user.service';
 import { Order } from '../../models/group-order.model';
-import { ConfirmDialogComponent } from '../../confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../generalconfirmation/confirm-dialog.component';
 import { OrderSubmissionComponent } from '../order-submission/order-submission.component';
 import { Restaurant } from '../../models/restaurant.model';
 import { RestaurantService } from '../../services/restaurant.service';
@@ -114,7 +114,7 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
       // Subscribe to WebSocket updates (now async)
       const wsObservable = await this.webSocketService.connect(this.commandeId);
       this.wsSubscription = wsObservable.subscribe(() => {
-        // console.log('WebSocket message received, refreshing group order details');
+
         this.loadGroupOrderDetails();
         this.cdr.detectChanges();
       });
@@ -248,8 +248,7 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
           if (this.currentUserId) {
             this.cdr.detectChanges();
             // Debug log: check if currentUserId matches any participantId
-            // console.log('CurrentUserId:', this.currentUserId);
-            // console.log('Orders:', this.orders.map(o => ({ id: o.id, participantId: o.participantId, participantName: o.participantName })));
+
           }
         },
         error: (error: any) => {
@@ -349,7 +348,7 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
   public onStatusChangeDropdown(event: Event): void {
     if (!this.commande) return;
     const newStatus = (event.target as HTMLSelectElement).value;
-    // console.log('Dropdown changed to:', newStatus, 'Current status:', this.commande.status);
+
     this.onStatusChange(newStatus);
   }
 

@@ -13,7 +13,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RestaurantService } from '../../services/restaurant.service';
 import { Restaurant } from '../../models/restaurant.model';
 import { RestaurantFormDialogComponent } from '../restaurant-form/restaurant-form-dialog.component';
-import { ConfirmDialogRestaurantComponent } from '../../confirm-dialog-restaurant.component';
+import { ConfirmDialogRestaurantComponent } from '../../generalconfirmation/restaurantconfirmation/confirm-dialog-restaurant.component';
 import { MenuDialogComponent } from '../menu-dialog/menu-dialog.component';
 import { RouterModule } from '@angular/router';
 import { trigger, state, style, animate, transition } from '@angular/animations';
@@ -95,10 +95,9 @@ export class RestaurantListComponent implements OnInit, AfterViewInit {
       { threshold: 0.2 }
     );
 
-    // Observe initial cards
     this.cards.forEach(card => observer.observe(card.nativeElement));
 
-    // Re-observe whenever the list changes (e.g., after filtering or loading)
+   
     this.cards.changes.subscribe((cards: QueryList<ElementRef>) => {
       cards.forEach(card => observer.observe(card.nativeElement));
     });
@@ -138,7 +137,7 @@ export class RestaurantListComponent implements OnInit, AfterViewInit {
     if (restaurant.profileImageBase64) {
       return restaurant.profileImageBase64;
     }
-    // Fallback to default restaurant image
+
     return '/assets/images/restaurant.jpeg';
   }
 
@@ -152,7 +151,7 @@ export class RestaurantListComponent implements OnInit, AfterViewInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (restaurant) {
-          // Update existing restaurant
+         
           this.restaurantService.updateRestaurant(restaurant.id!, result)
             .subscribe({
               next: (updatedRestaurant) => {
@@ -165,7 +164,7 @@ export class RestaurantListComponent implements OnInit, AfterViewInit {
               error: (err) => this.handleError(err)
             });
         } else {
-          // Create new restaurant
+        
           this.restaurantService.createRestaurant(result)
             .subscribe({
               next: (newRestaurant) => {
@@ -213,7 +212,7 @@ export class RestaurantListComponent implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        // Handle menu dialog result if needed
+        this.snackBar.open('Menu mis à jour avec succès', 'Fermer', { duration: 3000 });
       }
     });
   }

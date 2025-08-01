@@ -21,7 +21,6 @@ import { CountdownService } from '../../services/counttdown.service';
 import { Subscription } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-// Define interfaces for participation
 interface ParticipateRequest {
   commandeId: string;
   participantId: string;
@@ -217,7 +216,7 @@ export class ParticipateGroupOrderComponent implements OnInit, OnDestroy {
         notes: item.notes
       }));
 
-      // Create the order via API
+ 
       const orderData = {
         commandeId: this.commandeId,
         participantId: this.participateForm.value.participantId,
@@ -232,10 +231,9 @@ export class ParticipateGroupOrderComponent implements OnInit, OnDestroy {
           this.isLoading = false;
           this.snackBar.open('Order submitted successfully!', 'Close', { duration: 3000 });
 
-          // Update commande total price in database
           this.updateCommandeTotalInDatabase();
 
-          // Close the dialog and return a result so parent can refresh
+        
           this.dialogRef.close(createdOrder);
         },
         error: (error) => {
@@ -252,13 +250,12 @@ export class ParticipateGroupOrderComponent implements OnInit, OnDestroy {
   }
 
   openOrderSubmissionDialog(): void {
-    // Check if participation is still open
+ 
     if (!this.isParticipationOpen()) {
       this.snackBar.open('Participation time has expired for this group order.', 'Close', { duration: 3000 });
       return;
     }
 
-    // Check if commande and restaurantId are available
     if (!this.commande || !this.commande.restaurantId) {
       this.snackBar.open('Error: Restaurant information not available. Please try again.', 'Close', { duration: 3000 });
       return;
@@ -275,42 +272,42 @@ export class ParticipateGroupOrderComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        // Order was submitted successfully
+   
         this.snackBar.open('Order submitted successfully!', 'Close', { duration: 3000 });
-        // Refresh the commande to show updated orders
+ 
         this.loadCommande();
-        // Update the total price in database immediately
+      
         this.updateCommandeTotalInDatabase();
       }
     });
   }
 
-  // Method to update commande total price in database
+
   updateCommandeTotalInDatabase(): void {
     if (!this.commande || !this.commandeId) {
       console.warn('⚠️ Cannot update total: commande or commandeId is missing');
       return;
     }
 
-    console.log(`🔄 Loading orders to calculate total for commande: ${this.commandeId}`);
 
-    // Load all orders for this commande to calculate total
+
+
     this.orderService.getOrdersByCommandeId(this.commandeId).subscribe({
       next: (orders) => {
         const validOrders = orders.filter(order => !order.deleted);
         const newTotal = this.calculateCommandeTotal(validOrders);
 
-        console.log(`📊 Calculated new total: ${newTotal} from ${validOrders.length} orders`);
 
-        // Update commande total price in database via API
+
+
         this.commandeService.updateCommandeTotal(this.commandeId, newTotal).subscribe({
           next: (updatedCommande) => {
-            console.log(`✅ Commande ${this.commandeId} total successfully updated to ${newTotal} in database`);
 
-            // Update local commande object to reflect the change
+
+
             if (this.commande) {
               this.commande.totalPrice = newTotal;
-              console.log(`🔄 Local commande object updated with new total: ${newTotal}`);
+
             }
           },
           error: (error) => {
@@ -326,14 +323,14 @@ export class ParticipateGroupOrderComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Method to calculate total from orders
+
   calculateCommandeTotal(orders: any[]): number {
     return orders.reduce((total, order) => {
       return total + (order.totalAmount || 0);
     }, 0);
   }
 
-  // Update isParticipationOpen to use commande.status and deadline logic
+
   isParticipationOpen(): boolean {
     if (!this.commande) return false;
     const now = new Date().getTime();
@@ -341,7 +338,7 @@ export class ParticipateGroupOrderComponent implements OnInit, OnDestroy {
     return this.commande.status === 'created' && now < deadline && this.commande.allowParticipation !== false;
   }
 
-  // Get participation status text
+
   getParticipationStatus(): string {
     if (!this.commande) return 'Unknown';
 
@@ -352,12 +349,12 @@ export class ParticipateGroupOrderComponent implements OnInit, OnDestroy {
     return this.isParticipationOpen() ? 'Open for Participation' : 'Participation Closed';
   }
 
-  // Get participation status CSS class
+
   getParticipationStatusClass(): string {
     return this.isParticipationOpen() ? 'status-open' : 'status-closed';
   }
 
-  // Replace getRemainingTime and getRemainingTimeClass with countdownDisplay/countdownColor
+
   getRemainingTime(): string {
     return this.countdownDisplay;
   }

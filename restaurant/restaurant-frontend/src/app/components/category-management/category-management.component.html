@@ -1,5 +1,5 @@
 <div class="categories-container">
-    <!-- Header Section -->
+
     <div class="categories-header">
         <div class="form-title-section">
             <mat-icon class="form-icon">folder</mat-icon>
@@ -11,7 +11,7 @@
         </button>
     </div>
 
-    <!-- Search and Filter Section -->
+  
     <div class="search-filter-section">
         <div class="search-container">
             <div class="search-input-wrapper">
@@ -28,7 +28,7 @@
         </div>
     </div>
 
-    <!-- Categories Grid -->
+
     <div class="categories-content">
         <div *ngIf="isLoading" class="loading-overlay">
             <mat-spinner diameter="40"></mat-spinner>
@@ -89,8 +89,7 @@
             </div>
             <form [formGroup]="form" (ngSubmit)="submit()" class="category-form">
                 <div class="modal-content">
-                    <!-- Form fields remain unchanged -->
-                    <!-- Category Name -->
+                 
                     <div class="form-field">
                         <label class="field-label">
                             <mat-icon>label_outline</mat-icon>
@@ -102,7 +101,6 @@
                         </div>
                     </div>
 
-                    <!-- Category Description -->
                     <div class="form-field">
                         <label class="field-label">
                             <mat-icon>edit_note</mat-icon>
@@ -111,7 +109,7 @@
                         <textarea class="form-textarea" formControlName="description" placeholder="Décrivez cette catégorie..." rows="3"></textarea>
                     </div>
 
-                    <!-- Image Upload -->
+                
                     <div class="form-field">
                         <label class="field-label">
                             <mat-icon>image</mat-icon>
@@ -137,7 +135,7 @@
                     </div>
                 </div>
                 <div class="modal-actions">
-                    <!-- Form actions remain unchanged -->
+              
                     <button type="button" class="cancel-btn" (click)="closeForm()">
                         <mat-icon>close</mat-icon>
                         Annuler
@@ -151,6 +149,6 @@
             </form>
         </div>
     </div>
-    <!-- Category Form Modal -->
+
 
 </div>

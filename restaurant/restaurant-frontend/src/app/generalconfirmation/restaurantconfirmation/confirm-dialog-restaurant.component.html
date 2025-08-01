@@ -1,0 +1,14 @@
+ <h2 mat-dialog-title class="dialog-title text-blue-500">Confirm Deletion</h2>
+    <mat-dialog-content class="dialog-content">
+      <p class="dialog-message">
+        Are you sure you want to permanently delete this restaurant? This action cannot be undone.
+      </p>
+    </mat-dialog-content>
+    <mat-dialog-actions class="dialog-actions">
+      <button mat-raised-button class="cancel-button" (click)="onCancel()" aria-label="Cancel deletion">
+        <mat-icon>cancel</mat-icon> Cancel
+      </button>
+      <button mat-raised-button class="delete-button" (click)="onConfirm()" aria-label="Confirm deletion">
+        <mat-icon>delete</mat-icon> Delete
+      </button>
+    </mat-dialog-actions>

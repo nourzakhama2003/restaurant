@@ -24,7 +24,7 @@ export class AppKeycloakService {
 
       if (authenticated) {
         const userProfile = await this.keycloak.loadUserProfile();
-        console.log('Authenticated user:', userProfile.username);
+
       }
 
       return authenticated;
@@ -116,7 +116,7 @@ export class AppKeycloakService {
   debugKeycloakToken(): void {
     if (this.isLoggedIn()) {
       const tokenParsed = this.keycloak.getKeycloakInstance().tokenParsed;
-      console.log('All Keycloak token fields:', tokenParsed);
+
     }
   }
 }

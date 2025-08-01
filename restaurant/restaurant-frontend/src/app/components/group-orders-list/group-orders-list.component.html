@@ -1,5 +1,5 @@
 <div class="group-orders-container">
-    <!-- Header Section -->
+  
     <div class="page-header">
         <div class="header-content">
             <div class="header-left">
@@ -24,7 +24,6 @@
         </div>
     </div>
 
-    <!-- Search and Filter Section -->
     <div class="search-filter-section">
         <div class="search-container">
             <div class="search-input-wrapper">
@@ -72,12 +71,12 @@
         <p>Chargement des commandes...</p>
     </div>
 
-    <!-- Orders Content -->
+  
     <div class="orders-content" *ngIf="!isLoading">
-        <!-- Orders Grid -->
+     
         <div class="orders-grid" *ngIf="filteredCommandes.length > 0">
             <div class="order-card" *ngFor="let commande of filteredCommandes; let i = index" [@fadeInUp] [style.animation-delay]="(i * 100) + 'ms'">
-                <!-- Card Header -->
+           
                 <div class="card-header">
                     <div class="restaurant-info">
                         <div class="restaurant-icon">
@@ -96,7 +95,7 @@
                     </div>
                 </div>
 
-                <!-- Progress Bar -->
+             
                 <div class="progress-section">
                     <div class="progress-info">
                         <span class="progress-label">Progression</span>
@@ -105,7 +104,7 @@
                     <mat-progress-bar class="order-progress" mode="determinate" [value]="getOrderProgress(commande.createdAt, commande.orderDeadline)"></mat-progress-bar>
                 </div>
 
-                <!-- Card Content -->
+             
                 <div class="card-content">
                     <div class="order-stats">
                         <div class="stat-item">
@@ -136,7 +135,6 @@
                     </div>
                 </div>
 
-                <!-- Card Actions -->
                 <div class="card-actions">
                     <button class="action-btn view-btn" (click)="viewDetails(commande.id)" matTooltip="Voir les détails">
             <mat-icon>visibility</mat-icon>
@@ -151,7 +149,6 @@
             </div>
         </div>
 
-        <!-- Empty State -->
         <div class="empty-state" *ngIf="filteredCommandes.length === 0">
             <div class="empty-icon">
                 <mat-icon>group_work</mat-icon>

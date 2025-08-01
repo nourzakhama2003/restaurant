@@ -105,7 +105,7 @@
                     </div>
                 </div>
 
-                <!-- Order Items -->
+    
                 <div class="card-content">
                     <div class="items-section">
                         <h4 class="section-title">
@@ -138,7 +138,6 @@
                         </div>
                     </div>
 
-                    <!-- Group Order Info -->
                     <div class="group-info-section" *ngIf="getCommandeInfo(order.commandeId)">
                         <h4 class="section-title">
                             <mat-icon>group_work</mat-icon>
@@ -169,7 +168,7 @@
                         </div>
                     </div>
 
-                    <!-- Order Meta -->
+        
                     <div class="order-meta">
                         <div class="created-date">
                             <mat-icon>schedule</mat-icon>
@@ -182,7 +181,7 @@
                     </div>
                 </div>
 
-                <!-- Card Actions -->
+       
                 <div class="card-actions">
                     <button class="action-btn view-btn" (click)="viewDetails(order.commandeId)" matTooltip="Voir les détails">
                         <mat-icon>visibility</mat-icon>
@@ -196,7 +195,6 @@
             </div>
         </div>
 
-        <!-- Empty State -->
         <div class="empty-state" *ngIf="filteredOrders.length === 0">
             <div class="empty-icon">
                 <mat-icon>shopping_cart_off</mat-icon>

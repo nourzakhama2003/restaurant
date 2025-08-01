@@ -71,13 +71,13 @@ export class RestaurantFormDialogComponent {
     if (input.files && input.files[0]) {
       const file = input.files[0];
 
-      // Validate file type
+   
       if (!file.type.startsWith('image/')) {
         this.snackBar.open('Veuillez sélectionner une image valide', 'Fermer', { duration: 3000 });
         return;
       }
 
-      // Validate file size (5MB limit)
+ 
       if (file.size > 5 * 1024 * 1024) {
         this.snackBar.open('L\'image doit faire moins de 5MB', 'Fermer', { duration: 3000 });
         return;
@@ -101,7 +101,6 @@ export class RestaurantFormDialogComponent {
     if (this.restaurantForm.valid) {
       this.isLoading = true;
 
-      // Simulate loading for better UX
       setTimeout(() => {
         this.dialogRef.close(this.restaurantForm.value);
         this.snackBar.open(

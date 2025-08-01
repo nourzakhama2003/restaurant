@@ -29,38 +29,36 @@ export class LoginComponent implements OnInit {
   ) { }
 
   async ngOnInit() {
-    // Get the return URL from query parameters
+
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
 
-    // Check if this is specifically a redirect from registration
     const fromRegistration = this.route.snapshot.queryParams['fromRegistration'] === 'true';
 
-    // Check if user is already logged in
+    
     const isLoggedIn = await this.keycloak.isLoggedIn();
 
     if (isLoggedIn) {
       if (fromRegistration) {
-        // User was auto-logged in after registration, show success message and logout
+      
         this.showRegistrationSuccess = true;
         console.log('User auto-logged in after registration, logging out...');
 
-        // Logout after 3 seconds to allow manual login
+
         setTimeout(async () => {
           try {
             await this.keycloak.logout(window.location.origin + '/login');
           } catch (error) {
-            console.error('Logout failed:', error);
-            // If logout fails, just reload the page to clear the session
+    
             window.location.reload();
           }
         }, 3000);
       } else {
-        // Normal logged in user, redirect to intended destination
+     
         console.log('User already logged in, redirecting to:', this.returnUrl);
         this.router.navigate([this.returnUrl]);
       }
     }
-    // If not logged in, stay on login page (normal case)
+
   }
 
   async login() {
@@ -91,7 +89,7 @@ export class LoginComponent implements OnInit {
   async loginWithProvider(provider: string) {
     this.isLoading = true;
     try {
-      // This assumes Keycloak is configured with social identity providers
+   
       await this.keycloak.login({
         idpHint: provider,
         redirectUri: window.location.origin + this.returnUrl

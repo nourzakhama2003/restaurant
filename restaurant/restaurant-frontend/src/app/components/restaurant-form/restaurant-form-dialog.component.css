@@ -1,4 +1,4 @@
-/* Professional Restaurant Form Styles */
+
 
 .restaurant-form-container {
     background: white;
@@ -23,7 +23,6 @@
 }
 
 
-/* Form Header */
 
 .form-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -74,7 +73,6 @@
 }
 
 
-/* Loading Overlay */
 
 .loading-overlay {
     position: absolute;
@@ -98,7 +96,6 @@
 }
 
 
-/* Form Content */
 
 .restaurant-form {
     display: flex;
@@ -134,7 +131,7 @@
 }
 
 
-/* Form Inputs - Old Style */
+
 
 .form-input,
 .form-textarea {
@@ -177,7 +174,7 @@
 }
 
 
-/* Error messages */
+
 
 .error-message {
     color: #dc2626;
@@ -194,7 +191,7 @@
 }
 
 
-/* Invalid input styles */
+
 
 .form-input.ng-invalid.ng-touched,
 .form-textarea.ng-invalid.ng-touched {
@@ -209,7 +206,7 @@
 }
 
 
-/* Image Upload Section */
+
 
 .image-upload-section {
     border: 2px dashed #d1d5db;
@@ -304,7 +301,7 @@
 }
 
 
-/* Form Actions */
+
 
 .form-actions {
     padding: 1.5rem;
@@ -363,7 +360,7 @@
 }
 
 
-/* Responsive Design */
+
 
 @media (max-width: 768px) {
     .restaurant-form-container {

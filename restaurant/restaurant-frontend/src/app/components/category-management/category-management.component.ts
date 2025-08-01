@@ -12,7 +12,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
-import { ConfirmDialogComponent } from '../../confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../generalconfirmation/confirm-dialog.component';
 import { Category } from '../../models/category.model';
 import { MenuService } from '../../services/menu.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -58,8 +58,8 @@ export class CategoryManagementComponent implements OnInit {
     showForm: boolean = false;
 
     constructor(
-        private menuService: MenuService, 
-        private fb: FormBuilder, 
+        private menuService: MenuService,
+        private fb: FormBuilder,
         private dialog: MatDialog,
         private snackBar: MatSnackBar
     ) {
@@ -110,13 +110,12 @@ export class CategoryManagementComponent implements OnInit {
     onImageSelected(event: any): void {
         const file = event.target.files[0];
         if (file) {
-            // Validate file size (5MB limit)
+          
             if (file.size > 5 * 1024 * 1024) {
                 this.snackBar.open('L\'image doit faire moins de 5MB', 'Fermer', { duration: 3000 });
                 return;
             }
 
-            // Validate file type
             if (!file.type.startsWith('image/')) {
                 this.snackBar.open('Veuillez sélectionner une image valide', 'Fermer', { duration: 3000 });
                 return;
@@ -161,8 +160,8 @@ export class CategoryManagementComponent implements OnInit {
         request.subscribe({
             next: () => {
                 this.snackBar.open(
-                    this.editingCategory ? 'Catégorie mise à jour avec succès' : 'Catégorie créée avec succès', 
-                    'Fermer', 
+                    this.editingCategory ? 'Catégorie mise à jour avec succès' : 'Catégorie créée avec succès',
+                    'Fermer',
                     { duration: 3000 }
                 );
                 this.loadCategories();
@@ -171,8 +170,8 @@ export class CategoryManagementComponent implements OnInit {
             error: err => {
                 console.error('Error saving category:', err);
                 this.snackBar.open(
-                    'Erreur lors de l\'enregistrement de la catégorie', 
-                    'Fermer', 
+                    'Erreur lors de l\'enregistrement de la catégorie',
+                    'Fermer',
                     { duration: 3000 }
                 );
                 this.isSubmitting = false;

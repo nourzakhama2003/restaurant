@@ -1,5 +1,4 @@
 <div class="menu-container">
-    <!-- Restaurant Hero Section -->
     <div class="restaurant-hero" *ngIf="restaurant">
         <div class="hero-background">
             <img [src]="getRestaurantImage(restaurant)" [alt]="restaurant.name" class="hero-image" />
@@ -35,15 +34,12 @@
         </div>
     </div>
 
-    <!-- Loading State -->
     <div class="loading-container" *ngIf="isLoading">
         <mat-spinner diameter="50"></mat-spinner>
         <p>Chargement du menu...</p>
     </div>
 
-    <!-- Menu Content -->
     <div class="menu-content" *ngIf="!isLoading">
-        <!-- Header Section -->
         <div class="menu-header">
             <div class="header-left">
                 <div class="header-icon">
@@ -60,7 +56,6 @@
       </button>
         </div>
 
-        <!-- Search and Filter Section -->
         <div class="search-filter-section">
             <div class="search-container">
                 <div class="search-input-wrapper">
@@ -95,9 +90,7 @@
             </div>
         </div>
 
-        <!-- Menu Items Grid -->
         <div class="menu-items-section">
-            <!-- Empty State -->
             <div class="empty-state" *ngIf="filteredMenuItems.length === 0">
                 <div class="empty-icon">
                     <mat-icon>restaurant_menu</mat-icon>
@@ -112,10 +105,8 @@
         </button>
             </div>
 
-            <!-- Menu Items Grid -->
             <div class="menu-grid" *ngIf="filteredMenuItems.length > 0">
                 <div class="menu-card" *ngFor="let item of filteredMenuItems; let i = index" [@fadeInUp] [style.animation-delay]="(i * 100) + 'ms'">
-                    <!-- Card Image -->
                     <div class="card-image">
                         <img [src]="getItemImage(item)" [alt]="item.name" />
                         <div class="image-overlay">
@@ -125,7 +116,6 @@
                         </div>
                     </div>
 
-                    <!-- Card Content -->
                     <div class="card-content">
                         <div class="card-header">
                             <h3 class="item-name">{{ item.name }}</h3>

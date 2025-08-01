@@ -11,7 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { Restaurant } from '../../models/restaurant.model';
 import { MenuItem } from '../../models/menu-item.model';
 import { MenuItemFormComponent } from '../menu-item-form/menu-item-form.component';
-import { ConfirmDialogComponent } from '../../confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../generalconfirmation/confirm-dialog.component';
 import { MenuService } from '../../services/menu.service';
 import { Category } from '../../models/category.model';
 
@@ -56,10 +56,10 @@ export class MenuDialogComponent {
     this.isLoading = true;
     const restaurantId = this.restaurant.id || '';
     if (restaurantId) {
-  
+
       this.menuService.getMenuItemsByRestaurant(restaurantId).subscribe({
         next: (menuItems) => {
-   
+
           this.plats = menuItems;
           this.isLoading = false;
         },

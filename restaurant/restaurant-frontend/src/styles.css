@@ -1,12 +1,11 @@
 @import '@angular/cdk/overlay-prebuilt.css';
 
-/* You can add global styles to this file, and also import other style files */
+
 
 @import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-html,
 body {
     height: 100%;
     margin: 0;
@@ -21,10 +20,7 @@ body {
 }
 
 
-/* From Uiverse.io by adamgiebl */
 
-
-/* Global form field styling - Make all Material fields look like regular HTML inputs */
 
 .mat-mdc-form-field {
     width: 100%;
@@ -32,7 +28,7 @@ body {
 }
 
 
-/* Remove the outlined appearance and make them look like regular inputs */
+
 
 .mat-mdc-form-field.mat-mdc-form-field-appearance-outline .mat-mdc-form-field-wrapper {
     padding: 0;
@@ -57,14 +53,14 @@ body {
 }
 
 
-/* Remove the outline border */
+
 
 .mat-mdc-form-field.mat-mdc-form-field-appearance-outline .mat-mdc-form-field-outline {
     display: none !important;
 }
 
 
-/* Style the input field */
+
 
 .mat-mdc-form-field.mat-mdc-form-field-appearance-outline .mat-mdc-input-element {
     padding: 0;
@@ -80,7 +76,7 @@ body {
 }
 
 
-/* Style the label */
+
 
 .mat-mdc-form-field.mat-mdc-form-field-appearance-outline .mat-mdc-form-field-label {
     color: #666;
@@ -90,7 +86,7 @@ body {
 }
 
 
-/* Style the select dropdown */
+
 
 .mat-mdc-form-field.mat-mdc-form-field-appearance-outline .mat-mdc-select {
     padding: 0;
@@ -102,7 +98,7 @@ body {
 }
 
 
-/* Style textarea */
+
 
 .mat-mdc-form-field.mat-mdc-form-field-appearance-outline .mat-mdc-text-field-wrapper {
     background: white;
@@ -123,14 +119,14 @@ body {
 }
 
 
-/* Remove textarea outline */
+
 
 .mat-mdc-form-field.mat-mdc-form-field-appearance-outline .mat-mdc-text-field-wrapper .mat-mdc-form-field-outline {
     display: none !important;
 }
 
 
-/* Style textarea input */
+
 
 .mat-mdc-form-field.mat-mdc-form-field-appearance-outline textarea.mat-mdc-input-element {
     padding: 0;
@@ -144,7 +140,7 @@ body {
 }
 
 
-/* Error states */
+
 
 .mat-mdc-form-field.mat-mdc-form-field-appearance-outline.mat-form-field-invalid .mat-mdc-form-field-flex,
 .mat-mdc-form-field.mat-mdc-form-field-appearance-outline.mat-form-field-invalid .mat-mdc-text-field-wrapper {
@@ -152,7 +148,6 @@ body {
 }
 
 
-/* Disabled state */
 
 .mat-mdc-form-field.mat-mdc-form-field-appearance-outline.mat-form-field-disabled .mat-mdc-form-field-flex,
 .mat-mdc-form-field.mat-mdc-form-field-appearance-outline.mat-form-field-disabled .mat-mdc-text-field-wrapper {
@@ -162,14 +157,12 @@ body {
 }
 
 
-/* Remove form field spacing */
 
 .mat-mdc-form-field-subscript-wrapper {
     display: none !important;
 }
 
 
-/* Style error messages */
 
 .mat-mdc-form-field-error {
     color: #dc3545;
@@ -178,7 +171,7 @@ body {
 }
 
 
-/* Make buttons look more regular too */
+
 
 .mat-mdc-raised-button {
     border-radius: 4px !important;
@@ -195,7 +188,7 @@ body {
 }
 
 
-/* Style cards to look more regular */
+
 
 .mat-mdc-card {
     border: 1px solid #e0e0e0 !important;

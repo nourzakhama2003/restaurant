@@ -1,9 +1,6 @@
 <div class="details-container">
-    <!-- Debug Information -->
 
-
-    <!-- Hero Section -->
-    <div class="hero-section" *ngIf="commande">
+        <div class="hero-section" *ngIf="commande">
         <div class="hero-background">
             <div class="hero-pattern"></div>
         </div>
@@ -31,7 +28,7 @@
                 </div>
             </div>
 
-            <!-- Progress Timeline -->
+        
             <div class="progress-timeline">
                 <div class="timeline-step" [class.active]="commande.status === 'cree'">
                     <div class="step-icon">
@@ -64,9 +61,8 @@
         </div>
     </div>
 
-    <!-- Main Content -->
     <div class="main-content" *ngIf="commande">
-        <!-- Stats Cards -->
+  
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-icon">
@@ -137,9 +133,9 @@
             </div>
         </div>
 
-        <!-- Actions Section -->
+    
         <div class="actions-section">
-            <!-- Status Management for Creators -->
+      
             <div class="status-management" *ngIf="isCreator()">
                 <div class="status-selector">
                     <label for="statusSelect">Changer le statut :</label>
@@ -150,7 +146,7 @@
                 </div>
             </div>
 
-            <!-- Print Button - Only visible when status is confirmed -->
+        
             <div class="print-button-section" *ngIf="commande.status === 'confirmee'">
                 <button class="action-btn print-btn" (click)="printOrderDetails()">
                     <mat-icon>print</mat-icon>
@@ -192,9 +188,9 @@
             </div>
         </div>
 
-        <!-- Print Section (Hidden by default, shown when printing) -->
+     
         <div class="print-section" id="printSection">
-            <!-- Debug info for print section -->
+            
 
 
             <div class="print-header">
@@ -207,7 +203,7 @@
                 </div>
             </div>
 
-            <!-- Restaurant Details Table -->
+       
             <div class="print-table-section">
                 <h2>Détails de la commande</h2>
                 <table class="print-table">
@@ -246,7 +242,7 @@
                 </table>
             </div>
 
-            <!-- Summary Section -->
+ 
             <div class="print-summary">
                 <h3>Résumé</h3>
                 <div class="summary-grid">
@@ -277,7 +273,7 @@
             </div>
         </div>
 
-        <!-- Orders Section -->
+        
         <div class="orders-section">
             <div class="section-header">
                 <div class="section-title">
@@ -287,7 +283,7 @@
                     </a>
                 </div>
 
-                <!-- Search and Filter -->
+          
                 <div class="search-filter-bar">
                     <div class="search-box">
                         <mat-icon>search</mat-icon>
@@ -300,7 +296,7 @@
                 </div>
             </div>
 
-            <!-- Orders List -->
+    
             <div class="orders-list" *ngIf="filteredOrders.length > 0">
                 <div class="order-card" *ngFor="let order of filteredOrders; let i = index">
                     <div class="order-header">
@@ -338,7 +334,7 @@
                             <span>{{order.paye ? 'Payé' : 'Non payé'}}</span>
                         </div>
 
-                        <!-- Payment Toggle for Creators -->
+                       
                         <div class="payment-toggle" *ngIf="isCreator()">
                             <label class="payment-checkbox">
                                 <input type="checkbox" [checked]="order.paye" (change)="toggleOrderPaid(order, $any($event.target).checked)" />
@@ -359,7 +355,6 @@
                 </div>
             </div>
 
-            <!-- Empty State -->
             <div class="empty-state" *ngIf="!filteredOrders || filteredOrders.length === 0">
                 <div class="empty-icon">
                     <mat-icon>shopping_cart</mat-icon>
@@ -379,7 +374,7 @@
         </div>
     </div>
 
-    <!-- Loading State -->
+   
     <div class="loading-overlay" *ngIf="loading">
         <div class="loading-content">
             <mat-spinner diameter="60"></mat-spinner>
@@ -387,7 +382,7 @@
         </div>
     </div>
 
-    <!-- Error State -->
+  
     <div class="error-state" *ngIf="!loading && !commande">
         <div class="error-content">
             <mat-icon>error</mat-icon>
