@@ -247,20 +247,23 @@ public class CommandeService {
             // Update the commande's orders list
             commande.setOrders(activeOrders);
             
-            // Calculate total from orders (excluding deleted ones)
-            double newTotal = activeOrders.stream()
+
+            // Calculate total from orders (excluding deleted ones) and add delivery fee
+            double ordersTotal = activeOrders.stream()
                 .mapToDouble(Order::getTotalAmount)
                 .sum();
-            
+            double deliveryFee = commande.getDeliveryFee();
+            double newTotal = ordersTotal + deliveryFee;
+
             double oldTotal = commande.getTotalPrice();
             System.out.println("ðŸ’° Calculated total: " + newTotal + " (was: " + oldTotal + ")");
-            
+
             // Update commande total
             commande.setTotalPrice(newTotal);
             Commande savedCommande = this.commandeRepository.save(commande);
-            
+
             System.out.println("âœ… Service: Successfully updated commande orders list and total from " + oldTotal + " to " + newTotal);
-            
+
             return savedCommande;
             
         } catch (Exception e) {

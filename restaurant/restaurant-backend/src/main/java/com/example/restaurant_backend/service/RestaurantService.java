@@ -49,7 +49,7 @@ public class RestaurantService {
         });
     }
 
-    // Correction ici: le paramÃ¨tre est 'id' et non 'description'
+
     public void deleteRestaurant(String id) {
         restaurantRepository.findById(id).ifPresent(r -> {
             r.setDeleted(true);
@@ -61,25 +61,19 @@ public class RestaurantService {
         return restaurantRepository.findById(id);
     }
 
-    // Debug method to test menu item loading
     public void debugMenuItemLoading(String restaurantId) {
-        System.out.println("=== DEBUG: Testing menu item loading for restaurant ID: " + restaurantId + " ===");
-        
-        // Test direct query
+     
         List<MenuItem> menuItems = menuItemRepository.findByRestaurantIdAndDeletedFalse(restaurantId);
-        System.out.println("Direct query result: " + menuItems.size() + " menu items found");
-        
-        // Test all menu items
+   
+  
         List<MenuItem> allMenuItems = menuItemRepository.findAll();
-        System.out.println("Total menu items in database: " + allMenuItems.size());
-        
-        // Print details of each menu item
+       
         for (MenuItem item : allMenuItems) {
             System.out.println("Menu item: " + item.getName() + 
                              ", restaurantId: " + item.getRestaurantId() + 
                              ", deleted: " + item.isDeleted());
         }
         
-        System.out.println("=== END DEBUG ===");
+       
     }
 }

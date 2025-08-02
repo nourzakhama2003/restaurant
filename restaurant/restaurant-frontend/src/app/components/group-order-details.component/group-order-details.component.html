@@ -110,6 +110,10 @@
                     <h3>Total</h3>
                     <p class="stat-value total-amount">{{ getTotalAmount() > 0 ? (getTotalAmount() | number:'1.2-2') : '0.00' }} DT</p>
                     <p class="stat-subtitle">{{filteredOrders.length}} commande{{filteredOrders.length > 1 ? 's' : ''}}</p>
+                    <div *ngIf="commande.deliveryFee && commande.deliveryFee > 0">
+                        <span class="delivery-fee">Frais de livraison : {{commande.deliveryFee | number:'1.2-2'}} DT</span><br>
+                        <span class="per-user-fee">Part par participant : {{ (commande.deliveryFee / (orders.length || 1)) | number:'1.2-2' }} DT</span>
+                    </div>
                 </div>
             </div>
 
@@ -120,7 +124,7 @@
                 <div class="stat-content">
                     <h3>Date limite</h3>
                     <p class="stat-value countdown" [ngClass]="countdownColor">
-                        {{countdownDisplay === 'Expired' ? 'Fermée' : countdownDisplay}}
+                        {{countdownDisplay === 'Expired' ? 'temp écoulé' : countdownDisplay}}
                     </p>
                     <div class="deadline-progress">
                         <mat-progress-bar mode="determinate" [value]="getDeadlineProgress(commande.createdAt, commande.orderDeadline)" [ngClass]="countdownColor">
@@ -188,12 +192,8 @@
             </div>
         </div>
 
-     
-        <div class="print-section" id="printSection">
-            
-
-
-            <div class="print-header">
+     <div class="print-section" id="printSection" style="max-width: 800px; margin: 0 auto;">
+             <div class="print-header">
                 <h1>Commande Groupée - {{getRestaurantName(commande.restaurantId)}}</h1>
                 <div class="print-info">
                     <p><strong>Date de commande:</strong> {{commande.createdAt | date:'dd/MM/yyyy HH:mm':'':'fr'}}</p>
@@ -229,14 +229,30 @@
                                 <td>{{item.notes || '-'}}</td>
                                 <td>{{item.quantity || 0}}</td>
                                 <td>{{item.unitPrice || 0 | number:'1.2-2'}} DT</td>
-                                <td>{{(item.unitPrice || 0) * (item.quantity || 0) | number:'1.2-2'}} DT</td>
+                                <td>
+                                    {{ (item.unitPrice || 0) * (item.quantity || 0) | number:'1.2-2' }} DT
+                                    <span *ngIf="isFirst && commande.deliveryFee && orders.length > 0">
+                                        <br>
+                                        <small>+ Livraison: {{ (commande.deliveryFee / orders.length) | number:'1.2-2' }} DT</small>
+                                        <br>
+                                        <strong>= {{ ((order.totalAmount || 0) + (commande.deliveryFee / orders.length)) | number:'1.2-2' }} DT</strong>
+                                    </span>
+                                </td>
                             </tr>
                         </ng-container>
                     </tbody>
                     <tfoot>
+                        <tr *ngIf="commande.deliveryFee && commande.deliveryFee > 0">
+                            <td colspan="5"><strong>Frais de livraison</strong></td>
+                            <td><strong>{{ commande.deliveryFee | number:'1.2-2' }} DT</strong></td>
+                        </tr>
                         <tr class="total-row">
                             <td colspan="5"><strong>Total Général</strong></td>
                             <td><strong>{{ getTotalAmount() > 0 ? (getTotalAmount() | number:'1.2-2') : '0.00' }} DT</strong></td>
+                        </tr>
+                        <tr *ngIf="commande.deliveryFee && commande.deliveryFee > 0">
+                            <td colspan="5"><strong>Part livraison par participant</strong></td>
+                            <td><strong>{{ (commande.deliveryFee / (orders.length || 1)) | number:'1.2-2' }} DT</strong></td>
                         </tr>
                     </tfoot>
                 </table>
@@ -310,7 +326,11 @@
                             </div>
                         </div>
                         <div class="order-total">
-                            <span class="total-amount">{{order.totalAmount || 0 | number:'1.2-2'}} DT</span>
+                            <span class="total-amount">
+                                {{
+                                    (order.totalAmount || 0) + ((commande.deliveryFee && orders.length) ? (commande.deliveryFee / orders.length) : 0) | number:'1.2-2'
+                                }} DT
+                            </span>
                             <span class="item-count">{{order.items ? order.items.length : 0}} plats</span>
                         </div>
                     </div>

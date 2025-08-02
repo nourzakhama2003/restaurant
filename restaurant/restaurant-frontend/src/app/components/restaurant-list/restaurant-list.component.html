@@ -1,5 +1,5 @@
 <div class="restaurants-container">
-    <!-- Header Section -->
+
     <div class="restaurants-header">
         <div class="header-content">
             <div class="header-title-section">
@@ -73,6 +73,7 @@
                 </div>
 
            
+
                 <div class="card-content">
                     <h3 class="restaurant-name">{{ restaurant.name }}</h3>
                     <p class="restaurant-description">{{ restaurant.description || 'Aucune description' }}</p>
@@ -90,6 +91,12 @@
                             <mat-icon>phone</mat-icon>
                             <span>{{ restaurant.phone }}</span>
                         </div>
+                    </div>
+
+                   
+                    <div class="no-menu-items" *ngIf="hasNoMenuItems(restaurant)">
+                       
+                        <span style="color: #e57373; font-weight: 500;">Aucun plat ajouté.</span>
                     </div>
                 </div>
 

@@ -73,7 +73,8 @@ export class CreateGroupOrderComponent implements OnInit {
       creatorId: [''], // Hidden field
       creatorName: [''], // Display only, readonly
       orderDeadlineDate: ['', Validators.required],
-      orderDeadlineTime: ['', Validators.required]
+      orderDeadlineTime: ['', Validators.required],
+      deliveryFee: [0, [Validators.required, Validators.min(0)]] // Add delivery fee field
     });
   }
 
@@ -281,12 +282,18 @@ export class CreateGroupOrderComponent implements OnInit {
 
       // Format as 'YYYY-MM-DDTHH:mm:00' (local time, no 'Z')
       const orderDeadlineLocal = `${deadline.getFullYear()}-${pad(deadline.getMonth() + 1)}-${pad(deadline.getDate())}T${pad(deadline.getHours())}:${pad(deadline.getMinutes())}:00`;
+
       this.groupOrderForm.patchValue({ orderDeadline: orderDeadlineLocal });
 
       this.isLoading = true;
 
+
       // Add 1 hour for Tunisia timezone compatibility
       deadline.setHours(deadline.getHours() + 1);
+
+      // Get delivery fee from form
+      const deliveryFee = Number(this.groupOrderForm.value.deliveryFee) || 0;
+
 
       // Always set deadline at least 2 minutes in the future
       if (deadline.getTime() < now.getTime() + 2 * 60 * 1000) {
@@ -307,12 +314,14 @@ export class CreateGroupOrderComponent implements OnInit {
       nowTunisia.setHours(nowTunisia.getHours() + 1);
       const nowIso = `${nowTunisia.getFullYear()}-${pad(nowTunisia.getMonth() + 1)}-${pad(nowTunisia.getDate())}T${pad(nowTunisia.getHours())}:${pad(nowTunisia.getMinutes())}`;
 
+
       const commande: any = {
         restaurantId: this.groupOrderForm.value.restaurantId,
         creatorId: this.groupOrderForm.value.creatorId,
         creatorName: this.groupOrderForm.value.creatorName,
         orderDeadline: orderDeadlineIso,
         totalPrice: 0,
+        deliveryFee: deliveryFee, // Add delivery fee to commande
         createdAt: nowIso,
         updatedAt: nowIso,
         orders: [],

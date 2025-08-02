@@ -28,6 +28,15 @@
                         </div>
                     </div>
 
+                    <div class="form-row">
+                        <label for="deliveryFee">Frais de livraison</label>
+                        <input id="deliveryFee" class="Input" type="number" min="0" formControlName="deliveryFee" placeholder="Saisir le montant en TND" required>
+                        <div class="hint">Ce montant sera partagé entre tous les participants</div>
+                        <div class="error" *ngIf="groupOrderForm.get('deliveryFee')?.hasError('min')">
+                            Le frais de livraison ne peut pas être négatif
+                        </div>
+                    </div>
+
                     <div class="form-row deadline-row">
                         <label for="orderDeadlineTime">Heure de clôture des commandes</label>
                         <div class="relative"><input id="orderDeadlineDate" class="Input" [matDatepicker]="picker" formControlName="orderDeadlineDate" required>

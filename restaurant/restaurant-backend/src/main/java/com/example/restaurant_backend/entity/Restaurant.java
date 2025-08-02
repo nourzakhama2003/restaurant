@@ -29,7 +29,7 @@ public class Restaurant {
     private List<MenuItem> menus = new ArrayList<>();
     private boolean deleted = false;
 
-    // Minimal constructor for creation
+
     public Restaurant(String name, String description, String address,
                       String phone, String cuisineType) {
         this.name = name;
@@ -39,7 +39,7 @@ public class Restaurant {
         this.cuisineType = cuisineType;
     }
 
-    // Full constructor for updates
+ 
     public Restaurant(final String id, final String name, final String description, final String address, final String phone, final String cuisineType, final List<Commande> commandes, final List<MenuItem> menus, final boolean deleted) {
         this.id = id;
         this.name = name;
@@ -53,7 +53,7 @@ public class Restaurant {
     }
 
 
-    // Getters and Setters
+   
 
 
 }

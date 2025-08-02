@@ -23,18 +23,22 @@ public class OrderService {
         this.messagingTemplate = messagingTemplate;
     }
 
-    // Create
     public Order saveOrder(Order order) {
         try {
             System.out.println("ðŸ”„ OrderService: Saving order for commande: " + order.getCommandeId());
             
-            // Save the order first
+           
             Order savedOrder = this.orderRepository.save(order);
             System.out.println("âœ… OrderService: Order saved with ID: " + savedOrder.getId());
             
-            // Update the commande's orders list
+       
             if (order.getCommandeId() != null) {
                 updateCommandeOrdersList(order.getCommandeId());
+            }
+            
+           
+            if (order.getCommandeId() != null) {
+                updateLivraisonFeePerParticipantForCommande(order.getCommandeId());
             }
             
             return savedOrder;
@@ -46,7 +50,7 @@ public class OrderService {
         }
     }
     
-    // Helper method to update commande's orders list
+
     private void updateCommandeOrdersList(String commandeId) {
         try {
             System.out.println("ðŸ”„ OrderService: Updating orders list for commande: " + commandeId);
@@ -55,7 +59,7 @@ public class OrderService {
             if (optionalCommande.isPresent()) {
                 Commande commande = optionalCommande.get();
                 
-                // Get all orders for this commande
+           
                 List<Order> allOrders = this.orderRepository.findByCommandeId(commandeId);
                 List<Order> activeOrders = allOrders.stream()
                     .filter(order -> !order.isDeleted())
@@ -63,10 +67,10 @@ public class OrderService {
                 
                 System.out.println("ðŸ“‹ Found " + activeOrders.size() + " active orders for commande: " + commandeId);
                 
-                // Update the commande's orders list
+          
                 commande.setOrders(activeOrders);
                 
-                // Calculate and update total price
+           
                 double newTotal = activeOrders.stream()
                     .mapToDouble(Order::getTotalAmount)
                     .sum();
@@ -74,7 +78,7 @@ public class OrderService {
                 double oldTotal = commande.getTotalPrice();
                 commande.setTotalPrice(newTotal);
                 
-                // Save the updated commande
+               
                 this.commandeRepository.save(commande);
                 
                 System.out.println("âœ… OrderService: Updated commande orders list and total from " + oldTotal + " to " + newTotal);
@@ -89,32 +93,32 @@ public class OrderService {
         }
     }
 
-    // Read all
+
     public List<Order> getAllOrders() {
         return this.orderRepository.findAll();
     }
 
-    // Read by ID
+ 
     public Optional<Order> getOrderById(String id) {
         return this.orderRepository.findById(id);
     }
 
-    // Read by Commande ID
+
     public List<Order> getOrdersByCommandeId(String commandeId) {
         return this.orderRepository.findByCommandeId(commandeId);
     }
 
-    // Read by Participant ID
+
     public List<Order> getOrdersByParticipantId(String participantId) {
         return this.orderRepository.findByParticipantId(participantId);
     }
 
-    // Read by Commande and Participant
+  
     public List<Order> getOrdersByCommandeAndParticipant(String commandeId, String participantId) {
         return this.orderRepository.findByCommandeIdAndParticipantId(commandeId, participantId);
     }
 
-    // Update
+  
     public Order updateOrder(String id, Order order) {
         if (this.orderRepository.existsById(id)) {
             order.setId(id);
@@ -122,12 +126,11 @@ public class OrderService {
             
             System.out.println("🔄 OrderService: Updated order with ID: " + updatedOrder.getId());
             
-            // After updating, update the commande's orders list and total price
+          
             if (order.getCommandeId() != null) {
                 updateCommandeOrdersList(order.getCommandeId());
                 
-                // Check if all orders in the commande are paid
-                List<Order> orders = this.orderRepository.findByCommandeId(order.getCommandeId());
+      List<Order> orders = this.orderRepository.findByCommandeId(order.getCommandeId());
                 boolean allPaid = orders.stream().allMatch(o -> o.isPaye());
                 Optional<Commande> commandeOpt = this.commandeRepository.findById(order.getCommandeId());
                 if (commandeOpt.isPresent()) {
@@ -138,11 +141,15 @@ public class OrderService {
                         this.commandeRepository.save(commande);
                         System.out.println("✅ OrderService: Auto-updated commande status to CONFIRMEE");
                     }
-                    
-                    // Broadcast the updated commande to WebSocket subscribers
+                
                     System.out.println("[WEBSOCKET BROADCAST] Sending update to /topic/group-orders/" + commande.getId() + ": " + commande);
                     messagingTemplate.convertAndSend("/topic/group-orders/" + commande.getId(), commande);
                 }
+            }
+            
+          
+            if (order.getCommandeId() != null) {
+                updateLivraisonFeePerParticipantForCommande(order.getCommandeId());
             }
             
             return updatedOrder;
@@ -150,10 +157,10 @@ public class OrderService {
         return null;
     }
 
-    // Delete
+
     public boolean deleteOrder(String id) {
         if (this.orderRepository.existsById(id)) {
-            // Get the order first to get the commandeId
+
             Optional<Order> orderOpt = this.orderRepository.findById(id);
             String commandeId = null;
             if (orderOpt.isPresent()) {
@@ -162,9 +169,14 @@ public class OrderService {
             
             this.orderRepository.deleteById(id);
             
-            // Update commande's orders list after deletion
+          
             if (commandeId != null) {
                 updateCommandeOrdersList(commandeId);
+            }
+            
+           
+            if (commandeId != null) {
+                updateLivraisonFeePerParticipantForCommande(commandeId);
             }
             
             return true;
@@ -172,22 +184,22 @@ public class OrderService {
         return false;
     }
 
-    // Delete by Commande ID
+
     public void deleteOrdersByCommandeId(String commandeId) {
         this.orderRepository.deleteByCommandeId(commandeId);
     }
 
-    // Delete by Participant ID
+  
     public void deleteOrdersByParticipantId(String participantId) {
         this.orderRepository.deleteByParticipantId(participantId);
     }
 
-    // Check if exists
+ 
     public boolean existsById(String id) {
         return this.orderRepository.existsById(id);
     }
 
-    // Calculate total price for a commande
+
     public double calculateTotalPriceForCommande(String commandeId) {
         List<Order> orders = this.orderRepository.findByCommandeId(commandeId);
         return orders.stream()
@@ -195,7 +207,7 @@ public class OrderService {
                 .sum();
     }
 
-    // Calculate total price for a participant
+   
     public double calculateTotalPriceForParticipant(String participantId) {
         List<Order> orders = this.orderRepository.findByParticipantId(participantId);
         return orders.stream()
@@ -203,5 +215,19 @@ public class OrderService {
                 .sum();
     }
 
-
+ 
+    public void updateLivraisonFeePerParticipantForCommande(String commandeId) {
+        Optional<Commande> commandeOpt = this.commandeRepository.findById(commandeId);
+        if (commandeOpt.isPresent()) {
+            Commande commande = commandeOpt.get();
+            double deliveryFee = commande.getDeliveryFee();
+            List<Order> orders = this.orderRepository.findByCommandeId(commandeId);
+            int participants = (int) orders.stream().filter(o -> !o.isDeleted()).count();
+            double feePerParticipant = (participants > 0) ? (deliveryFee / participants) : 0.0;
+            for (Order order : orders) {
+                order.setLivraisonFeePerParticipant(feePerParticipant);
+                this.orderRepository.save(order);
+            }
+        }
+    }
 }

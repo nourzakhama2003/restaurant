@@ -1,3 +1,5 @@
+
+import { CommandeService, Commande } from '../../services/commande.service';
 import { Component, OnInit, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -18,8 +20,8 @@ import { RestaurantService } from '../../services/restaurant.service';
 import { UserService } from '../../services/user.service';
 import { MenuService } from '../../services/menu.service';
 import { MenuItem } from '../../models/menu-item.model';
-import { OrderItem, Order } from '../../models/group-order.model';
-
+import { Order } from '../../models/order.model';
+import { OrderItem } from '../../models/order-item.model';
 @Component({
   selector: 'app-order-submission',
   standalone: true,
@@ -54,11 +56,9 @@ export class OrderSubmissionComponent implements OnInit {
   selectedCategory: string = '';
 
   get availableCategories(): string[] {
-    // Only show categories that have at least one menu item in this restaurant
     const categories = this.menuItems
       .filter(item => !item.deleted)
       .map(item => item.categoryName || 'Autre');
-    // Only include categories that have at least one item
     return Array.from(new Set(categories.filter(cat =>
       this.menuItems.some(item => (item.categoryName || 'Autre') === cat && !item.deleted)
     )));
@@ -68,6 +68,9 @@ export class OrderSubmissionComponent implements OnInit {
     if (!this.selectedCategory) return this.menuItems.filter(item => !item.deleted);
     return this.menuItems.filter(item => (item.categoryName || 'Autre') === this.selectedCategory && !item.deleted);
   }
+
+  commande?: Commande;
+  participantsCount: number = 0;
 
   constructor(
     private fb: FormBuilder,
@@ -82,6 +85,7 @@ export class OrderSubmissionComponent implements OnInit {
     private restaurantService: RestaurantService,
     private userService: UserService,
     private menuService: MenuService,
+    private commandeService: CommandeService,
     private snackBar: MatSnackBar
   ) {
     this.isEditMode = data.editMode || false;
@@ -99,8 +103,31 @@ export class OrderSubmissionComponent implements OnInit {
       this.loadExistingOrder();
     } else {
       this.loadCurrentUser();
-      this.addMenuItem(); // Add first menu item row
     }
+    if (this.data.commandeId) {
+      this.commandeService.getCommandeById(this.data.commandeId).subscribe({
+        next: (commande) => {
+          this.commande = commande;
+          this.participantsCount = (commande.orders && commande.orders.length) ? commande.orders.length : 1;
+        },
+        error: () => {
+          this.commande = undefined;
+          this.participantsCount = 1;
+        }
+      });
+    }
+  }
+  getTotalWithDelivery(): number {
+    const deliveryFee = this.commande && this.commande.deliveryFee ? this.commande.deliveryFee : 0;
+    const participants = this.participantsCount || 1;
+    return this.getTotalAmount() + (deliveryFee / participants);
+  }
+
+  getDeliveryFeePerParticipant(): number {
+    if (this.commande && this.commande.deliveryFee && this.commande.deliveryFee > 0 && this.participantsCount > 0) {
+      return this.commande.deliveryFee / this.participantsCount;
+    }
+    return 0;
   }
 
   get orderItems(): FormArray {
@@ -118,7 +145,6 @@ export class OrderSubmissionComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Error loading user information:', error);
       }
     });
   }
@@ -127,14 +153,12 @@ export class OrderSubmissionComponent implements OnInit {
     const existingOrder = this.data.existingOrder!;
     this.existingOrderId = existingOrder.id;
 
-    // Load user info first
     this.orderForm.patchValue({
       participantId: existingOrder.participantId,
       participantName: existingOrder.participantName,
       notes: existingOrder.notes || ''
     });
 
-    // Clear existing items and add items from existing order
     this.clearOrderItems();
     existingOrder.items.forEach(item => {
       this.addMenuItemFromExisting(item);
@@ -160,18 +184,15 @@ export class OrderSubmissionComponent implements OnInit {
 
   loadMenuItems(): void {
     if (!this.data.restaurantId) {
-      console.error('Restaurant ID is missing from dialog data');
       this.snackBar.open('Error: Restaurant information is missing. Please try again.', 'Close', { duration: 3000 });
       this.menuItems = [];
       return;
     }
 
     this.isLoadingMenuItems = true;
-    // Use MenuService to load menu items directly, just like menu-dialog component
     this.menuService.getMenuItemsByRestaurant(this.data.restaurantId).subscribe({
       next: (menuItems: MenuItem[]) => {
         this.isLoadingMenuItems = false;
-        // Filter for non-deleted items only
         this.menuItems = menuItems.filter((item: MenuItem) => !item.deleted);
 
         if (this.menuItems.length === 0) {
@@ -180,7 +201,6 @@ export class OrderSubmissionComponent implements OnInit {
       },
       error: (error: any) => {
         this.isLoadingMenuItems = false;
-        console.error('Error loading menu items from MenuService:', error);
         this.snackBar.open('Error loading menu items. Please try again.', 'Close', { duration: 3000 });
         this.menuItems = [];
       }
@@ -220,7 +240,6 @@ export class OrderSubmissionComponent implements OnInit {
     const value = (document.querySelectorAll('.menu-search-input')[index] as HTMLInputElement)?.value || '';
     this.orderItems.at(index).patchValue({ menuItemName: value });
     const search = value.toLowerCase();
-    // Always filter by selected category and search term
     this.filteredMenuItems[index] = this.menuItems
       .filter(item => (!this.selectedCategory || (item.categoryName || 'Autre') === this.selectedCategory) && !item.deleted)
       .filter(item => item.name.toLowerCase().includes(search));
@@ -228,7 +247,6 @@ export class OrderSubmissionComponent implements OnInit {
   }
 
   onMenuDropdownFocus(index: number): void {
-    // Show all items in the selected category when input is focused
     this.filteredMenuItems[index] = this.menuItems
       .filter(item => (!this.selectedCategory || (item.categoryName || 'Autre') === this.selectedCategory) && !item.deleted);
     this.showMenuDropdown[index] = true;
@@ -242,7 +260,6 @@ export class OrderSubmissionComponent implements OnInit {
     const itemGroup = this.orderItems.at(index);
     itemGroup.patchValue({
       menuItemId: menuItem.id,
-      menuItemName: menuItem.name, // This will update the input value
       unitPrice: menuItem.price,
       quantity: 1
     });
@@ -252,8 +269,6 @@ export class OrderSubmissionComponent implements OnInit {
   }
 
   calculateItemTotal(index: number): void {
-    // This will trigger recalculation of totals
-    // The template will automatically update via getItemSubtotal()
   }
 
   getItemSubtotal(index: number): number {
@@ -295,7 +310,6 @@ export class OrderSubmissionComponent implements OnInit {
       };
 
       if (this.isEditMode && this.existingOrderId) {
-        // Update existing order
         const updateData = {
           id: this.existingOrderId,
           ...orderData
@@ -305,7 +319,6 @@ export class OrderSubmissionComponent implements OnInit {
         this.orderService.updateOrder(this.existingOrderId, updateData).subscribe({
           next: (order) => {
             this.isLoading = false;
-            console.log('✅ Order updated successfully:', order);
             this.snackBar.open('Order updated successfully!', 'Close', { duration: 3000 });
             this.dialogRef.close(order);
           },

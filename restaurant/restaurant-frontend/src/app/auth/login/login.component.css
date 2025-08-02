@@ -5,7 +5,7 @@
         min-height: 100vh;
         height: 100vh;
         width: 100vw;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background:#dddfe0;
         background-attachment: fixed;
         display: flex;
         align-items: center;
@@ -88,63 +88,15 @@
         outline: none;
     }
     
-    .btn-primary {
-        background: linear-gradient(90deg, #667eea 0%, #38ca70 100%);
-        color: #fff;
-    }
+
     
-    .btn-primary:hover:not(:disabled) {
-        background: linear-gradient(90deg, #38ca70 0%, #667eea 100%);
-        transform: translateY(-2px) scale(1.03);
-        box-shadow: 0 4px 16px rgba(56, 202, 112, 0.13);
-    }
+
+
     
-    .btn-secondary {
-        background: linear-gradient(90deg, #6c757d 0%, #b2b2b2 100%);
-        color: #fff;
-    }
+
+
     
-    .btn-secondary:hover:not(:disabled) {
-        background: linear-gradient(90deg, #b2b2b2 0%, #6c757d 100%);
-        transform: translateY(-2px) scale(1.03);
-        box-shadow: 0 4px 16px rgba(108, 117, 125, 0.13);
-    }
-    
-    .animated-btn {
-        transition: box-shadow 0.2s, transform 0.2s;
-    }
-    
-    .animated-btn:active {
-        transform: scale(0.97);
-    }
-    
-    .btn:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-    
-    .icon-keycloak {
-        font-size: 1.2em;
-        margin-right: 8px;
-        vertical-align: middle;
-    }
-    
-    .divider-row {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 18px 0 10px 0;
-        color: #aaa;
-        font-size: 0.98em;
-        font-weight: 600;
-    }
-    
-    .divider-row span {
-        background: #fff;
-        padding: 0 12px;
-        border-radius: 8px;
-        box-shadow: 0 1px 4px rgba(106, 130, 251, 0.04);
-    }
+   
     
     .social-login-row {
         display: flex;
@@ -535,9 +487,9 @@
         transition: all 250ms
     }
     
-    button:hover {
-        color: #000000;
-    }
+   button:hover, button:hover * {
+  color: #000 !important;
+}
     
     button:hover::before {
         width: 100%;

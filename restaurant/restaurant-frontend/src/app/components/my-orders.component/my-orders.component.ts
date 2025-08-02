@@ -14,7 +14,7 @@ import { FormsModule } from '@angular/forms';
 import { OrderService } from '../../services/order.service';
 import { CommandeService, CommandeWithRestaurant } from '../../services/commande.service';
 import { UserService } from '../../services/user.service';
-import { Order } from '../../models/group-order.model';
+import { Order } from '../../models/order.model';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../generalconfirmation/confirm-dialog.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -123,7 +123,7 @@ export class MyOrdersComponent implements OnInit {
       this.commandeService.getCommandeWithRestaurantById(commandeId).subscribe({
         next: (commande) => {
           this.commandeDetails[commandeId] = commande;
-         
+
           this.applyFilters();
         },
         error: (error) => {
@@ -237,6 +237,17 @@ export class MyOrdersComponent implements OnInit {
     this.selectedDate = null;
     this.statusFilter = 'cree';
     this.applyFilters();
+  }
+
+  // Returns the total price including delivery fee for each participant in filteredOrders
+  getTotalWithDeliveryFee(): number {
+    let total = 0;
+    for (const order of this.filteredOrders) {
+      const commande = this.getCommandeInfo(order.commandeId);
+      const deliveryFee = commande?.deliveryFee || 0;
+      total += (order.totalAmount || 0) + deliveryFee;
+    }
+    return total;
   }
 
   // New methods for enhanced UI

@@ -207,7 +207,6 @@ body {
 }
 
 
-/* Make chips look more regular */
 
 .mat-mdc-chip {
     border-radius: 16px !important;
@@ -215,7 +214,7 @@ body {
 }
 
 
-/* Style select dropdown options */
+
 
 .mat-mdc-option {
     padding: 8px 16px !important;
@@ -309,14 +308,14 @@ body {
 .Input:focus {
     outline: none;
     border-color: #3b82f6;
-    /* bleu professionnel */
+
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
-    /* effet focus (ring) */
+   
 }
 
 .Input::placeholder {
     color: #a0aec0;
-    /* placeholder plus discret */
+  
     opacity: 1;
 }
 
@@ -327,7 +326,7 @@ body {
 }
 
 
-/* Print: Only show print section, hide everything else */
+
 
 @media print {
     body * {
@@ -371,13 +370,6 @@ body {
 }
 
 
-/*form */
-
-
-/* Global Modal Styles for All Popup Forms */
-
-
-/* Modal Overlay (Background) */
 
 .modal-overlay {
     position: fixed;
@@ -393,11 +385,11 @@ body {
     z-index: 1000;
     padding: 1rem;
     overflow: visible;
-    /* Prevent clipping of modal corners */
+
 }
 
 
-/* Modal Container */
+
 
 .modal-container {
     background: white;
@@ -411,11 +403,11 @@ body {
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     animation: slideInUp 0.3s ease-out;
     overflow: visible;
-    /* Ensure corners are not clipped */
+   
 }
 
 
-/* Modal Animation */
+
 
 @keyframes slideInUp {
     from {
@@ -429,7 +421,7 @@ body {
 }
 
 
-/* Modal Header */
+
 
 .modal-header {
     background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
@@ -481,7 +473,6 @@ body {
 }
 
 
-/* Modal Content */
 
 .modal-content {
     padding: 1rem;
@@ -509,8 +500,6 @@ body {
     background: #8b5cf6;
 }
 
-
-/* Modal Actions */
 
 .modal-actions {
     padding: 1rem;
@@ -607,7 +596,6 @@ body {
 }
 
 
-/* Responsive Design */
 
 @media (max-width: 768px) {
     .modal-container {
@@ -630,7 +618,7 @@ body {
         margin: 0.5rem;
         border-radius: 16px !important;
         max-height: 95vh;
-        /* Slightly less than 100vh to avoid edge issues */
+       
     }
     .modal-header {
         padding: 1rem;

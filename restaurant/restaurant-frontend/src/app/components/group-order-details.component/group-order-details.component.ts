@@ -14,7 +14,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { CommandeService, Commande } from '../../services/commande.service';
 import { OrderService } from '../../services/order.service';
 import { UserService } from '../../services/user.service';
-import { Order } from '../../models/group-order.model';
+import { Order } from '../../models/order.model';
 import { ConfirmDialogComponent } from '../../generalconfirmation/confirm-dialog.component';
 import { OrderSubmissionComponent } from '../order-submission/order-submission.component';
 import { Restaurant } from '../../models/restaurant.model';
@@ -24,9 +24,8 @@ import { Subscription } from 'rxjs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { FormsModule } from '@angular/forms';
 import { WebSocketService } from '../../services/websocket.service';
-import { RouterModule } from '@angular/router'; // <-- Add this import
+import { RouterModule } from '@angular/router';
 
-// Polyfill for 'global' in browser
 
 
 @Component({
@@ -111,7 +110,6 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
     this.loadCurrentUser();
     if (this.commandeId) {
       this.loadGroupOrderDetails();
-      // Subscribe to WebSocket updates (now async)
       const wsObservable = await this.webSocketService.connect(this.commandeId);
       this.wsSubscription = wsObservable.subscribe(() => {
 
@@ -123,10 +121,6 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
       this.snackBar.open('Invalid group order ID', 'Close', { duration: 3000 });
     }
     this.filteredOrders = this.orders;
-    // Remove pollingInterval logic
-    // this.pollingInterval = setInterval(() => {
-    //   this.loadGroupOrderDetails();
-    // }, 60000);
   }
 
   ngOnDestroy(): void {
@@ -146,13 +140,11 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
         this.currentUserId = user.id;
         this.userLoaded = true;
         this.checkUserAndOrdersLoaded();
-        // If orders are already loaded, trigger change detection
         if (this.orders.length > 0) {
           this.cdr.detectChanges();
         }
       },
       error: (error: any) => {
-        console.error('Error loading current user:', error);
         this.currentUserId = 'default-user-id';
         this.userLoaded = true;
         this.checkUserAndOrdersLoaded();
@@ -168,7 +160,6 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
           this.restaurant = restaurant;
         },
         error: (error: any) => {
-          console.error('Error loading restaurant:', error);
           this.restaurant = {
             id: '',
             name: 'Restaurant information unavailable',
@@ -196,7 +187,6 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.commandeService.getCommandeById(this.commandeId).subscribe({
       next: (commande: Commande) => {
-        // Parse date fields to JS Date objects for correct display
         if (commande.createdAt) commande.createdAt = new Date(commande.createdAt);
         if (commande.updatedAt) commande.updatedAt = new Date(commande.updatedAt);
         if (commande.orderDeadline) commande.orderDeadline = new Date(commande.orderDeadline);
@@ -212,7 +202,6 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
         }
       },
       error: (error: any) => {
-        console.error('Error loading group order details:', error);
         this.commande = {
           id: this.commandeId,
           restaurantId: '',
@@ -244,15 +233,12 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
           this.applyOrderFilters();
           this.ordersLoaded = true;
           this.checkUserAndOrdersLoaded();
-          // If currentUserId is already set, trigger change detection
           if (this.currentUserId) {
             this.cdr.detectChanges();
-            // Debug log: check if currentUserId matches any participantId
 
           }
         },
         error: (error: any) => {
-          console.error('Error loading orders:', error);
           this.orders = [];
           this.loading = false;
           this.ordersLoaded = true;
@@ -271,11 +257,17 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
+
   getTotalAmount(): number {
-    if (this.commande && this.commande.totalPrice !== undefined) {
-      return this.commande.totalPrice;
-    }
-    return this.orders.reduce((total: number, order: Order) => total + (order.totalAmount || 0), 0);
+    const ordersTotal = this.orders.reduce((total: number, order: Order) => total + (order.totalAmount || 0), 0);
+    const deliveryFee = this.commande && this.commande.deliveryFee ? this.commande.deliveryFee : 0;
+    return ordersTotal + deliveryFee;
+  }
+
+  getUserTotal(order: Order): number {
+    const deliveryFee = this.commande && this.commande.deliveryFee ? this.commande.deliveryFee : 0;
+    const participants = this.orders.length || 1;
+    return (order.totalAmount || 0) + (deliveryFee / participants);
   }
 
   getOrderTotal(order: Order): number {
@@ -317,7 +309,6 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
   }
 
   canManageOrder(order: Order): boolean {
-    // Only the creator of the group order or the creator of the order can manage
     return this.currentUserId === this.commande?.creatorId || this.currentUserId === order.participantId;
   }
 
@@ -333,7 +324,6 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
           this.commande.status = newStatus;
           this.snackBar.open(`Status updated to ${newStatus}`, 'Close', { duration: 3000 });
           this.cdr.detectChanges();
-          this.loadGroupOrderDetails(); // Reload details from backend
         }
         this.statusUpdating = false;
       },
@@ -538,24 +528,43 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
   /**
    * Print the order details for restaurant
    */
-  printOrderDetails() {
-    // Show print section
-    const printSection = document.getElementById('printSection');
+  printOrderDetails(): void {
+    // Apply print-specific styles
+    const printSection: HTMLElement | null = document.getElementById('printSection');
+
     if (printSection) {
-      printSection.style.display = 'block';
-    }
+      printSection.classList.add('print-layout');
 
-    // Wait a moment for the content to render, then print
-    setTimeout(() => {
-      window.print();
+      // Clone the print section to avoid affecting the original DOM
+      const printSectionClone: Node = printSection.cloneNode(true);
+      const printContainer: HTMLDivElement = document.createElement('div');
+      printContainer.id = 'print-container';
+      printContainer.appendChild(printSectionClone);
+      document.body.appendChild(printContainer);
 
-      // Hide print section after printing
-      setTimeout(() => {
-        if (printSection) {
-          printSection.style.display = 'none';
+      // Hide all other elements
+      const elementsToHide: NodeListOf<HTMLElement> = document.querySelectorAll('body > *:not(#print-container)');
+      elementsToHide.forEach((el: HTMLElement) => {
+        el.style.display = 'none';
+      });
+
+      // Handler to clean up after printing
+      const cleanup = () => {
+        if (document.body.contains(printContainer)) {
+          document.body.removeChild(printContainer);
         }
-      }, 1000);
-    }, 100);
+        elementsToHide.forEach((el: HTMLElement) => {
+          el.style.display = '';
+        });
+        printSection.classList.remove('print-layout');
+        window.removeEventListener('afterprint', cleanup);
+      };
+
+      window.addEventListener('afterprint', cleanup);
+      window.print();
+    } else {
+      console.error('Print section not found');
+    }
   }
 
   /**
@@ -581,4 +590,5 @@ export class GroupOrderDetailsComponent implements OnInit, OnDestroy {
     if (!this.orders) return 0;
     return this.orders.filter(order => order.items && order.items.length > 0).length;
   }
+
 }

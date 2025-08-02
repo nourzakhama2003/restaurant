@@ -11,6 +11,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RestaurantService } from '../../services/restaurant.service';
+import { MenuService } from '../../services/menu.service';
 import { Restaurant } from '../../models/restaurant.model';
 import { RestaurantFormDialogComponent } from '../restaurant-form/restaurant-form-dialog.component';
 import { ConfirmDialogRestaurantComponent } from '../../generalconfirmation/restaurantconfirmation/confirm-dialog-restaurant.component';
@@ -71,8 +72,13 @@ export class RestaurantListComponent implements OnInit, AfterViewInit {
   restaurants: Restaurant[] = [];
   @ViewChildren('restaurantCard', { read: ElementRef }) cards!: QueryList<ElementRef>;
 
+
+  // Map restaurantId to menu item count
+  menuItemCounts: { [restaurantId: string]: number } = {};
+
   constructor(
     private restaurantService: RestaurantService,
+    private menuService: MenuService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar
   ) { }
@@ -97,7 +103,7 @@ export class RestaurantListComponent implements OnInit, AfterViewInit {
 
     this.cards.forEach(card => observer.observe(card.nativeElement));
 
-   
+
     this.cards.changes.subscribe((cards: QueryList<ElementRef>) => {
       cards.forEach(card => observer.observe(card.nativeElement));
     });
@@ -110,12 +116,27 @@ export class RestaurantListComponent implements OnInit, AfterViewInit {
         next: (data) => {
           this.restaurants = data;
           this.isLoading = false;
+          // For each restaurant, fetch menu item count
+          data.forEach(r => {
+            this.menuService.getMenuItemsByRestaurant(r.id!).subscribe({
+              next: (items) => {
+                this.menuItemCounts[r.id!] = items.length;
+              },
+              error: () => {
+                this.menuItemCounts[r.id!] = 0;
+              }
+            });
+          });
         },
         error: (err) => {
           this.handleError(err);
           this.isLoading = false;
         }
       });
+  }
+
+  hasNoMenuItems(restaurant: Restaurant): boolean {
+    return this.menuItemCounts[restaurant.id!] === 0;
   }
 
   filteredRestaurants(): Restaurant[] {
@@ -151,7 +172,7 @@ export class RestaurantListComponent implements OnInit, AfterViewInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (restaurant) {
-         
+
           this.restaurantService.updateRestaurant(restaurant.id!, result)
             .subscribe({
               next: (updatedRestaurant) => {
@@ -164,7 +185,7 @@ export class RestaurantListComponent implements OnInit, AfterViewInit {
               error: (err) => this.handleError(err)
             });
         } else {
-        
+
           this.restaurantService.createRestaurant(result)
             .subscribe({
               next: (newRestaurant) => {

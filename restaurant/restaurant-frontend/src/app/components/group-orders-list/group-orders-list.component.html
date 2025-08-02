@@ -65,7 +65,7 @@
         </div>
     </div>
 
-    <!-- Loading State -->
+
     <div class="loading-container" *ngIf="isLoading">
         <mat-spinner diameter="50"></mat-spinner>
         <p>Chargement des commandes...</p>
@@ -91,7 +91,15 @@
                         </div>
                     </div>
                     <div class="order-total">
-                        <span class="total-amount">{{ getCommandeTotal(commande.id) > 0 ? (getCommandeTotal(commande.id) | number:'1.2-2') : '0.00' }} TND</span>
+                        <span class="total-amount">
+                            {{ getCommandeTotal(commande.id) > 0 ? (getCommandeTotal(commande.id) | number:'1.2-2') : '0.00' }} TND
+                        </span>
+                        <span class="fee-note mt-3" style="display:block; font-size:0.95em; color:#888;">
+                            inclue livraison
+                        </span>
+                        <span class="fee-note" *ngIf="commande.deliveryFee && commande.deliveryFee > 0" style="display:block; font-size:0.9em; color:#b77;">
+                           {{ commande.deliveryFee | number:'1.2-2' }} TND
+                        </span>
                     </div>
                 </div>
 
@@ -115,7 +123,7 @@
                         <div class="stat-item">
                             <mat-icon>schedule</mat-icon>
                             <span class="stat-value" [ngClass]="getCountdownColor(commande.id)">
-                {{ getCountdownDisplay(commande.id) === 'Expired' ? 'Fermée' : getCountdownDisplay(commande.id) }}
+                {{ getCountdownDisplay(commande.id) === 'Expired' ? 'temp écoulé' : getCountdownDisplay(commande.id) }}
               </span>
                             <span class="stat-label">Temps restant</span>
                         </div>

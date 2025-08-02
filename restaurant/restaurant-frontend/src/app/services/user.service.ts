@@ -4,22 +4,9 @@ import { Observable, of } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { AppKeycloakService } from './keycloak.service';
+import { User } from '../models/user.model';
+import { CreateUserRequest } from '../models/CreateUserRequest.model';
 
-export interface User {
-    id: string;
-    name: string;
-    email: string;
-    phone?: string; // Changed from 'number' to 'phone' to match backend
-    commandes?: any[];
-    orders?: any[];
-    deleted?: boolean;
-}
-
-export interface CreateUserRequest {
-    name: string;
-    email: string;
-    phone?: string; // Changed from 'number' to 'phone' to match backend
-}
 
 @Injectable({
     providedIn: 'root'
@@ -32,7 +19,6 @@ export class UserService {
         private keycloakService: AppKeycloakService
     ) { }
 
-    // Get current logged-in user information
     getCurrentUser(): Observable<User | null> {
         const email = this.keycloakService.getCurrentUserEmail();
         if (!email) {
@@ -41,28 +27,23 @@ export class UserService {
 
         return this.getUserByEmail(email).pipe(
             catchError(() => {
-                // If user doesn't exist in database, create them
                 return this.createUserFromKeycloak();
             })
         );
     }
 
-    // Get user by email
     getUserByEmail(email: string): Observable<User> {
         return this.http.get<User>(`${this.apiUrl}/email/${email}`);
     }
 
-    // Get user by ID
     getUserById(id: string): Observable<User> {
         return this.http.get<User>(`${this.apiUrl}/${id}`);
     }
 
-    // Get all users
     getAllUsers(): Observable<User[]> {
         return this.http.get<User[]>(this.apiUrl);
     }
 
-    // Create user from Keycloak information
     createUserFromKeycloak(): Observable<User> {
         const username = this.keycloakService.getCurrentUsername();
         const email = this.keycloakService.getCurrentUserEmail();
@@ -77,7 +58,6 @@ export class UserService {
         const createRequest: CreateUserRequest = {
             name: fullName || username || 'Unknown User',
             email: email
-            // Note: Phone numbers will be collected during order creation
         };
 
 
@@ -85,7 +65,6 @@ export class UserService {
         return this.createUser(createRequest);
     }
 
-    // Create a new user
     createUser(user: CreateUserRequest): Observable<User> {
         return this.http.post<User>(this.apiUrl, user);
     }

@@ -15,7 +15,7 @@ public interface OrderRepository extends MongoRepository<Order, String> {
     void deleteByCommandeId(String commandeId);
     void deleteByParticipantId(String participantId);
     
-    // New methods for group ordering
+ 
     List<Order> findByDeletedFalse();
     List<Order> findByCommandeIdAndDeletedFalse(String commandeId);
     List<Order> findByParticipantIdAndDeletedFalse(String participantId);

@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface MenuItemRepository extends MongoRepository<MenuItem, String> {
     List<MenuItem> findByRestaurantIdAndDeletedFalse(String restaurantId);
-    List<MenuItem> findByRestaurantId(String restaurantId); // Add this for debugging
+    List<MenuItem> findByRestaurantId(String restaurantId); 
 }

@@ -24,7 +24,7 @@ CommandeController {
         this.commandeService = commandeService;
     }
 
-    // Create
+
     @PostMapping
     public ResponseEntity<Commande> createCommande(@RequestBody Commande commande) {
         try {
@@ -35,7 +35,7 @@ CommandeController {
         }
     }
 
-    // Read all
+
     @GetMapping
     public ResponseEntity<List<Commande>> getAllCommandes() {
         try {
@@ -46,7 +46,7 @@ CommandeController {
         }
     }
 
-    // Read by ID
+  
     @GetMapping("/{id}")
     public ResponseEntity<Commande> getCommandeById(@PathVariable String id) {
         try {
@@ -60,7 +60,7 @@ CommandeController {
         }
     }
 
-    // Read by ID with restaurant information
+    
     @GetMapping("/{id}/with-restaurant")
     public ResponseEntity<CommandeWithRestaurantDto> getCommandeWithRestaurantById(@PathVariable String id) {
         try {
@@ -74,7 +74,6 @@ CommandeController {
         }
     }
 
-    // Read by Restaurant ID
     @GetMapping("/restaurant/{restaurantId}")
     public ResponseEntity<List<Commande>> getCommandesByRestaurantId(@PathVariable String restaurantId) {
         try {
@@ -85,7 +84,7 @@ CommandeController {
         }
     }
 
-    // Read by Status
+
     @GetMapping("/status/{status}")
     public ResponseEntity<List<Commande>> getCommandesByStatus(@PathVariable String status) {
         try {
@@ -96,7 +95,7 @@ CommandeController {
         }
     }
 
-    // Read by Creator ID
+
     @GetMapping("/creator/{creatorId}")
     public ResponseEntity<List<Commande>> getCommandesByCreatorId(@PathVariable String creatorId) {
         try {
@@ -107,7 +106,7 @@ CommandeController {
         }
     }
 
-    // Update
+
     @PutMapping("/{id}")
     public ResponseEntity<Commande> updateCommande(@PathVariable String id, @RequestBody Commande commande) {
         try {
@@ -121,7 +120,7 @@ CommandeController {
         }
     }
 
-    // Delete
+ 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCommande(@PathVariable String id) {
         try {
@@ -135,7 +134,7 @@ CommandeController {
         }
     }
 
-    // Check if exists
+
     @GetMapping("/{id}/exists")
     public ResponseEntity<Boolean> commandeExists(@PathVariable String id) {
         try {
@@ -157,9 +156,9 @@ CommandeController {
                 return ResponseEntity.badRequest().build();
             }
             
-            // Extract totalPrice from the request body
+          
             Double totalPrice = ((Number) updates.get("totalPrice")).doubleValue();
-            System.out.println("   Total Price: " + totalPrice);
+          
             
             Commande updatedCommande = this.commandeService.updateCommandeTotal(commandeId, totalPrice);
             
@@ -178,16 +177,14 @@ CommandeController {
         }
     }
 
-    // Manual trigger to recalculate commande total from orders
     @PostMapping("/{commandeId}/recalculate-total")
     public ResponseEntity<Commande> recalculateCommandeTotal(@PathVariable String commandeId) {
         try {
-            System.out.println("ðŸ”„ Manual recalculation triggered for commande: " + commandeId);
-            
+          
             Commande updatedCommande = this.commandeService.recalculateAndUpdateTotal(commandeId);
             
             if (updatedCommande != null) {
-                System.out.println("âœ… Successfully recalculated commande " + commandeId + " total to: " + updatedCommande.getTotalPrice());
+               
                 return ResponseEntity.ok(updatedCommande);
             }
             
@@ -201,7 +198,7 @@ CommandeController {
         }
     }
     
-    // Update commande status
+ 
     @PatchMapping("/{commandeId}/status")
     public ResponseEntity<Commande> updateCommandeStatus(
             @PathVariable String commandeId,
@@ -215,7 +212,6 @@ CommandeController {
             Commande updatedCommande = this.commandeService.updateCommandeStatus(commandeId, newStatus);
 
             if (updatedCommande != null) {
-                System.out.println("✅ Successfully updated commande " + commandeId + " status to: " + newStatus);
                 return ResponseEntity.ok(updatedCommande);
             }
 
@@ -227,15 +223,14 @@ CommandeController {
         }
     }
 
-    // Auto-close expired commandes
+
     @PostMapping("/auto-close-expired")
     public ResponseEntity<Void> autoCloseExpiredCommandes() {
         try {
-            System.out.println("🔄 Auto-close expired commandes triggered");
-            
+         
             this.commandeService.checkAndAutoCloseExpiredCommandes();
             
-            System.out.println("✅ Auto-close expired commandes completed");
+             
             return ResponseEntity.ok().build();
             
         } catch (Exception e) {
@@ -244,8 +239,7 @@ CommandeController {
             throw new GlobalException("Failed to auto-close expired commandes: " + e.getMessage());
         }
     }
-    
-    // Force expiration check (bypasses caching)
+
     @PostMapping("/force-expiration-check")
     public ResponseEntity<String> forceExpirationCheck() {
         try {
@@ -263,7 +257,6 @@ CommandeController {
         }
     }
     
-    // Check expiration for specific commande
     @PostMapping("/{commandeId}/check-expiration")
     public ResponseEntity<Commande> checkCommandeExpiration(@PathVariable String commandeId) {
         try {
@@ -285,8 +278,7 @@ CommandeController {
             throw new GlobalException("Failed to check expiration for commande: " + e.getMessage());
         }
     }
-    
-    // Debug time info
+
     @GetMapping("/debug/time-info")
     public ResponseEntity<java.util.Map<String, Object>> getTimeInfo() {
         java.util.Map<String, Object> timeInfo = new java.util.HashMap<>();

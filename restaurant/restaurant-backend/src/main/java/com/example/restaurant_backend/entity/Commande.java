@@ -16,7 +16,7 @@ import java.time.ZoneOffset;
 @NoArgsConstructor
 @Document(collection = "commandes")
 public class Commande {
-    // Status constants for validation and consistency
+    
     public static final String STATUS_CREE = "cree";
     public static final String STATUS_ATTENTE = "attente";
     public static final String STATUS_CONFIRMEE = "confirmee";
@@ -27,17 +27,18 @@ public class Commande {
     private String restaurantId;
     private String creatorId;
     private String creatorName;
-    private String status=STATUS_CREE; // 'cree', 'attente', 'confirmee', 'annulee'
+    private String status=STATUS_CREE; 
     private double totalPrice;
+    private double deliveryFee = 0.0;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private LocalDateTime orderDeadline; // Full date and time when order participation closes
+    private LocalDateTime orderDeadline;
     private List<Order> orders = new ArrayList<>();
     private boolean deleted = false;
-    // Add manual override for auto-close
+  
     private boolean manualOverride = false;
     
-    // Utility methods for status management
+ 
     public boolean isCree() {
         return STATUS_CREE.equals(this.status);
     }
@@ -59,20 +60,14 @@ public class Commande {
     }
     
     public boolean isExpired() {
-        // Compare deadline-1h to now+1h for local time adjustment
+       
         return orderDeadline != null && LocalDateTime.now(ZoneOffset.UTC).plusHours(1).isAfter(orderDeadline.minusHours(1));
     }
     
     public boolean shouldAutoClose() {
-        // If manualOverride is true, do not auto-close
+    
         return isCree() && isExpired() && !manualOverride;
     }
     
-    // public void autoCloseIfExpired() {
-    //     if (shouldAutoClose()) {
-    //         this.status = STATUS_ATTENTE;
-    //         this.updatedAt = LocalDateTime.now();
-    //         this.manualOverride = false; // Reset override if auto-closed
-    //     }
-    // }
+  
 }

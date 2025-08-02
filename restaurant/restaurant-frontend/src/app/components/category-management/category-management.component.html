@@ -1,154 +1,130 @@
-<div class="categories-container">
 
-    <div class="categories-header">
-        <div class="form-title-section">
-            <mat-icon class="form-icon">folder</mat-icon>
-            <h2>Gestion des Catégories</h2>
+<div class="modern-categories-container pt-32 bg-gradient-to-br from-blue-50 to-purple-100 min-h-screen p-8">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
+    <div class="flex items-center gap-3">
+
+      <h2 class="text-2xl font-bold text-blue-500 tracking-tight mt-20">Gestion des Catégories</h2>
+    </div>
+    <button class="px-5 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-semibold shadow-lg hover:scale-105 transition-transform flex items-center gap-2" (click)="editingCategory = null; form.reset(); showForm = true;">
+      <mat-icon>add</mat-icon>
+      Nouvelle Catégorie
+    </button>
+  </div>
+
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+    <div class="flex-1 min-w-[20%] flex items-center bg-white rounded-lg shadow px-4 py-2 gap-2">
+      <mat-icon class="text-gray-400">search</mat-icon>
+      <input type="text" class="flex-1 outline-none bg-transparent text-gray-700 placeholder-gray-400" placeholder="Rechercher une catégorie..." [(ngModel)]="searchTerm" (input)="filterCategories()" />
+      <button *ngIf="searchTerm" class="hover:bg-gray-100 rounded-full p-1" (click)="clearSearch()" mat-icon-button>
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <div class="flex items-center gap-2 text-indigo-600 font-medium" *ngIf="searchTerm">
+      <mat-icon>filter_list</mat-icon>
+      <span>{{ filteredCategories.length }} catégorie(s) trouvée(s)</span>
+    </div>
+  </div>
+
+  <div>
+    <div *ngIf="isLoading" class="flex flex-col items-center justify-center min-h-[200px]">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p class="mt-4 text-gray-500">Chargement des catégories...</p>
+    </div>
+
+    <div *ngIf="!isLoading && filteredCategories.length === 0" class="flex flex-col items-center justify-center min-h-[200px] bg-white rounded-xl shadow p-8">
+      <mat-icon class="text-5xl text-gray-300 mb-2">folder</mat-icon>
+      <h3 class="text-lg font-semibold text-gray-700">Aucune catégorie trouvée</h3>
+      <p class="text-gray-400" *ngIf="searchTerm">Aucune catégorie ne correspond à votre recherche.</p>
+      <p class="text-gray-400" *ngIf="!searchTerm">Commencez par créer votre première catégorie.</p>
+      <button *ngIf="!searchTerm" class="mt-4 px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-semibold shadow hover:scale-105 transition-transform flex items-center gap-2" (click)="editingCategory = null; form.reset(); showForm = true;">
+        <mat-icon>add</mat-icon>
+        Créer la première catégorie
+      </button>
+    </div>
+
+    <div *ngIf="!isLoading && filteredCategories.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div class="modern-card group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-shadow p-6 flex flex-col items-center" *ngFor="let cat of filteredCategories; let i = index">
+        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center mb-4 shadow">
+          <img [src]="getImageForCategory(cat)" [alt]="cat.name" class="w-16 h-16 object-cover rounded-full border-4 border-white shadow" />
         </div>
-        <button class="add-category-btn" (click)="editingCategory = null; form.reset(); showForm = true;">
-            <mat-icon>add</mat-icon>
-            Nouvelle Catégorie
+        <div class="absolute top-4 right-4 bg-indigo-500 text-white text-xs px-3 py-1 rounded-full shadow">Catégorie</div>
+        <h3 class="text-xl font-bold text-gray-800 mb-1">{{ cat.name }}</h3>
+        <p class="text-gray-500 text-center mb-4">{{ cat.description || 'Aucune description' }}</p>
+        <div class="flex gap-3 mt-auto">
+          <button class="rounded-full bg-indigo-100 hover:bg-indigo-200 text-indigo-600 p-2 transition" (click)="edit(cat)" matTooltip="Modifier la catégorie">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button class="rounded-full bg-red-100 hover:bg-red-200 text-red-600 p-2 transition" (click)="delete(cat)" matTooltip="Supprimer la catégorie">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showForm" class="fixed inset-0 z-50 flex items-center justify-center  backdrop-blur-sm" @fadeInUp (click)="closeForm()">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 relative animate-fadeInUp" (click)="$event.stopPropagation()">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-2">
+          <mat-icon class="text-xl text-indigo-600">{{ editingCategory ? 'edit' : 'add' }}</mat-icon>
+          <h2 class="text-xl font-bold text-gray-800">{{ editingCategory ? 'Modifier la Catégorie' : 'Nouvelle Catégorie' }}</h2>
+        </div>
+        <button class="rounded-full bg-gray-100 hover:bg-gray-200 p-2" (click)="closeForm()">
+          <mat-icon>close</mat-icon>
         </button>
-    </div>
-
-  
-    <div class="search-filter-section">
-        <div class="search-container">
-            <div class="search-input-wrapper">
-                <mat-icon class="search-icon">search</mat-icon>
-                <input type="text" class="form-input" placeholder="Rechercher une catégorie..." [(ngModel)]="searchTerm" (input)="filterCategories()" />
-                <button *ngIf="searchTerm" class="clear-search-btn" (click)="clearSearch()" mat-icon-button>
-                    <mat-icon>close</mat-icon>
-                </button>
-            </div>
+      </div>
+      <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-6">
+        <div>
+          <label class="block text-gray-700 font-medium mb-1 flex items-center gap-1">
+            <mat-icon>label_outline</mat-icon>
+            Nom de la catégorie *
+          </label>
+          <input class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-indigo-400 outline-none transition text-gray-800" formControlName="name" placeholder="ex: Plats principaux" required />
+          <div class="text-red-500 text-xs mt-1" *ngIf="form.get('name')?.hasError('required') && form.get('name')?.touched">
+            Le nom de la catégorie est requis
+          </div>
         </div>
-        <div class="filter-info" *ngIf="searchTerm">
-            <mat-icon>filter_list</mat-icon>
-            <span>{{ filteredCategories.length }} catégorie(s) trouvée(s)</span>
+        <div>
+          <label class="block text-gray-700 font-medium mb-1 flex items-center gap-1">
+            <mat-icon>edit_note</mat-icon>
+            Description
+          </label>
+          <textarea class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-indigo-400 outline-none transition text-gray-800" formControlName="description" placeholder="Décrivez cette catégorie..." rows="3"></textarea>
         </div>
-    </div>
-
-
-    <div class="categories-content">
-        <div *ngIf="isLoading" class="loading-overlay">
-            <mat-spinner diameter="40"></mat-spinner>
-            <p>Chargement des catégories...</p>
-        </div>
-
-        <div *ngIf="!isLoading && filteredCategories.length === 0" class="empty-state">
-            <mat-icon class="text-4xl text-gray-500">folder</mat-icon>
-            <h3>Aucune catégorie trouvée</h3>
-            <p *ngIf="searchTerm">Aucune catégorie ne correspond à votre recherche.</p>
-            <p *ngIf="!searchTerm">Commencez par créer votre première catégorie.</p>
-            <button *ngIf="!searchTerm" class="add-category-btn" (click)="editingCategory = null; form.reset(); showForm = true;">
-                <mat-icon>add</mat-icon>
-                Créer la première catégorie
-            </button>
-        </div>
-
-        <div *ngIf="!isLoading && filteredCategories.length > 0" class="categories-grid">
-            <div class="menu-item-card" *ngFor="let cat of filteredCategories; let i = index">
-                <div class="card-header">
-                    <div class="category-avatar">
-                        <img [src]="getImageForCategory(cat)" [alt]="cat.name" />
-                    </div>
-                    <div class="category-badge">
-                        <span>Catégorie</span>
-                    </div>
-                </div>
-
-                <div class="card-content">
-                    <h3 class="category-name">{{ cat.name }}</h3>
-                    <p class="category-description">{{ cat.description || 'Aucune description' }}</p>
-                </div>
-
-                <div class="card-actions">
-                    <button class="action-btn edit-btn" (click)="edit(cat)" matTooltip="Modifier la catégorie">
-                        <mat-icon>edit</mat-icon>
-                    </button>
-                    <button class="action-btn delete-btn" (click)="delete(cat)" matTooltip="Supprimer la catégorie">
-                        <mat-icon>delete</mat-icon>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-
-    <div *ngIf="showForm" class="modal-overlay" @fadeInUp (click)="closeForm()">
-        <div class="modal-container" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <div class="modal-title-section">
-                    <mat-icon class="modal-icon">{{ editingCategory ? 'edit' : 'add' }}</mat-icon>
-                    <h2>{{ editingCategory ? 'Modifier la Catégorie' : 'Nouvelle Catégorie' }}</h2>
-                </div>
-                <button class="modal-close-btn" (click)="closeForm()">
+        <div>
+          <label class="block text-gray-700 font-medium mb-1 flex items-center gap-1">
+            <mat-icon>image</mat-icon>
+            Image de la catégorie
+          </label>
+          <div class="flex items-center gap-4">
+            <div *ngIf="form.value.imageBase64" class="relative">
+              <img [src]="form.value.imageBase64" alt="Image de catégorie" class="w-20 h-20 object-cover rounded-xl border-2 border-indigo-200 shadow" />
+              <button type="button" class="absolute top-1 right-1 bg-white rounded-full p-1 shadow hover:bg-gray-100" (click)="removeImage()" matTooltip="Supprimer l'image">
                 <mat-icon>close</mat-icon>
-            </button>
+              </button>
             </div>
-            <form [formGroup]="form" (ngSubmit)="submit()" class="category-form">
-                <div class="modal-content">
-                 
-                    <div class="form-field">
-                        <label class="field-label">
-                            <mat-icon>label_outline</mat-icon>
-                            Nom de la catégorie *
-                        </label>
-                        <input class="form-input" formControlName="name" placeholder="ex: Plats principaux" required />
-                        <div class="error-message" *ngIf="form.get('name')?.hasError('required') && form.get('name')?.touched">
-                            Le nom de la catégorie est requis
-                        </div>
-                    </div>
-
-                    <div class="form-field">
-                        <label class="field-label">
-                            <mat-icon>edit_note</mat-icon>
-                            Description
-                        </label>
-                        <textarea class="form-textarea" formControlName="description" placeholder="Décrivez cette catégorie..." rows="3"></textarea>
-                    </div>
-
-                
-                    <div class="form-field">
-                        <label class="field-label">
-                            <mat-icon>image</mat-icon>
-                            Image de la catégorie
-                        </label>
-                        <div class="image-upload-section">
-                            <div class="current-image" *ngIf="form.value.imageBase64">
-                                <img [src]="form.value.imageBase64" alt="Image de catégorie" />
-                                <button type="button" class="remove-image-btn" (click)="removeImage()" matTooltip="Supprimer l'image">
-                                    <mat-icon>close</mat-icon>
-                                </button>
-                            </div>
-
-                            <div class="upload-area" *ngIf="!form.value.imageBase64">
-                                <input id="categoryImageUpload" type="file" accept="image/*" (change)="onImageSelected($event)" class="hidden-input">
-                                <label for="categoryImageUpload" class="upload-label">
-                                    <mat-icon class="upload-icon">cloud_upload</mat-icon>
-                                    <span class="upload-text">Cliquez pour ajouter une image</span>
-                                    <span class="upload-hint">PNG, JPG jusqu'à 5MB</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-actions">
-              
-                    <button type="button" class="cancel-btn" (click)="closeForm()">
-                        <mat-icon>close</mat-icon>
-                        Annuler
-                    </button>
-                    <button type="submit" class="submit-btn" [disabled]="form.invalid || isSubmitting">
-                        <mat-icon *ngIf="!isSubmitting">{{ editingCategory ? 'save' : 'add' }}</mat-icon>
-                        <mat-spinner *ngIf="isSubmitting" diameter="20"></mat-spinner>
-                        {{ isSubmitting ? 'Enregistrement...' : (editingCategory ? 'Mettre à jour' : 'Créer') }}
-                    </button>
-                </div>
-            </form>
+            <div *ngIf="!form.value.imageBase64">
+              <input id="categoryImageUpload" type="file" accept="image/*" (change)="onImageSelected($event)" class="hidden" />
+              <label for="categoryImageUpload" class="flex flex-col items-center justify-center px-4 py-2 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-lg cursor-pointer hover:from-indigo-200 hover:to-purple-200 transition">
+                <mat-icon class="text-indigo-500 mb-1">cloud_upload</mat-icon>
+                <span class="text-sm font-medium text-indigo-700">Cliquez pour ajouter une image</span>
+                <span class="text-xs text-gray-400">PNG, JPG jusqu'à 5MB</span>
+              </label>
+            </div>
+          </div>
         </div>
+        <div class="flex justify-end gap-3 mt-6">
+          <button type="button" class="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 flex items-center gap-2" (click)="closeForm()">
+            <mat-icon>close</mat-icon>
+            Annuler
+          </button>
+          <button type="submit" class="px-5 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-semibold shadow hover:scale-105 transition-transform flex items-center gap-2" [disabled]="form.invalid || isSubmitting">
+            <mat-icon *ngIf="!isSubmitting">{{ editingCategory ? 'save' : 'add' }}</mat-icon>
+            <mat-spinner *ngIf="isSubmitting" diameter="20"></mat-spinner>
+            {{ isSubmitting ? 'Enregistrement...' : (editingCategory ? 'Mettre à jour' : 'Créer') }}
+          </button>
+        </div>
+      </form>
     </div>
-
-
+  </div>
 </div>

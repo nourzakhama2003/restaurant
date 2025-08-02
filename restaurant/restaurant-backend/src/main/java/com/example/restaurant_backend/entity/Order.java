@@ -27,4 +27,5 @@ public class Order {
     private LocalDateTime updatedAt;
     private boolean deleted = false;
     private boolean paye = false;
+    private Double livraisonFeePerParticipant=0.0;
 }

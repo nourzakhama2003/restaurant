@@ -14,6 +14,6 @@ public class Category {
     @Id
     private String id;
     private String name;
-    private String description; // optional
-    private String imageBase64; // optional, default handled in service
+    private String description; 
+    private String imageBase64; 
 } 

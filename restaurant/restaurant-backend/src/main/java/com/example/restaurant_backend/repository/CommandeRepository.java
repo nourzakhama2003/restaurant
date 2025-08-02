@@ -15,8 +15,7 @@ public interface CommandeRepository extends MongoRepository<Commande, String> {
     List<Commande> findByRestaurantIdAndStatus(String restaurantId, String status);
     void deleteByRestaurantId(String restaurantId);
     void deleteByCreatorId(String creatorId);
-    
-    // Methods for group ordering with simplified logic
+
     List<Commande> findByDeletedFalse();
     List<Commande> findByRestaurantIdAndDeletedFalse(String restaurantId);
     List<Commande> findByCreatorIdAndDeletedFalse(String creatorId);

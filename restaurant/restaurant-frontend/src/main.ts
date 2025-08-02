@@ -1,4 +1,3 @@
-// Polyfill for 'global' in browser
 (window as any).global = window;
 
 import { bootstrapApplication } from '@angular/platform-browser';
@@ -23,7 +22,6 @@ bootstrapApplication(AppComponent, {
     provideHttpClient(withInterceptorsFromDi()),
     provideRouter(routes),
 
-    // Keycloak providers
     KeycloakService,
     {
       provide: APP_INITIALIZER,
@@ -32,7 +30,6 @@ bootstrapApplication(AppComponent, {
       multi: true
     },
 
-    // Import required modules
     importProvidersFrom(
       BrowserAnimationsModule,
       KeycloakAngularModule,
@@ -44,11 +41,10 @@ bootstrapApplication(AppComponent, {
       })
     ),
 
-    // HTTP Interceptor for adding Bearer token
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
       multi: true,
     }
   ],
-}).catch((err: any) => console.error('Error starting application:', err));
+}).catch((err: any) => { });

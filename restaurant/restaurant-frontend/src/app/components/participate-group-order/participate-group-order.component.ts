@@ -12,7 +12,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { OrderSubmissionComponent } from '../order-submission/order-submission.component';
 import { CommandeService, Commande } from '../../services/commande.service';
-import { OrderItem } from '../../models/group-order.model';
+import { OrderItem } from '../../models/order-item.model';
 import { MenuService } from '../../services/menu.service';
 import { UserService } from '../../services/user.service';
 import { OrderService } from '../../services/order.service';
@@ -216,7 +216,7 @@ export class ParticipateGroupOrderComponent implements OnInit, OnDestroy {
         notes: item.notes
       }));
 
- 
+
       const orderData = {
         commandeId: this.commandeId,
         participantId: this.participateForm.value.participantId,
@@ -233,7 +233,7 @@ export class ParticipateGroupOrderComponent implements OnInit, OnDestroy {
 
           this.updateCommandeTotalInDatabase();
 
-        
+
           this.dialogRef.close(createdOrder);
         },
         error: (error) => {
@@ -250,7 +250,7 @@ export class ParticipateGroupOrderComponent implements OnInit, OnDestroy {
   }
 
   openOrderSubmissionDialog(): void {
- 
+
     if (!this.isParticipationOpen()) {
       this.snackBar.open('Participation time has expired for this group order.', 'Close', { duration: 3000 });
       return;
@@ -272,11 +272,11 @@ export class ParticipateGroupOrderComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-   
+
         this.snackBar.open('Order submitted successfully!', 'Close', { duration: 3000 });
- 
+
         this.loadCommande();
-      
+
         this.updateCommandeTotalInDatabase();
       }
     });

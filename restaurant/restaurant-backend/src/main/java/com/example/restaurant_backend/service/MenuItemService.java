@@ -33,13 +33,13 @@ public class MenuItemService {
         item.setId(null);
         item.setDeleted(false);
         
-        // Validate that the restaurant exists
+ 
         Restaurant restaurant = this.restaurantRepository.findById(item.getRestaurantId()).orElse(null);
         if(restaurant == null){
             throw new IllegalArgumentException("Restaurant with id " + item.getRestaurantId() + " does not exist");
         }
         
-        // Validate and set category name
+
         if (item.getCategoryId() != null && !item.getCategoryId().trim().isEmpty()) {
             Category category = categoryRepository.findById(item.getCategoryId()).orElse(null);
             if (category == null) {
@@ -49,11 +49,10 @@ public class MenuItemService {
         } else {
             item.setCategoryName(null);
         }
-        
-        // First save the menu item to get its ID
+  
         MenuItem savedMenuItem = menuItemRepository.save(item);
         
-        // Then add it to the restaurant's menu list and save the restaurant
+      
         restaurant.getMenus().add(savedMenuItem);
         this.restaurantRepository.save(restaurant);
         
@@ -67,9 +66,9 @@ public class MenuItemService {
             existing.setPrice(item.getPrice());
             existing.setRestaurantId(item.getRestaurantId());
             existing.setCategoryId(item.getCategoryId());
-            // Update imageBase64 if provided (allow clearing image as well)
+         
             existing.setImageBase64(item.getImageBase64());
-            // Validate and set category name
+         
             if (item.getCategoryId() != null && !item.getCategoryId().trim().isEmpty()) {
                 Category category = categoryRepository.findById(item.getCategoryId()).orElse(null);
                 if (category == null) {
@@ -81,10 +80,10 @@ public class MenuItemService {
             }
             MenuItem savedMenuItem = menuItemRepository.save(existing);
             
-            // Update the restaurant's menu list
+          
             Restaurant restaurant = this.restaurantRepository.findById(item.getRestaurantId()).orElse(null);
             if(restaurant != null) {
-                // Remove the old item and add the updated one
+              
                 restaurant.getMenus().removeIf(menuItem -> menuItem.getId().equals(id));
                 restaurant.getMenus().add(savedMenuItem);
                 this.restaurantRepository.save(restaurant);
@@ -96,14 +95,14 @@ public class MenuItemService {
 
     public void delete(String id) {
         menuItemRepository.findById(id).ifPresent(item -> {
-            // Remove from restaurant's menu list
+           
             Restaurant restaurant = this.restaurantRepository.findById(item.getRestaurantId()).orElse(null);
             if(restaurant != null) {
                 restaurant.getMenus().removeIf(menuItem -> menuItem.getId().equals(id));
                 this.restaurantRepository.save(restaurant);
             }
             
-            // Delete from menu items collection
+          
             menuItemRepository.deleteById(id);
         });
     }

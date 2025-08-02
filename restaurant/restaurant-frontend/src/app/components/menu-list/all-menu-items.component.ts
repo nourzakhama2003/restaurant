@@ -128,7 +128,7 @@ export class AllMenuItemsComponent implements OnInit, AfterViewInit {
     delete(id?: string) {
         if (!id) return;
         const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-            width: '400px',
+            width: '80%',
             data: {
                 title: 'Supprimer le plat',
                 message: 'Êtes-vous sûr de vouloir supprimer ce plat ? Cette action est irréversible.',
@@ -158,7 +158,7 @@ export class AllMenuItemsComponent implements OnInit, AfterViewInit {
     editItem(item: MenuItem) {
         const dialogRef = this.dialog.open(MenuItemFormComponent, {
             width: '600px',
-            maxWidth: '95vw',
+
             data: { menuItem: item, restaurantId: item.restaurantId }
         });
         dialogRef.afterClosed().subscribe(result => {

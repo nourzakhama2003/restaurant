@@ -7,20 +7,20 @@
             <p>Votre compte a été créé avec succès. Vous serez déconnecté dans un instant afin de pouvoir vous connecter avec vos nouvelles informations d'identification.</p>
         </div>
 
-        <div class="login-logo-row">
+        <div class="flex items-center justify-center logo-container">
             <img src="/assets/images/logos/logo-wrappixel.svg" alt="Logo de l'application" class="login-logo" />
         </div>
         <h2>Bienvenue sur la gestion du restaurant</h2>
         <p class="subtitle">Connectez-vous pour continuer</p>
 
         <div class="login-buttons" [style.opacity]="showRegistrationSuccess ? '0.5' : '1'">
-            <button class="btn btn-primary animated-btn" (click)="login()" [disabled]="isLoading || showRegistrationSuccess">
+            <button class="bg-black text-white" (click)="login()" [disabled]="isLoading || showRegistrationSuccess">
         <span *ngIf="isLoading">Connexion...</span>
-        <span *ngIf="!isLoading"><mat-icon class="icon-keycloak">vpn_key</mat-icon> Se connecter avec Keycloak</span>
+       login
       </button>
-            <button class="btn btn-secondary animated-btn" (click)="register()" [disabled]="isLoading || showRegistrationSuccess">
+            <button class="bg-black text-white" (click)="register()" [disabled]="isLoading || showRegistrationSuccess">
         <span *ngIf="isLoading">Traitement...</span>
-        <span *ngIf="!isLoading"><mat-icon class="icon-keycloak">person_add</mat-icon> Créer un nouveau compte</span>
+       Créer un compte
       </button>
         </div>
 

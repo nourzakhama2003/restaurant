@@ -7,13 +7,11 @@ import { MatListModule } from '@angular/material/list';
 import { filter } from 'rxjs/operators';
 import { NavigationEnd, Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
-//import { MaterialModule } from 'src/app/material.module';
 import { CommonModule } from '@angular/common';
 import { NgScrollbarModule } from 'ngx-scrollbar';
 import { TablerIconsModule } from 'angular-tabler-icons';
-import { HeaderComponent } from './header/header.component';
+
 import { SidebarComponent } from './sidebar/sidebar.component';
-import { AppNavItemComponent } from './sidebar/nav-item/nav-item.component';
 import { navItems } from './sidebar/sidebar-data';
 import { AppTopstripComponent } from './top-strip/topstrip.component';
 import { MatCardModule } from '@angular/material/card';
@@ -29,13 +27,10 @@ const TABLET_VIEW = 'screen and (min-width: 769px) and (max-width: 1024px)';
   standalone: true,
   imports: [
     RouterModule,
-    // AppNavItemComponent removed
-    //MaterialModule,
     CommonModule,
     SidebarComponent,
     NgScrollbarModule,
     TablerIconsModule,
-    HeaderComponent,
     AppTopstripComponent,
     MatCardModule,
     MatIconModule,
@@ -68,7 +63,7 @@ export class FullComponent implements OnInit, OnDestroy {
     private breakpointObserver: BreakpointObserver,
   ) {
     this.htmlElement = document.querySelector('html')!;
-    // Initialise options ici, après que settings soit assigné
+
     this.options = this.settings.getOptions();
 
     this.layoutChangesSubscription = this.breakpointObserver
@@ -120,7 +115,6 @@ export class FullComponent implements OnInit, OnDestroy {
   onSidenavOpenedChange(isOpened: boolean): void {
     this.isCollapsedWidthFixed = !this.isOver;
     this.options.sidenavOpened = isOpened;
-    // Si tu veux sauvegarder l’état immédiatement :
-    // this.settings.setOptions(this.options);
+  
   }
 }

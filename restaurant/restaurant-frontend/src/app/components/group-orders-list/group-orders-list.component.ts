@@ -87,7 +87,7 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
     { value: 'annulee', label: 'Annulée' },
     { value: 'all', label: 'Tous les statuts' },
   ];
- 
+
   joinedCommandes: Set<string> = new Set();
 
   constructor(
@@ -116,7 +116,7 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-   
+
     Object.values(this.countdowns).forEach(countdown => {
       if (countdown.subscription) {
         countdown.subscription.unsubscribe();
@@ -202,7 +202,7 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
         this.loadOrderCounts();
         this.setupCountdowns();
         this.checkJoinedCommandes();
-        this.applyFilters(); 
+        this.applyFilters();
         this.isLoading = false;
       },
       error: (error) => {
@@ -239,10 +239,17 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
 
   getCommandeTotal(commandeId: string): number {
     const commande = this.commandes.find(c => c.id === commandeId);
+    let total = 0;
     if (commande && commande.totalPrice !== undefined) {
-      return commande.totalPrice;
+      total = commande.totalPrice;
+    } else {
+      total = this.orderTotals[commandeId] || 0;
     }
-    return this.orderTotals[commandeId] || 0;
+  
+    if (commande && commande.deliveryFee && commande.deliveryFee > 0) {
+      total += commande.deliveryFee;
+    }
+    return total;
   }
 
   filterByRestaurant(): void {
@@ -321,7 +328,7 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
     }
 
     const dialogRef = this.dialog.open(OrderSubmissionComponent, {
-      width: '800px',
+      width: '80%',
       maxWidth: '95vw',
       data: {
         commandeId: commandeId,
@@ -360,7 +367,7 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
         subscription: null
       };
 
-    
+
       this.countdowns[commande.id].subscription = this.countdownService.startCountdown(commande).subscribe(
         (countdown: any) => {
           this.countdowns[commande.id].display = countdown.display;
@@ -397,9 +404,9 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
 
   applyFilters(): void {
     let filtered = this.commandes;
- 
 
-   
+
+
     if (this.searchTerm.trim()) {
       const searchLower = this.searchTerm.toLowerCase().trim();
       filtered = filtered.filter(commande => {
@@ -412,28 +419,28 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
       const selectedDateStr = this.selectedDate;
       filtered = filtered.filter(commande => {
         const commandeDate = new Date(commande.createdAt);
-        const commandeDateStr = commandeDate.toISOString().split('T')[0];  
+        const commandeDateStr = commandeDate.toISOString().split('T')[0];
         return commandeDateStr === selectedDateStr;
       });
-  
+
     }
 
-  
+
     if (this.statusFilter === 'all') {
 
     } else if (this.statusFilter && this.statusFilter !== 'all') {
       filtered = filtered.filter(commande => commande.status === this.statusFilter);
-    
+
     }
 
-  
+
     if (this.selectedRestaurantId) {
       filtered = filtered.filter(commande => commande.restaurantId === this.selectedRestaurantId);
-  
+
     }
 
     this.filteredCommandes = filtered;
-  
+
   }
 
   clearFilters(): void {
@@ -446,7 +453,7 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
   }
 
   getCommandeOrders(commandeId: string): any[] {
-  
+
     return [];
   }
 
@@ -457,7 +464,7 @@ export class GroupOrdersListComponent implements OnInit, OnDestroy {
   private checkJoinedCommandes(): void {
     this.joinedCommandes.clear();
     this.commandes.forEach(commande => {
-  
+
       this.orderService.getOrdersByCommandeId(commande.id).subscribe(orders => {
         const userOrder = orders.find(order => order.participantId === this.currentUserId);
         if (userOrder) {

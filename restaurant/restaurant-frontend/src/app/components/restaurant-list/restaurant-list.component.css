@@ -537,3 +537,22 @@
 
 
 /*map*/
+
+.no-menu-items {
+  background: #fff3e0;
+  color: #e57373;
+  border-radius: 10px;
+  padding: 1rem 1.5rem;
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 8px rgba(230, 100, 100, 0.08);
+  border: 1px solid #ffe0b2;
+}
+
+.no-menu-items mat-icon {
+  font-size: 2rem !important;
+  color: #e57373 !important;
+}

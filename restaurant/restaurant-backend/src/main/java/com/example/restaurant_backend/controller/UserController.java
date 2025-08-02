@@ -19,16 +19,15 @@ public class UserController {
         this.userService = userService;
     }
 
-    // Create
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody User user) {
         try {
-            // Check if email already exists
+     
             if (this.userService.existsByEmail(user.getEmail())) {
                 throw new GlobalException("Email already exists");
             }
             
-            // Check if phone number already exists (if provided)
+     
             if (user.getPhone() != null && !user.getPhone().trim().isEmpty() 
                 && this.userService.existsByPhone(user.getPhone())) {
                 throw new GlobalException("Phone number already exists");
@@ -41,7 +40,7 @@ public class UserController {
         }
     }
 
-    // Read all
+  
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
         try {
@@ -52,7 +51,7 @@ public class UserController {
         }
     }
 
-    // Read by ID
+
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable String id) {
         try {
@@ -66,7 +65,6 @@ public class UserController {
         }
     }
 
-    // Read by Email
     @GetMapping("/email/{email}")
     public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
         try {
@@ -80,7 +78,7 @@ public class UserController {
         }
     }
 
-    // Read by Phone Number
+   
     @GetMapping("/number/{number}")
     public ResponseEntity<User> getUserByNumber(@PathVariable String number) {
         try {
@@ -94,16 +92,15 @@ public class UserController {
         }
     }
 
-    // Update
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable String id, @RequestBody User user) {
         try {
-            // Check if email is available for update
+            
             if (!this.userService.isEmailAvailableForUpdate(user.getEmail(), id)) {
                 throw new GlobalException("Email already exists");
             }
             
-            // Check if phone number is available for update
+          
             if (user.getPhone() != null && !this.userService.isPhoneAvailableForUpdate(user.getPhone(), id)) {
                 throw new GlobalException("Phone number already exists");
             }
@@ -118,7 +115,7 @@ public class UserController {
         }
     }
 
-    // Delete
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable String id) {
         try {
@@ -132,7 +129,6 @@ public class UserController {
         }
     }
 
-    // Check if exists
     @GetMapping("/{id}/exists")
     public ResponseEntity<Boolean> userExists(@PathVariable String id) {
         try {
@@ -143,7 +139,7 @@ public class UserController {
         }
     }
 
-    // Check if email exists
+
     @GetMapping("/email/{email}/exists")
     public ResponseEntity<Boolean> emailExists(@PathVariable String email) {
         try {
@@ -154,7 +150,6 @@ public class UserController {
         }
     }
 
-    // Check if phone number exists
     @GetMapping("/number/{number}/exists")
     public ResponseEntity<Boolean> numberExists(@PathVariable String number) {
         try {

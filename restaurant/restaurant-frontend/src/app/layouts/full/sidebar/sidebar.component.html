@@ -1,6 +1,6 @@
-<!-- Professional Sidebar Component -->
+
 <div class="sidebar-container">
-    <!-- Sidebar Header -->
+ 
     <div class="sidebar-header">
         <div class="branding-section">
             <app-branding></app-branding>
@@ -12,22 +12,13 @@
         </button> }
     </div>
 
-    <!-- Navigation Section -->
-    <div class="sidebar-nav-section">
-        <!--  <div class="nav-header">
-            <div class="nav-header-text">
-                <h3>Navigation</h3>
-                <p>Accédez à toutes les fonctionnalités</p>
-            </div>
-        </div>-->
 
-        <!-- Navigation Items -->
+    <div class="sidebar-nav-section">
+   
         <div class="sidebar-nav-list">
             <app-nav-item *ngFor="let item of navItems; trackBy: trackByFn" [item]="item"></app-nav-item>
         </div>
         <ng-content></ng-content>
     </div>
 
-    <!-- Sidebar Footer -->
-    <!-- Pro card removed to avoid duplication -->
 </div>

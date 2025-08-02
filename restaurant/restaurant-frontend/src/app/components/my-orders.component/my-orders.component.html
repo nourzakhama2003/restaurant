@@ -1,6 +1,6 @@
-<!-- Enhanced My Orders Component -->
+
 <div class="my-orders-container">
-    <!-- Header Section -->
+
     <div class="page-header">
         <div class="header-content">
             <div class="header-left">
@@ -25,7 +25,6 @@
         </div>
     </div>
 
-    <!-- Search and Filter Section -->
     <div class="search-filter-section">
         <div class="search-container">
             <div class="search-input-wrapper">
@@ -67,25 +66,25 @@
         </div>
     </div>
 
-    <!-- Loading State -->
+ 
     <div class="loading-container" *ngIf="isLoading">
         <mat-spinner diameter="50"></mat-spinner>
         <p>Chargement de vos commandes...</p>
     </div>
 
-    <!-- Orders Content -->
+ 
     <div class="orders-content" *ngIf="!isLoading">
-        <!-- Orders Grid -->
+
         <div class="orders-grid" *ngIf="filteredOrders.length > 0">
             <div class="order-card" *ngFor="let order of filteredOrders; let i = index" [@fadeInUp] [style.animation-delay]="(i * 100) + 'ms'">
-                <!-- Card Header -->
+            
                 <div class="card-header">
                     <div class="order-info">
                         <div class="order-icon">
                             <mat-icon>receipt_long</mat-icon>
                         </div>
                         <div class="order-details">
-                            <h3 class="order-title">Commande #{{ i + 1 }}</h3>
+                            <h3 class="order-title">Commande :{{ i + 1 }}</h3>
                             <div class="participant-info">
                                 <div class="participant-avatar">{{ order.participantName ? order.participantName[0] : '?' }}</div>
                                 <span class="participant-name">{{ order.participantName }}</span>
@@ -93,11 +92,19 @@
                         </div>
                     </div>
                     <div class="order-total">
-                        <span class="total-amount">{{ order.totalAmount | number:'1.2-2' }} TND</span>
+                        <span class="total-amount">
+                            {{ (order.totalAmount + (order.livraisonFeePerParticipant || 0)) | number:'1.2-2' }} TND
+                        </span>
+                        <span class="fee-note" style="display:block; font-size:0.95em; color:#888;">
+                            inclue livraison
+                        </span>
+                        <span class="fee-note" *ngIf="order.livraisonFeePerParticipant" style="display:block; font-size:0.9em; color:#b77;">
+                         {{ order.livraisonFeePerParticipant | number:'1.2-2' }} TND
+                        </span>
                     </div>
                 </div>
 
-                <!-- Restaurant Info -->
+             
                 <div class="restaurant-section" *ngIf="getRestaurantName(order.commandeId)">
                     <div class="restaurant-badge">
                         <mat-icon>restaurant</mat-icon>
@@ -192,6 +199,9 @@
                         <span>Supprimer</span>
                     </button>
                 </div>
+
+            
+      
             </div>
         </div>
 

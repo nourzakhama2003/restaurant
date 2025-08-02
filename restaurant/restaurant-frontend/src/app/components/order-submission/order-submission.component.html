@@ -139,6 +139,14 @@
                             <span>Montant total :</span>
                             <span class="font-semibold text-green-600">{{ getTotalAmount() }} TND</span>
                         </div>
+                        <div class="flex justify-between" *ngIf="data && data.commandeId">
+                            <span>Part livraison estimée :</span>
+                            <span class="font-semibold text-blue-600">{{ getDeliveryFeePerParticipant() | number:'1.2-2' }} TND</span>
+                        </div>
+                        <div class="flex justify-between" *ngIf="data && data.commandeId">
+                            <span>Total à payer (avec livraison) :</span>
+                            <span class="font-semibold text-purple-600">{{ getTotalWithDelivery() | number:'1.2-2' }} TND</span>
+                        </div>
                     </div>
                 </div>
             </div>

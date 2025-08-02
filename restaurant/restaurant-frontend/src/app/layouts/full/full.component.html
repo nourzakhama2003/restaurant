@@ -2,9 +2,7 @@
 </app-topstrip>
 
 <mat-sidenav-container class="mainWrapper orange_theme light-theme w-full" autosize autoFocus dir="ltr">
-    <!-- ============================================================== -->
-    <!-- Vertical Sidebar -->
-    <!-- ============================================================== -->
+
     <mat-sidenav #leftsidenav [mode]="isOver ? 'over' : 'side'" [opened]="!isOver && !isMediumScreen" (openedChange)="onSidenavOpenedChange($event)" (closedStart)="onSidenavClosedStart()" class="sidebarNav" *ngIf="!isMediumScreen">
         <app-sidebar (toggleMobileNav)="sidenav.toggle()" [showToggle]="isOver">
             <div class="sidebar-pro-card d-flex align-items-center gap-4 p-20 m-t-20">
@@ -21,20 +19,12 @@
         </app-sidebar>
     </mat-sidenav>
 
-    <!-- ============================================================== -->
-    <!-- Main Content -->
-    <!-- ============================================================== -->
+  
     <mat-sidenav-content class="contentWrapper" #content>
-        <!-- ============================================================== -->
-        <!-- VerticalHeader -->
-        <!-- ============================================================== -->
-
-        <app-header [showToggle]="!isOver" (toggleMobileNav)="sidenav.toggle()"></app-header>
-
+       
+       
         <main class="   ">
-            <!-- ============================================================== -->
-            <!-- Outlet -->
-            <!-- ============================================================== -->
+         
             <router-outlet></router-outlet>
         </main>
 
